@@ -3,7 +3,7 @@
 ## 快速开始
 
 ### 直接打开
-在浏览器中打开 `xhhwyh.github.io/pkufloorball/` 。
+在浏览器中打开 [pkufloorball](xhhwyh.github.io/pkufloorball/) 。
 
 ### 本地运行
 将本项目克隆到本地
