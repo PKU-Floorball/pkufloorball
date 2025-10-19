@@ -512,7 +512,59 @@ a.nav-link:hover {
   border-radius: 0.25rem;
 }
 
+.location,
+.social-icon {
+    font-size: 1rem; /* 基础字体大小 */
+}
 
+.location svg,
+.social svg {
+    width: 18px;  /* 基础图标大小 */
+    height: 18px;
+}
+
+@media (max-width: 768px) {
+  .location,
+  .social-icon {
+      font-size: 0.8rem; /* Adjust this value as needed. 0.8rem is about 13px. */
+  }
+  .location svg,
+  .social svg {
+      width: 16px;  /* 从 18px 缩小到 16px */
+      height: 16px; /* 从 18px 缩小到 16px */
+  }
+}
+
+@media (max-width: 992px) {
+
+  /* 1. 减小导航栏的垂直内边距 */
+  #primary-header {
+      padding-top: 0.5rem !important;
+      padding-bottom: 0.5rem !important;
+  }
+
+  /* 2. 减小左侧品牌文字的字体大小 */
+  #primary-header .navbar-brand {
+      font-size: 1.5rem; /* 从 fs-3 (1.75rem) 减小到 fs-4 (1.5rem) 的大小 */
+  }
+  
+  /* 3. (可选但推荐) 适当减小汉堡菜单图标的大小 */
+  #primary-header .navbar-toggler svg {
+      width: 45px;
+      height: 45px;
+  }
+}
+
+@media (max-width: 992px) {  /* 只在移动端有效 */
+  .offcanvas-end {
+    width: 50% !important;     /* 改这里控制宽度，比如75%，你可以调成60%也行 */
+    max-width: 320px;          /* 限制最大宽度，避免太宽 */
+  }
+
+  #primary-header .search-dropdown .dropdown-menu {
+    width: auto;
+  }
+}
 
 /* 4.2 Slider Section
 /*----------------------------------------------*/
@@ -543,7 +595,46 @@ section#slider .main-slider-button-next.swiper-button-disabled,
   }
 }
 
+#slider .swiper-slide {
+  height: 90vh; /* 默认高度 */
+  min-height: 500px; /* 防止在极端屏幕比例下过小 */
+}
 
+#slider .banner-title {
+  font-size: 45px; /* 默认字体大小 */
+}
+
+/* 2. 平板设备 (小于 992px) */
+@media (max-width: 992px) {
+  #slider .swiper-slide {
+      height: 80vh; /* 减小高度 */
+  }
+  #slider .banner-title {
+      font-size: 38px; /* 减小字体 */
+  }
+
+  .content-text {
+    font-size: 1.1rem;
+    text-align: left;
+  }
+}
+
+/* 3. 移动设备 (小于 768px) */
+@media (max-width: 768px) {
+  #slider .swiper-slide {
+      height: 75vh; /* 进一步减小高度 */
+  }
+  #slider .banner-title {
+      font-size: 28px; /* 进一步减小字体 */
+      line-height: 1.3; /* 调整行高，防止文字挤在一起 */
+  }
+  
+  #slider .main-slider-button-next svg,
+  #slider .main-slider-button-prev svg {
+      width: 40px;
+      height: 40px;
+  }
+}
 
 /* 4.3 Services Section
 /*----------------------------------------------*/
@@ -556,9 +647,16 @@ a.hover-color h4:hover {
   color: var(--accent-color);
 }
 
+/* 4.3 categories Section
+/*----------------------------------------------*/
+@media (max-width: 768px) {
+  .blog-paragraph {
+    font-size: 16px;
+  }
+}
 
 /* 
- 4.4 About style
+4.4 About style
 --------------------------------------------------------------*/
 
 /*---- video section style start ----*/
@@ -664,7 +762,10 @@ iconify-icon.social-icon:hover {
   color: var(--light-color);
 }
 
-
+.navbar-brand {
+  white-space: normal !important;  /* 允许文字换行 */
+  word-break: break-word;          /* 必要时在词中间断行 */
+}
 
 /*----------------------------------------------*/
 /* 5 OTHER PAGES STYLE */
@@ -694,7 +795,7 @@ iconify-icon.social-icon:hover {
 
 
 /*--------------------------------------------------------------
- 5.2 Price Plan page style
+5.2 Price Plan page style
   --------------------------------------------------------------*/
 .plan-post {
   border: 1px solid var(--accent-color);

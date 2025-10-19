@@ -1,0 +1,467 @@
+.sports-page-wrapper {
+    /* 这个容器本身的布局样式 */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    width: 100%;
+    padding: 20px 0; /* 建议在这里使用padding，而不是在body上 */
+}
+
+/* --- 1. 新闻头条板块 --- */
+.sports-page-wrapper .headline-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    width: 100%;
+    max-width: 1240px;
+}
+
+/* 左侧主头条卡片 */
+.sports-page-wrapper .main-feature {
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    text-decoration: none;
+    background-color: #1d1d3b;
+    color: #fff;
+    height: 100%;
+}
+
+.sports-page-wrapper .feature-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.sports-page-wrapper .main-feature:hover .feature-image img {
+    transform: scale(1.05);
+}
+
+.sports-page-wrapper .feature-text {
+    padding: 24px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.sports-page-wrapper .feature-text .category {
+    margin-top: auto;
+}
+
+.sports-page-wrapper .feature-text h2 {
+    font-size: 2.2rem;
+    line-height: 1.2;
+    margin: 0 0 10px 0;
+    text-decoration: none;
+    transition: text-decoration 0.2s ease;
+    color: #fff;
+}
+
+.sports-page-wrapper .main-feature .feature-text:hover h2 {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+}
+
+.sports-page-wrapper .feature-text p {
+    font-family: "华文中宋", "STZhongsong", serif;
+    color: #969696;
+    font-size: 1rem;
+    margin: 0 0 5px 0;
+    line-height: 1.5;
+}
+
+.sports-page-wrapper .feature-text .category {
+    font-size: 0.8rem;
+    font-weight: bold;
+    opacity: 0.7;
+}
+
+/* 右侧文章列表 */
+.sports-page-wrapper .sidebar-articles {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+    justify-content: center;
+}
+.sports-page-wrapper .sidebar-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.3s, transform 0.3s;
+    max-height: 130px;
+}
+.sports-page-wrapper .sidebar-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.sports-page-wrapper .sidebar-item-text { 
+    flex-grow: 1; 
+}
+.sports-page-wrapper .sidebar-item-text h3 { 
+    font-size: 1rem; 
+    margin: 0 0 4px 0; 
+    font-weight: bold;
+}
+.sports-page-wrapper .sidebar-item-text .category { 
+    font-size: 0.75rem; 
+    color: #555; 
+    font-weight: bold; 
+}
+.sports-page-wrapper .sidebar-item-image {
+    flex-shrink: 0;
+    width: 150px;
+    aspect-ratio: 16 / 9;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.sports-page-wrapper .sidebar-item-image img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+}
+.sports-page-wrapper .sidebar-articles:has(> .sidebar-item:nth-child(4)) .sidebar-item {
+    flex-grow: 1;
+}
+.sports-page-wrapper .sidebar-item.sidebar-item--placeholder {
+    justify-content: center;      /* 水平居中 */
+    align-items: center;          /* 垂直居中 */
+    background-color: #f8f9fa;  /* 浅灰色背景 */
+    border: 1px dashed #d0d0d0; /* 虚线边框 */
+    box-shadow: none;             /* 移除阴影 */
+    color: #999;                /* 浅色文字 */
+    font-style: italic;           /* 斜体 */
+    cursor: default;
+    transition: none;
+}
+
+
+.sports-page-wrapper .sidebar-item.sidebar-item--placeholder:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.sports-page-wrapper .sidebar-item--placeholder .sidebar-item-text,
+.sports-page-wrapper .sidebar-item--placeholder .sidebar-item-image {
+    display: none;
+}
+/* 响应式调整 */
+@media (max-width: 992px) {
+    .sports-page-wrapper .headline-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* --- 新闻头条样式结束 --- */
+
+.sports-page-wrapper .layout-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 40px;
+    width: 100%;
+    max-width: 1240px;
+}
+.sports-page-wrapper .modules-row {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    width: 100%;
+}
+.sports-page-wrapper .module-wrapper { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+}
+.sports-page-wrapper .module-title { 
+    font-size: 1.5rem; 
+    font-weight: 600; 
+    color: #333; 
+    margin-bottom: 15px; 
+}
+.sports-page-wrapper .module { 
+    width: 100%; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px; 
+    background-color: #fff; 
+    padding: 30px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+    border: 1px solid #e0e0e0; 
+    box-sizing: border-box; 
+}
+.sports-page-wrapper .week-selector { 
+    display: flex; 
+    align-items: center; 
+}
+.sports-page-wrapper .content-area { 
+    height: 250px; 
+    overflow-y: auto; 
+    padding-right: 10px; 
+}
+
+.sports-page-wrapper .weeks-viewport {
+    width: 100%;
+    overflow-x: auto;
+    margin: 0;
+}
+.sports-page-wrapper .weeks-slider { 
+    display: flex; 
+    gap: 10px; 
+}
+.sports-page-wrapper .week-btn { 
+    flex-shrink: 0; 
+    width: 100px; 
+    padding: 10px; 
+    font-size: 16px; 
+    border: none; 
+    border-radius: 8px; 
+    background-color: #f0f2f5; 
+    cursor: pointer; 
+    transition: background-color 0.3s, color 0.3s; 
+}
+.sports-page-wrapper .week-btn:hover { 
+    background-color: #e4e6eb; 
+}
+.sports-page-wrapper .week-btn.active { 
+    background-color: #007bff; 
+    color: #fff; 
+}
+.sports-page-wrapper .content-panel {
+    animation: fadeIn 0.5s ease;
+    height: 100%; /* 1. 让面板高度填满父容器 */
+    display: flex; /* 2. 设置为 Flex 容器 */
+    flex-direction: column; /* 3. 让内容垂直排列 */
+    justify-content: flex-start; /* 4. 垂直居中内容 */
+}
+.sports-page-wrapper #module-1 .content-panel {
+    justify-content: center;
+}
+
+/* module-2：射手榜 —— 内容从上开始，可滚动 */
+.sports-page-wrapper #module-2 .content-panel {
+    justify-content: flex-start;
+}
+.sports-page-wrapper .penalty-score {
+    display: block; /* 换行显示 */
+    font-size: 0.8rem; /* 字体更小 */
+    font-weight: normal; /* 正常粗细，而不是加粗 */
+    color: #888; /* 柔和的灰色 */
+    letter-spacing: normal; /* 正常的字母间距 */
+    margin-top: -5px;
+}
+.sports-page-wrapper .hidden { display: none; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.sports-page-wrapper #module-2 .week-selector { justify-content: center; }
+.sports-page-wrapper #module-2 .weeks-viewport { width: auto; overflow: visible; }
+.sports-page-wrapper .match-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px solid #f0f2f5; }
+.sports-page-wrapper .match-row:first-child { padding-top: 0; }
+.sports-page-wrapper .match-row:last-child { border-bottom: none; }
+.sports-page-wrapper .match-row .team-name { 
+    flex: 1; 
+    font-size: 1rem; 
+    font-weight: 500; 
+}
+.sports-page-wrapper .match-row .team-home { 
+    text-align: right; 
+}
+.sports-page-wrapper .match-row .team-away { 
+    text-align: left; 
+}
+.sports-page-wrapper .match-row .score { 
+    flex-shrink: 0; 
+    width: 90px; 
+    text-align: center; 
+    font-size: 1.2rem; 
+    font-weight: bold; 
+    color: #e74c3c; 
+    letter-spacing: 2px; 
+}
+.sports-page-wrapper .standings-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.sports-page-wrapper .standings-table th, .sports-page-wrapper .standings-table td { 
+    padding: 10px 4px; 
+    text-align: center; 
+    border-bottom: 1px solid #f0f2f5; 
+    font-size: 0.9rem; 
+}
+.sports-page-wrapper .standings-table th { 
+    background-color: #f8f9fa; 
+    font-weight: 600; 
+    color: #333; 
+}
+.sports-page-wrapper .standings-table td:nth-child(2) { 
+    text-align: left; 
+}
+.sports-page-wrapper .standings-table tbody tr:hover { 
+    background-color: #f1f1f1; 
+}
+.sports-page-wrapper .leaderboard { 
+    position: relative !important;
+    list-style-type: none; 
+    padding-left: 0; 
+    counter-reset: scorerRank; 
+}
+.sports-page-wrapper .leaderboard li { 
+    display: flex; 
+    align-items: center; 
+    padding: 10px 5px; 
+    border-bottom: 1px solid #f0f2f5; 
+}
+.sports-page-wrapper .leaderboard li::before { 
+    counter-increment: scorerRank; 
+    content: counter(scorerRank); 
+    font-weight: bold; 
+    font-size: 1rem; 
+    color: #888; 
+    width: 30px; 
+    text-align: center; 
+    flex-shrink: 0; 
+}
+.sports-page-wrapper .leaderboard .player-name { 
+    font-size: 1rem;
+    flex-grow: 1; 
+    font-weight: 500; 
+}
+.sports-page-wrapper .leaderboard .player-team { 
+    font-size: 0.85rem; 
+    color: #666; 
+    margin-right: 15px; 
+}
+.sports-page-wrapper .leaderboard .stat { 
+    font-weight: bold; 
+    font-size: 1.1rem; 
+    width: 40px; 
+    text-align: right;
+}
+
+/* --- 2. 专题报道板块 --- */
+.sports-page-wrapper .features-section {
+    width: 100%;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border: 1px solid #e0e0e0;
+    box-sizing: border-box;
+}
+
+.sports-page-wrapper .features-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #005c99;
+    margin: 0 0 24px 0;
+}
+
+.sports-page-wrapper .features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.sports-page-wrapper .feature-card {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sports-page-wrapper .feature-card:hover {
+    transform: translateY(-5px);
+    /* box-shadow: 0 8px 20px rgba(0,0,0,0.12); */
+}
+
+.sports-page-wrapper .card-image-wrapper {
+    overflow: hidden;
+    border-radius: 8px;
+    aspect-ratio: 16 / 10;
+    margin-bottom: 12px;
+}
+
+.sports-page-wrapper .card-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.sports-page-wrapper .feature-card:hover .card-image-wrapper img {
+    transform: scale(1.05);
+}
+
+.sports-page-wrapper .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 6px 0;
+    line-height: 1.4;
+}
+
+.sports-page-wrapper .card-category {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.sports-page-wrapper .view-more-container {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.sports-page-wrapper .view-more-btn {
+    display: inline-block;
+    background-color: #005c99;
+    color: #fff;
+    padding: 12px 32px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.sports-page-wrapper .view-more-btn:hover {
+    background-color: #004473;
+}
+
+/* 专题报道板块的响应式调整 */
+@media (max-width: 1200px) {
+    .sports-page-wrapper .features-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+@media (max-width: 992px) {
+    .sports-page-wrapper .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .sports-page-wrapper .modules-row {
+        flex-direction: column;
+        align-items: center; /* 确保堆叠后居中 */
+    }
+
+    .sports-page-wrapper .module-wrapper {
+        width: 100%; /* 让每个模块在堆叠后占据全部宽度 */
+    }
+}
+@media (max-width: 768px) {
+    .sports-page-wrapper .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 576px) {
+    .sports-page-wrapper .features-grid {
+        grid-template-columns: 1fr;
+    }
+}

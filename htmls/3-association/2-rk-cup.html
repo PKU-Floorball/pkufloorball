@@ -2,3 +2,194 @@
 layout: default
 title: 北京大学软式曲棍球协会
 ---
+
+<style>
+    #cup-title .banner-title {
+        font-size: 60px;
+    }
+
+    @media (max-width: 992px) {
+        #cup-title .banner-title {
+            font-size: 48px;
+        }
+    }
+
+    .title-intro-text {
+        font-family: "华文中宋", "STZhongsong", serif;
+        color: #969696;
+    }
+    @media (max-width: 992px) {
+        .title-intro-text {
+            font-size: 18px;
+        }
+    }
+    
+    .intro-text {
+        border-top: 1px solid #eee;
+        padding-top: 20px;
+        line-height: 1.8;
+    }
+    @media (max-width: 992px) {
+        .title-intro-text {
+            font-size: 18px;
+        }
+    }
+
+    .game-section {
+        border-top: 1px solid #eee;
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+    .game-section:last-child {
+        border-bottom: 1px solid #eee;
+    }
+    .game-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .game-header h2 {
+        margin: 0;
+        margin-bottom: 8px; /* 增加标题下方的外边距以拉开与年份的距离 */
+        font-size: 30px;
+    }
+    @media (max-width: 992px) {
+        .game-header h2 {
+            font-size: 24px;
+        }
+    }
+    @media (max-width: 768px) {
+        .game-header h2 {
+            font-size: 20px;
+        }
+        .game-header p {
+            font-size: 16px;
+        }
+    }
+
+    .game-header h2 a {
+        text-decoration: none;
+        color: inherit;
+        transition: color 0.3s;
+    }
+    .game-header h2 a:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+    .rank-list {
+        list-style: none;
+        padding-left: 0;
+        margin: 0;
+        text-align: left;
+    }
+    .rank-list li {
+        font-size: 1.1em;
+        margin-bottom: 5px;
+    }
+    .rank-list .gold {
+        font-weight: bold;
+        color: #d4af37;
+    }
+    .rank-list .silver {
+        font-weight: bold;
+        color: #aaa9ad;
+    }
+    .rank-list .bronze {
+        font-weight: bold;
+        color: #cd7f32;
+    }
+    .status-in-progress {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #dc3545;
+        padding: 10px 15px;
+        border: 2px dashed #dc3545;
+        border-radius: 5px;
+        display: inline-block;
+    }
+    @media (max-width: 992px) {
+        .status-in-progress {
+            font-size: 1em;
+            padding: 8px 12px;
+        }
+        .rank-list li {
+            font-size: 1em;
+        }
+    }
+
+    /* 小屏字体更小 */
+    @media (max-width: 768px) {
+        .status-in-progress {
+            font-size: 0.9em;
+            padding: 6px 10px;
+        }
+        .rank-list li {
+            font-size: 0.9em;
+        }
+    }
+
+</style>
+
+<section id="cup-title" class="jarallax py-5 px-4"
+    style="background-image: url(images/main-bg.png); background-size: cover; background-repeat: no-repeat; background-position: center;">
+    <div class="container-lg padding-medium">
+        <div class="banner-content text-center m-auto" data-aos="zoom-out">
+            <h2 class="banner-title display-2 fw-normal text-white mb-4">
+                软式曲棍球新生杯
+            </h2>
+            <p class="title-intro-text col-md-8 mx-auto">
+                这里是梦想与汗水交织的起点。无论基础，不问过往，拿起球杆，为你的院系荣誉而战！
+            </p>
+            <a href="#games" class="btn btn-primary btn-lg mt-4">查看历届赛事</a>
+        </div>
+    </div>
+</section>
+
+<section id="intro" class="py-5" data-aos="fade-up">
+    <div class="container col-lg-8">
+        <div class="text-center">
+            <h2 class="display-5 fw-bold">什么是新生杯？</h2>
+            <p class="intro-text text-muted mt-3">
+                “新生杯”软式曲棍球赛是专为新生打造的入门级团队赛事。我们旨在提供一个公平、有趣、零门槛的平台，让新同学们快速体验这项新兴运动的魅力，并在比赛中结识朋友、熔炼团队，留下属于你们的燕园热血记忆。
+            </p>
+        </div>
+    </div>
+</section>
+
+
+<section id="games" class="py-5 bg-light" data-aos="fade-up">
+    <div class="container col-lg-8">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">历届赛事</h2>
+        </div>
+        
+        <div class="game-section">
+            <div class="game-header">
+                <div>
+                    <h2><a href="{{'/htmls/3-association/2-rk-cup/25-rk-cup/main.html' | relative_url}}">第二届软式曲棍球新生杯</a></h2>
+                    <p class="text-muted mb-0">2025.10.17&nbsp;-&nbsp;</p>
+                </div>
+                <div class="status-in-progress">
+                    赛事正在进行中...
+                </div>
+            </div>
+        </div>
+
+        <div class="game-section">
+            <div class="game-header">
+                <div>
+                    <h2><a href="{{'/htmls/3-association/2-rk-cup/24-rk-cup/main.html' | relative_url}}">第一届软式曲棍球新生杯</a></h2>
+                    <p class="text-muted mb-0">2024.10.19&nbsp;-&nbsp;2024.11.30</p>
+                </div>
+                <ul class="rank-list">
+                    <li><span class="gold">冠军🏆:</span> 经数联队</li>
+                    <li><span class="silver">亚军🥈:</span> 信工法联队</li>
+                    <li><span class="bronze">季军🥉:</span> 地化社联队</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</section>

@@ -3,7 +3,7 @@
 ## 快速开始
 
 ### 直接打开
-在浏览器中打开 [pkufloorball](xhhwyh.github.io/pkufloorball/) 。
+在浏览器中打开 [https://xhhwyh.github.io/pkufloorball/](https://xhhwyh.github.io/pkufloorball/) 。
 
 ### 本地运行
 将本项目克隆到本地
@@ -29,4 +29,4 @@ jekyll new . --force
 ```bash
 bundle exec jekyll serve
 ```
-然后在浏览器中打开 `http://localhost:4000` 即可看到效果。
+然后在浏览器中打开 [http://localhost:4000](http://localhost:4000) 即可看到效果。

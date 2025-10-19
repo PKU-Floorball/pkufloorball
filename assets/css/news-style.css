@@ -1,0 +1,257 @@
+/* 文章容器 */
+.article-container {
+    max-width: 800px; /* 限制内容宽度，优化阅读体验 */
+    margin: 40px auto; /* 上下留白，左右居中 */
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 12px; /* 增加圆角 */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08); /* 调整阴影 */
+    overflow: hidden;
+}
+
+/* 文章主图 */
+
+.featured-image img {
+    width: 80%; /* 设置宽度为父容器的100% */
+    height: auto;  /* 高度自动按比例缩放，防止图片被拉伸 */
+    display: block;
+    margin: 0 auto;
+}
+
+.featured-image figcaption {
+    font-size: 0.85rem;
+    color: #888;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* 文章头部：标题和元信息 */
+.article-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    text-align: center; /* 标题居中 */
+}
+
+.article-header h1 {
+    font-family: 'Montserrat', 'Noto Sans SC', sans-serif;
+    font-size: 3rem; /* 调整字号 */
+    line-height: 1.2;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #001f41; /* 主色 */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+.article-meta {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+/* 文章正文 */
+.article-body {
+    font-size: 1.1rem; /* 舒适的阅读字号 */
+    color: #333;
+}
+
+.article-body h2 {
+    font-size: 1.8rem;
+    margin-top: 2.5em;
+    margin-bottom: 1.5em;
+    border-left: 4px solid #001f41;
+    padding-left: 15px;
+    /* display: flex;
+    align-items: center; */
+}
+
+.article-body h2 .fas { /* 标题图标样式 */
+    margin-right: 12px;
+    color: #001f41;
+}
+
+.article-body h2 small {
+    display: block;
+    font-size: 0.65em;
+    font-weight: normal;
+    color: #6c757d;
+    margin-top: 0.5em;
+}
+
+.run-in-title {
+    font-size: 1.2em;     /* 字号比普通文本大20% */
+    font-weight: 700;     /* 加粗 */
+    color: #333;          /* 可以给标题一个更深的颜色 */
+    display: inline-block; /* 关键：使其成为行内块级元素，能设置边框和内边距 */
+    vertical-align: middle; /* 垂直对齐，让竖线和文字更协调（可选） */
+    border-left: 4px solid #001f41; /* 左侧边框：4px粗，实线，蓝色 */
+    padding-left: 10px;            /* 边框和文字之间的距离 */
+    margin-right: 1.5em;           /* 标题和正文之间的距离 */
+    margin-bottom: 0.2em;          /* 防止多行标题时竖线和正文错位（可选，如果标题可能多行） */
+}
+
+/* --- 卡片式布局样式 --- */
+
+/* 队伍排名网格 */
+.results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 2em;
+}
+
+.cup-result-card {
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cup-result-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.06);
+}
+
+.cup-result-card .rank {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 10px;
+}
+.cup-result-card .team-name {
+    font-size: 1.1em;
+    color: #333;
+    font-weight: bold;
+}
+
+/* 冠军特殊样式 */
+.cup-result-card.champion {
+    background: linear-gradient(145deg, #fffaf0, #fff);
+    border: 2px solid #ffd700;
+}
+.cup-result-card.champion .rank {
+    color: #DAA520;
+    font-size: 1.4em;
+}
+.cup-result-card.champion .rank .fa-crown {
+    margin-left: 8px;
+}
+
+/* --- 亚军和季军样式 --- */
+.cup-result-card.silver {
+    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+    border: 2px solid #c0c0c0;
+}
+.cup-result-card.silver .rank {
+    color: #495057;
+}
+
+.cup-result-card.bronze {
+    background: linear-gradient(145deg, #fff8f1, #fff3e6);
+    border: 2px solid #cd7f32;
+}
+.cup-result-card.bronze .rank {
+    color: #854d0e;
+}
+
+
+/* 个人奖项列表 */
+.awards-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.award-card {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 25px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+.award-card:hover {
+    background-color: #f1f3f5;
+}
+
+.award-card .award-icon {
+    font-size: 2.5rem;
+    color: #001f41;
+    margin-bottom: 15px;
+    line-height: 1; /* 确保SVG容器高度一致 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 为自定义SVG或IMG图标设置大小 */
+.award-card .award-icon svg,
+.award-card .award-icon img {
+    width: 1em; /* 使SVG/IMG的尺寸相对于父元素的font-size进行缩放 */
+    height: 1em;
+    object-fit: contain; /* 确保图片被正确缩放 */
+    vertical-align: middle; /* 垂直居中 */
+}
+
+.award-card h3 {
+    font-size: 1.1em;
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+.award-card .player-name {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #001f41;
+    margin: 0;
+}
+
+.award-card .team-affiliation {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px;
+}
+
+.article-body blockquote {
+    margin: 1.5em 0;
+    padding: 1em 1.5em;
+    background-color: #f4f4f4;
+    border-left: 4px solid #ccc;
+    font-style: italic;
+    color: #666;
+}
+
+/* 响应式设计 */
+@media (max-width: 600px) {
+    .results-grid, .awards-list {
+        grid-template-columns: 1fr;
+    }
+    .article-header h1 {
+        font-size: 2.2rem;
+    }
+}
+
+/* 文章底部和按钮样式 */
+.article-footer {
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+
+.btn-home {
+    display: inline-block;
+    background-color: #001f41;
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-home:hover {
+    background-color: #003366;
+    color: #fff;
+    transform: translateY(-2px);
+}
