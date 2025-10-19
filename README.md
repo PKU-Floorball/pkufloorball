@@ -3,12 +3,12 @@
 ## 快速开始
 
 ### 直接打开
-在浏览器中打开 [https://xhhwyh.github.io/pkufloorball/](https://xhhwyh.github.io/pkufloorball/) 。
+在浏览器中打开 [https://pku-floorball.github.io/pkufloorball/](https://pku-floorball.github.io/pkufloorball/) 。
 
 ### 本地运行
 将本项目克隆到本地
 ```bash
-git clone https://github.com/xhhwyh/pkufloorball.git
+git clone https://github.com/PKU-Floorball/pkufloorball.git
 ```
 
 对于Windows系统用户需要安装 [Ruby](https://www.ruby-lang.org/en/downloads/)， 建议下载 3.2.9 版本。
