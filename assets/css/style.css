@@ -512,26 +512,11 @@ a.nav-link:hover {
   border-radius: 0.25rem;
 }
 
-.location,
-.social-icon {
-    font-size: 1rem; /* 基础字体大小 */
-}
-
-.location svg,
-.social svg {
-    width: 18px;  /* 基础图标大小 */
-    height: 18px;
-}
 
 @media (max-width: 768px) {
   .location,
   .social-icon {
       font-size: 0.8rem; /* Adjust this value as needed. 0.8rem is about 13px. */
-  }
-  .location svg,
-  .social svg {
-      width: 16px;  /* 从 18px 缩小到 16px */
-      height: 16px; /* 从 18px 缩小到 16px */
   }
 }
 
