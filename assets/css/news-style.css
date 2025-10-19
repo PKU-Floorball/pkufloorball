@@ -12,7 +12,7 @@
 /* 文章主图 */
 
 .featured-image img {
-    width: 80%; /* 设置宽度为父容器的100% */
+    width: 90%;
     height: auto;  /* 高度自动按比例缩放，防止图片被拉伸 */
     display: block;
     margin: 0 auto;
