@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.env*
+!.env.example
+playwright-report/
+test-results/
+*.tsbuildinfo
+screenshots/
+.next-e2e/
+.vercel/
+.vercel
+
+# Supabase CLI local state
+supabase/.temp/

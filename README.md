@@ -1,3 +1,25 @@
+# PKU Floorball unified site
+
+Homepage: https://pkufloorball.vercel.app/
+Registration: https://pkufloorball.vercel.app/registration
+
+## Vercel deployment
+
+```bash
+cd registration
+npm ci
+npm run prepare:association
+npm exec --yes --package=vercel -- vercel deploy --prod --yes
+```
+
+The build script copies only index.html, htmls, assets, _layouts and _includes into association-source, then renders Liquid templates into public. Vercel rebuilds these files from the staged sources. Generated folders are ignored by Git; CLI uploads include association-source. Always run prepare:association from the full repository before deploying. Supabase and the admin password use the existing Vercel environment variables. Deployment does not reset the database.
+
+Local: `cd registration && npm run dev`. Homepage: `/`; registration: `/registration`. See registration/README.md for registration details.
+
+## Original GitHub Pages development
+
+The GitHub Pages hosting configuration is retained. Original development instructions follow.
+
 # 北京大学软式曲棍球协会主页
 
 ## 快速开始

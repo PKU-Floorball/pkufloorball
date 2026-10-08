@@ -1,0 +1,35 @@
+{
+  "name": "pkufloorball",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "prepare:association": "node scripts/build-association.mjs",
+    "predev": "npm run prepare:association",
+    "prebuild": "npm run prepare:association",
+    "deploy": "npm run prepare:association && vercel deploy --prod --yes"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.0.0",
+    "liquidjs": "^10.30.0",
+    "lucide-react": "^0.577.0",
+    "next": "^16.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.3.0",
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

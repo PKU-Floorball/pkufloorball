@@ -53,3 +53,12 @@ plugins:
 #   - vendor/cache/
 #   - vendor/gems/
 #   - vendor/ruby/
+
+# Independently deployed Next.js registration app
+exclude:
+  - registration/
+  - docs/superpowers/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/

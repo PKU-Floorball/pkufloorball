@@ -3,3 +3,21 @@ _site
 .jekyll-cache
 .jekyll-metadata
 vendor
+
+# Independent registration app
+registration/node_modules/
+registration/.next/
+registration/.env*
+!registration/.env.example
+registration/test-results/
+registration/playwright-report/
+registration/*.tsbuildinfo
+
+# Generated association deployment sources and output
+registration/association-source/
+registration/public/index.html
+registration/public/htmls/
+registration/public/assets/
+
+.superpowers/
+docs/superpowers/
