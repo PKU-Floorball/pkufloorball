@@ -85,6 +85,8 @@ strong {
   gap: 24px;
 }
 .brand {
+  text-decoration: none;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -92,9 +94,10 @@ strong {
   border: 0;
   padding: 0;
   text-align: left;
-  flex-shrink: 0;
+  flex-shrink: 1;
 }
 .brand-symbol {
+  flex-shrink: 0;
   width: 43px;
   height: 43px;
   background: var(--red);
@@ -1823,3 +1826,107 @@ textarea:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 .member-controls .modal-note { margin: 0 0 10px; }
 .free-section.drop-active { background: var(--red-pale); outline: 2px dashed var(--red); outline-offset: 6px; }
 .roster-player[draggable="true"], .free-card[draggable="true"] { cursor: grab; }
+
+.create-team-dropzone {
+  min-height: 240px;
+  padding: 28px 24px;
+  border: 2px dashed var(--line);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+  color: var(--muted);
+  transition: border-color 0.15s, background 0.15s;
+}
+.create-team-dropzone h3 { color: var(--ink); font-size: 18px; }
+.create-team-dropzone p { max-width: 240px; font-size: 12px; line-height: 1.8; }
+.create-team-dropzone.drop-active { border-color: var(--red); background: var(--red-pale); }
+
+.free-card.self-card {
+  background: var(--red-pale);
+  border-color: var(--red);
+}
+.free-card.self-card > .avatar {
+  background: var(--red);
+  color: white;
+}
+.free-card.self-card h3 small {
+  color: var(--red);
+  font-weight: 600;
+}
+
+/* Compact administrator player list; forms appear only while editing. */
+.admin-create-compact { padding: 0; border-radius: 8px; margin-bottom: 18px; }
+.admin-create-compact > summary {
+  display: flex; align-items: center; gap: 8px; padding: 16px 20px;
+  cursor: pointer; font-size: 14px; font-weight: 600; color: var(--red);
+}
+.admin-create-body { padding: 4px 20px 20px; }
+.admin-player-list { gap: 8px; }
+.admin-player-list .admin-player-card { padding: 0; border-radius: 8px; }
+.admin-player-details > summary {
+  display: grid; grid-template-columns: minmax(0, 1fr) 44px 28px;
+  align-items: center; gap: 16px; padding: 16px 18px;
+  cursor: pointer; list-style: none;
+}
+.admin-create-compact > summary::-webkit-details-marker,
+.admin-player-details > summary::-webkit-details-marker { display: none; }
+.admin-player-details > summary:hover { background: #fafaf6; }
+.admin-player-overview { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(100px, 1fr) minmax(0, 4fr); gap: 16px; align-items: center; }
+.admin-player-overview > strong { font-size: 14px; overflow-wrap: anywhere; }
+.admin-player-metadata { display: grid; grid-template-columns: 30px minmax(0, 1.5fr) 110px minmax(0, 1fr); gap: 14px; font-size: 12px; color: var(--muted); }
+.admin-player-metadata > span { overflow-wrap: anywhere; }
+.admin-player-phone { font-variant-numeric: tabular-nums; }
+.admin-player-role { color: var(--muted); font-size: 11px; flex-shrink: 0; }
+.admin-player-toggle { color: var(--red); font-size: 12px; flex-shrink: 0; }
+.admin-player-details .when-open { display: none; }
+.admin-player-details[open] .when-open { display: inline; }
+.admin-player-details[open] .when-closed { display: none; }
+.admin-player-details[open] > summary { border-bottom: 1px solid var(--line); }
+.admin-player-edit-body { padding: 20px 18px; }
+.admin-player-edit-actions { display: flex; align-items: flex-end; gap: 14px; margin-top: 16px; }
+.admin-player-edit-actions .field { flex: 1; max-width: 320px; margin-bottom: 0; }
+.admin-player-edit-actions > .button { color: var(--red); white-space: nowrap; }
+@media (max-width: 1000px) {
+  .admin-player-overview { display: block; }
+  .admin-player-metadata { display: flex; flex-wrap: wrap; gap: 5px 14px; margin-top: 7px; }
+}
+@media (max-width: 700px) {
+  .admin-player-details > summary { padding: 14px; gap: 10px; }
+  .admin-player-overview > strong { font-size: 14px; }
+  .admin-player-edit-body { padding: 16px 14px; }
+  .admin-player-edit-actions { align-items: stretch; flex-direction: column; }
+  .admin-player-edit-actions .field { max-width: none; }
+  .admin-player-edit-actions > .button { align-self: flex-start; }
+  .admin-player-toggle { min-width: 28px; }
+}
+
+@media (max-width: 700px) {
+  .admin-shell .site-header { gap: 10px; }
+  .admin-shell .site-header > .button { white-space: nowrap; flex-shrink: 0; padding: 12px 14px; gap: 8px; }
+}
+
+@media (min-width: 1001px) {
+  .admin-player-edit-body {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1.1fr);
+    align-items: end;
+    gap: 12px;
+  }
+  .admin-player-edit-body > .admin-inline-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1.3fr) 126px auto;
+    align-items: end;
+    gap: 10px;
+  }
+  .admin-player-edit-body > .admin-inline-form .field { min-width: 0; }
+  .admin-player-edit-body .field input,
+  .admin-player-edit-body .field select { padding: 12px 10px; }
+  .admin-player-edit-body .button { padding: 12px 14px; white-space: nowrap; }
+  .admin-player-edit-body > .admin-player-edit-actions { margin-top: 0; gap: 10px; }
+  .admin-player-edit-body > .admin-player-edit-actions .field { min-width: 0; max-width: none; }
+  .admin-player-edit-body > .modal-note { grid-column: 1 / -1; }
+}

@@ -82,18 +82,20 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     void run({ ...Object.fromEntries(new FormData(form)), ...body });
   }
   const available = data?.players.filter((p) => p.role !== "captain") || [];
+  const filteredPlayers = data?.players.filter(p =>
+    p.name.includes(search) || p.phone.includes(search) || p.school.includes(search)
+  ) || [];
   return (
-    <div className="site-shell">
+    <div className="site-shell admin-shell">
       <header className="site-header">
-        <button className="brand" onClick={onExit}>
+        <a className="brand" href="/" aria-label="北京大学软式曲棍球">
           <span className="brand-symbol">
             <CircleDot size={28} />
           </span>
           <span>
-            <strong>北大地板球</strong>
-            <small>PKU FLOORBALL</small>
+            <strong>北京大学软式曲棍球</strong>
           </span>
-        </button>
+        </a>
         <span className="admin-label">
           <ShieldCheck size={16} />
           管理员
@@ -361,11 +363,9 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
             )}
             {tab === "players" && (
               <>
-                <section className="admin-create">
-                  <h2>
-                    <Plus size={19} />
-                    新增报名者
-                  </h2>
+                <details className="admin-create admin-create-compact">
+                  <summary><Plus size={18} />新增报名者</summary>
+                  <div className="admin-create-body">
                   <form
                     className="admin-inline-form"
                     onSubmit={(e) => submit(e, { action: "create_player" })}
@@ -394,7 +394,6 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                     <label className="field">
                       学校信息
                       <input aria-label="学校信息" name="school" placeholder="例如：北京大学 / 北京大学校友" maxLength={80} required />
-                      <small>请填写就读学校；已毕业请注明“某学校校友”，如“北京大学校友”。</small>
                     </label>
                     <label className="field">
                       手机号
@@ -413,7 +412,8 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                   <p className="modal-note">
                     新增报名者统一进入自由球员区，之后可以创建球队或加入已有球队。
                   </p>
-                </section>
+                  </div>
+                </details>
                 <label className="field admin-search">
                   搜索球员
                   <input
@@ -426,12 +426,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                   className="admin-player-list"
                   aria-label="管理员球员名单"
                 >
-                  {data.players
-                    .filter(
-                      (p) =>
-                        p.name.includes(search) || p.phone.includes(search) || p.school.includes(search),
-                    )
-                    .map((p) => (
+                  {filteredPlayers.map((p) => (
                       <PlayerEditor
                         key={p.id}
                         player={p}
@@ -445,6 +440,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                       />
                     ))}
                 </section>
+                {!filteredPlayers.length && <p className="empty-free">{search ? "没有匹配的球员" : "暂无报名球员"}</p>}
               </>
             )}
             {tab === "messages" && (
@@ -535,12 +531,21 @@ function PlayerEditor({
 }) {
   return (
     <article className="admin-player-card" aria-label={`管理球员 ${p.name}`}>
-      <div className="admin-player-heading">
-        <strong>{p.name}</strong>
-        <span className="my-team-label">
-          {p.role === "captain" ? "队长" : "队员"}
-        </span>
-      </div>
+      <details className="admin-player-details">
+        <summary>
+          <div className="admin-player-overview">
+            <strong>{p.name}</strong>
+            <div className="admin-player-metadata">
+              <span>{p.gender}</span>
+              <span>{p.school}</span>
+              <span className="admin-player-phone">{p.phone}</span>
+              <span>{data.teams.find(t => t.id === p.teamId)?.name || "自由球员"}</span>
+            </div>
+          </div>
+          <span className="admin-player-role">{p.role === "captain" ? "队长" : p.teamId ? "队员" : ""}</span>
+          <span className="admin-player-toggle"><span className="when-closed">编辑</span><span className="when-open">收起</span></span>
+        </summary>
+        <div className="admin-player-edit-body">
       <form
         className="admin-inline-form"
         key={`${p.name}-${p.phone}-${p.gender}-${p.school}`}
@@ -559,7 +564,6 @@ function PlayerEditor({
         </label>
         <label className="field">学校信息
           <input aria-label="学校信息" name="school" defaultValue={p.school} maxLength={80} required />
-          <small>请填写就读学校；已毕业请注明“某学校校友”，如“北京大学校友”。</small>
         </label>
         <label className="field">
           手机号
@@ -576,6 +580,7 @@ function PlayerEditor({
           保存信息
         </button>
       </form>
+      <div className="admin-player-edit-actions">
       <label className="field">
         调整所属球队
         <select
@@ -594,11 +599,14 @@ function PlayerEditor({
       <button type="button" className="button secondary" disabled={busy || p.role === "captain"} onClick={() => {
         if (confirm(`确认删除“${p.name}”（${p.phone}）的报名信息？相关申请和登录会话也会清除，删除后需重新注册。`)) void remove();
       }}>删除选手</button>
+      </div>
       {p.role === "captain" && (
         <p className="modal-note">
           调配或删除现任队长前，请先在球队管理中更换队长或解散球队。
         </p>
       )}
+        </div>
+      </details>
     </article>
   );
 }

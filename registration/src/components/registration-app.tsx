@@ -127,6 +127,19 @@ export default function RegistrationApp({
   const [successorId, setSuccessorId] = useState("");
   const snapshot = state.snapshot,
     viewer = snapshot?.viewer;
+  const canCreateTeam = viewer?.role === "player" && !viewer.teamId;
+  function openCreateTeam() {
+    if (!canCreateTeam || busy) return;
+    setError("");
+    setSelectedMembers([]);
+    setCreateTeamOpen(true);
+  }
+  useEffect(() => {
+    if (snapshot && createTeamOpen && !canCreateTeam) {
+      setCreateTeamOpen(false);
+      setSelectedMembers([]);
+    }
+  }, [snapshot, createTeamOpen, canCreateTeam]);
   useEffect(() => {
     if (captainAction && snapshot && !snapshot.teams.some(t => t.id === captainTeamId && t.captainId === snapshot.viewer.id)) {
       setCaptainAction(null);
@@ -320,23 +333,17 @@ export default function RegistrationApp({
   return (
     <div className="site-shell">
       <header className="site-header">
-        <button
-          className="brand"
-          onClick={() => go(viewer ? "teams" : "home")}
-          aria-label="北大地板球首页"
-        >
+        <a className="brand" href="/" aria-label="北京大学软式曲棍球">
           <span className="brand-symbol">
             <CircleDot size={28} />
           </span>
           <span>
-            <strong>北大地板球</strong>
-            <small>PKU FLOORBALL</small>
+            <strong>北京大学软式曲棍球</strong>
           </span>
-        </button>
+        </a>
         <span className="header-divider" />
         <span className="header-label">球队报名站</span>
         <div className="header-actions">
-          <a className="back-link" href="/">返回协会主页</a>
           {viewer ? (
             <>
               <span className="identity">
@@ -613,7 +620,6 @@ export default function RegistrationApp({
                     <label className="field">
                       学校信息
                       <input aria-label="学校信息" name="school" placeholder="例如：北京大学 / 北京大学校友" maxLength={80} required />
-                      <small>请填写就读学校；已毕业请注明“某学校校友”，如“北京大学校友”。</small>
                     </label>
                     <label className="field">
                       手机号
@@ -725,20 +731,6 @@ export default function RegistrationApp({
               </h1>
             </div>
             <div className="board-actions">
-              {viewer?.role === "player" && !viewer.teamId && (
-                <button
-                  className="button primary"
-                  disabled={busy}
-                  onClick={() => {
-                    setError("");
-                    setSelectedMembers([]);
-                    setCreateTeamOpen(true);
-                  }}
-                >
-                  <Plus size={18} />
-                  创建球队
-                </button>
-              )}
               <button
                 className="button secondary messages-button"
                 onClick={() => setMessagesOpen(true)}
@@ -757,7 +749,27 @@ export default function RegistrationApp({
               <span className="tiny-dot" />每 15 秒同步名单
             </span>
           </div>
-          <section className="teams-grid" aria-label="球队名单">
+          <section className="teams-grid" aria-label="球队名单"
+            onDragOver={(e) => {
+              if ((e.target as HTMLElement).closest(".team-card")) return;
+              if (canCreateTeam && !busy && e.dataTransfer.types.includes(playerDragType)) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+                setDragOver("create-team");
+              }
+            }}
+            onDragLeave={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(null);
+            }}
+            onDrop={(e) => {
+              if ((e.target as HTMLElement).closest(".team-card")) return;
+              setDragOver(null);
+              if (!canCreateTeam || busy) return;
+              e.preventDefault();
+              const id = e.dataTransfer.getData(playerDragType);
+              if (id === viewer?.id && snapshot.freePlayers.some(p => p.id === id)) openCreateTeam();
+            }}
+          >
             {snapshot.teams.map((team, index) => {
               const own = team.id === viewer?.teamId,
                 canDrop = own && viewer?.role === "captain";
@@ -891,8 +903,17 @@ export default function RegistrationApp({
                 </article>
               );
             })}
+            {canCreateTeam && (
+              <div role="group" aria-label="创建球队区域"
+                className={`create-team-dropzone ${dragOver === "create-team" ? "drop-active" : ""}`}>
+                <Plus size={28} aria-hidden="true" />
+                <h3>创建一支新球队</h3>
+                <p>把自己的自由球员卡片拖到这里，填写队名后创建球队。</p>
+                <button className="button secondary" disabled={busy} onClick={openCreateTeam}>点击建队</button>
+              </div>
+            )}
           </section>
-          {!snapshot.teams.length && (
+          {!snapshot.teams.length && !canCreateTeam && (
             <div className="empty-state">
               <UsersRound size={28} />
               <h3>还没有球队</h3>
@@ -912,7 +933,7 @@ export default function RegistrationApp({
                 <p>
                   {viewer?.role === "captain"
                     ? "把伙伴拖进自己的球队，或点击按钮邀请入队。"
-                    : viewer?.teamId ? "拖动自己的名字到这里可退出球队；也可拖到其他球队申请换队。" : "拖动自己的卡片到球队可申请加入，也可以点击申请按钮。"}
+                    : viewer?.teamId ? "拖动自己的名字到这里可退出球队；也可拖到其他球队申请换队。" : "拖动自己的卡片到已有球队可申请加入，拖到球队区域空白处可创建球队，也可使用按钮操作。"}
                 </p>
               </div>
               <span className="free-label">
@@ -923,7 +944,7 @@ export default function RegistrationApp({
             <div className="free-grid">
               {snapshot.freePlayers.map((p) => (
                 <article
-                  className="free-card"
+                  className={`free-card ${p.id === viewer?.id ? "self-card" : ""}`}
                   aria-label={`自由球员 ${p.name}`}
                   key={p.id}
                   draggable={!busy && (viewer?.role === "captain" || p.id === viewer?.id)}

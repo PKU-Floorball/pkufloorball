@@ -27,7 +27,7 @@ test("no-password registration, name login, captain approval and recruitment", a
     page.getByRole("article", { name: "自由球员 测试队长", exact: true }),
   ).toBeVisible();
   await page
-    .getByRole("button", { name: "创建球队", exact: true })
+    .getByRole("button", { name: "点击建队", exact: true })
     .click({ timeout: 3000 });
   const creation = page.getByRole("dialog", { name: "创建球队" });
   await creation.getByLabel("队伍名称", { exact: true }).fill("测试球队");
@@ -40,7 +40,7 @@ test("no-password registration, name login, captain approval and recruitment", a
       .getByText("李可", { exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "创建球队", exact: true }),
+    page.getByRole("button", { name: "点击建队", exact: true }),
   ).toHaveCount(0);
   await page.getByRole("button", { name: "退出登录" }).click();
   await page.getByRole("button", { name: "立即注册" }).click();
@@ -373,6 +373,8 @@ test("admin deletion asks confirmation, protects captains and removes the select
   await page.goto("/registration/login");await page.getByRole("button",{name:"管理员登录",exact:true}).click();
   await page.getByRole("button",{name:"球员管理",exact:true}).click();
   const target=page.getByRole("article",{name:"管理球员 删除对象",exact:true});
+  await target.locator("summary").click();
+  await page.getByRole("article",{name:"管理球员 保护队长",exact:true}).locator("summary").click();
   await expect(page.getByRole("article",{name:"管理球员 保护队长",exact:true}).getByRole("button",{name:"删除选手"})).toBeDisabled();
   page.once("dialog",async d=>{expect(d.message()).toContain("删除对象");await d.dismiss();});
   await target.getByRole("button",{name:"删除选手"}).click();
@@ -399,7 +401,7 @@ test("school is required and appears for free agents and team members",async ({p
   await page.getByLabel("姓名",{exact:true}).fill("学校浏览器选手");
   await page.getByRole("button",{name:"进入球队大厅"}).click();
   await expect(page.getByRole("article",{name:"自由球员 学校浏览器选手",exact:true}).getByText("某大学校友",{exact:true})).toBeVisible();
-  await page.getByRole("button",{name:"创建球队",exact:true}).click();
+  await page.getByRole("button",{name:"点击建队",exact:true}).click();
   const dialog=page.getByRole("dialog",{name:"创建球队"});
   await dialog.getByLabel("队伍名称",{exact:true}).fill("学校展示队");
   await dialog.getByRole("button",{name:"确认创建球队"}).click();
