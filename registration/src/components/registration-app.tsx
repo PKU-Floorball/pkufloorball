@@ -763,7 +763,7 @@ export default function RegistrationApp({
                         >
                           {p.name.slice(0, 1)}
                         </span>
-                        <span className="player-name">
+                        <span className="player-name" title={p.name}>
                           <span>{p.name}</span>
                           {p.id === viewer?.id && <small>您</small>}
                         </span>
@@ -873,7 +873,7 @@ export default function RegistrationApp({
                   onDragEnd={endPlayerDrag}
                 >
                   <span className="avatar">{p.name.slice(0, 1)}</span>
-                  <h3 className="player-name">
+                  <h3 className="player-name" title={p.name}>
                     {p.name}
                     {p.id === viewer?.id && <small>您</small>}
                   </h3>

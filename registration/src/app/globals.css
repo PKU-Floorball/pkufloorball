@@ -2294,8 +2294,8 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .tournament-teams .team-title-row h3 { min-width: 0; margin: 0; padding: 0; font-size: 24px; line-height: 1.4; font-weight: 700; overflow-wrap: anywhere; }
 .tournament-teams .my-team-label { flex-shrink: 0; font-size: 12px; line-height: 1.5; padding: 5px 10px; }
 .tournament-teams .roster { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 10px; min-height: 0; padding: 0 20px 20px; }
-.tournament-teams .roster-player { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr); align-content: start; align-items: center; gap: 7px; min-width: 0; padding: 12px 10px; border: 1px solid #f0e5e6; border-radius: 12px; background: #fdfbfb; }
-.tournament-teams .roster-player:has(.remove-player-button, .captain-tag) .player-name { padding-right: 14px; }
+.tournament-teams .roster-player { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr) 18px; align-content: start; align-items: center; gap: 7px; min-width: 0; padding: 12px 10px; border: 1px solid #f0e5e6; border-radius: 12px; background: #fdfbfb; }
+.tournament-teams .roster-player .player-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tournament-teams .player-details { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; min-width: 0; }
 .board-main .gender-icon { display: inline-flex; }
 .board-main .gender-icon.male { color: #2563eb; }
@@ -2304,12 +2304,12 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .tournament-teams .player-details .player-school { margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tournament-teams .player-details .player-gender { flex-shrink: 0; margin: 0; font-size: 11px; line-height: 1.5; }
 .tournament-teams .roster-player .avatar { width: 28px; height: 28px; font-size: 13px; }
-.tournament-teams .player-name { font-size: 14px; line-height: 1.5; }
+.tournament-teams .player-name { font-size: 16px; line-height: 1.5; }
 .tournament-teams .player-name small { font-size: 10px; margin-left: 4px; }
-.tournament-teams .player-school { font-size: 11px; line-height: 1.5; margin-top: 3px; }
+.tournament-teams .player-school { font-size: 13px; line-height: 1.5; margin-top: 3px; }
 .tournament-teams .roster-player > .player-gender,.tournament-teams .captain-tag { grid-column: 1 / -1; margin: 0; font-size: 11px; line-height: 1.5; }
-.tournament-teams .roster-player .captain-tag { position: absolute; top: 4px; right: 4px; display: grid; place-items: center; width: 24px; height: 24px; padding: 0; color: var(--red); }
-.tournament-teams .roster-player .remove-player-button { position: absolute; top: 4px; right: 4px; display: grid; place-items: center; width: 24px; height: 24px; min-height: 24px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--red); }
+.tournament-teams .roster-player .captain-tag { position: static; grid-column: 3; grid-row: 1; justify-self: center; display: grid; place-items: center; width: 24px; height: 24px; padding: 0; color: var(--red); }
+.tournament-teams .roster-player .remove-player-button { position: static; grid-column: 3; grid-row: 1; justify-self: center; display: grid; place-items: center; width: 24px; height: 24px; min-height: 24px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--red); }
 .tournament-teams .roster-player .remove-player-button:hover:not(:disabled),.tournament-teams .roster-player .remove-player-button:focus-visible { background: var(--red-pale); }
 .tournament-teams .drop-hint { font-size: 12px; padding: 12px 18px; line-height: 1.7; }
 .tournament-teams .member-controls { padding: 12px 20px; }
@@ -2348,15 +2348,15 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 
 /* Free players share the compact roster card layout. */
 .free-section .free-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; align-items: start; }
-.free-section .free-card { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: center; gap: 7px; min-width: 0; padding: 12px 10px; border: 1px solid #f0e5e6; border-radius: 12px; background: #fdfbfb; box-shadow: none; }
+.free-section .free-card { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr) 18px; align-items: center; gap: 7px; min-width: 0; padding: 12px 10px; border: 1px solid #f0e5e6; border-radius: 12px; background: #fdfbfb; box-shadow: none; }
 .free-section .free-card .avatar { width: 28px; height: 28px; font-size: 13px; }
-.free-section .free-card h3 { margin: 0; font-size: 14px; line-height: 1.5; font-weight: 400; min-width: 0; overflow-wrap: anywhere; }
-.free-section .free-card:has(.recruit-button) h3 { padding-right: 14px; }
+.free-section .free-card h3 { margin: 0; font-size: 16px; line-height: 1.5; font-weight: 400; min-width: 0; overflow-wrap: anywhere; }
+.free-section .free-card h3 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .free-section .free-card h3 small { font-size: 10px; margin-left: 4px; }
 .free-section .player-details { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; min-width: 0; }
 .free-section .player-details .gender-icon { flex-shrink: 0; margin: 0; }
-.free-section .player-details .player-school { font-size: 11px; line-height: 1.5; margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.free-section .free-card .recruit-button { position: absolute; top: 4px; right: 4px; grid-column: auto; display: grid; place-items: center; width: 24px; height: 24px; min-height: 24px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--red); }
+.free-section .player-details .player-school { font-size: 13px; line-height: 1.5; margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.free-section .free-card .recruit-button { position: static; grid-column: 3; grid-row: 1; justify-self: center; display: grid; place-items: center; width: 24px; height: 24px; min-height: 24px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--red); }
 .free-section .free-card .recruit-button:hover:not(:disabled),.free-section .free-card .recruit-button:focus-visible { background: var(--red-pale); }
 @media(max-width:600px) {
   .lobby-actions .messages-button { flex: 0 0 40px; min-width: 40px; }
