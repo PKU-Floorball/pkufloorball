@@ -121,9 +121,6 @@ export default function RegistrationApp({
     [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [applicationTarget, setApplicationTarget] = useState<{teamId:string; sourceTeamId:string|null} | null>(null);
   const [applicationReason, setApplicationReason] = useState("");
-  const [ballRotation, setBallRotation] = useState({ x: 0, y: 0 });
-  const [ballJump, setBallJump] = useState(false);
-  const ballDrag = useRef({ active: false, moved: false, x: 0, y: 0 });
   const [leaveTeamId, setLeaveTeamId] = useState<string | null>(null);
   const [captainAction, setCaptainAction] = useState<"transfer_captain" | "leave_captain" | "dissolve_team" | null>(null);
   const [captainTeamId, setCaptainTeamId] = useState("");
@@ -323,28 +320,6 @@ export default function RegistrationApp({
   const pending =
     snapshot?.applications.filter((a) => a.status === "pending").length ?? 0;
   const unavailable = loading || state.mode === "unconfigured";
-  function startBallDrag(event: React.PointerEvent<HTMLDivElement>) {
-    ballDrag.current = { active: true, moved: false, x: event.clientX, y: event.clientY };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  }
-  function moveBall(event: React.PointerEvent<HTMLDivElement>) {
-    if (!ballDrag.current.active) return;
-    const dx = event.clientX - ballDrag.current.x;
-    const dy = event.clientY - ballDrag.current.y;
-    if (Math.abs(dx) + Math.abs(dy) > 4) ballDrag.current.moved = true;
-    ballDrag.current.x = event.clientX;
-    ballDrag.current.y = event.clientY;
-    setBallRotation((rotation) => ({ x: rotation.x + dy * 0.35, y: rotation.y + dx * 0.35 }));
-  }
-  function endBallDrag() {
-    if (!ballDrag.current.active) return;
-    if (!ballDrag.current.moved) {
-      setBallJump(false);
-      requestAnimationFrame(() => setBallJump(true));
-      window.setTimeout(() => setBallJump(false), 700);
-    }
-    ballDrag.current.active = false;
-  }
   if (adminOpen)
     return (
       <AdminPanel
@@ -359,15 +334,12 @@ export default function RegistrationApp({
     <div className="site-shell">
       <header className="site-header">
         <a className="brand" href="/" aria-label="北京大学软式曲棍球">
-          <span className="brand-symbol">
-            <CircleDot size={28} />
-          </span>
+          <img className="race-association-logo" src="/registration-visual/association-logo.png" alt="协会会徽" />
           <span>
-            <strong>北京大学软式曲棍球</strong>
+            <strong>北京大学软式曲棍球协会</strong>
           </span>
         </a>
-        <span className="header-divider" />
-        <span className="header-label">球队报名站</span>
+        <nav className="race-nav" aria-label="主站导航"><a href="/">主页</a><a href="/htmls/1-about/2-intro.html">关于</a><a href="/htmls/2-team/1-intro.html">校队</a><a href="/htmls/3-association/1-intro.html">社团</a><a className="active" href="/registration">赛事</a><a href="/htmls/4-gallery/0-main.html">图集</a><a href="/htmls/5-news/0-main.html">新闻</a><a href="/htmls/6-contact.html">联系</a></nav>
         <div className="header-actions">
           {viewer ? (
             <>
@@ -397,7 +369,7 @@ export default function RegistrationApp({
               </button>
             </>
           ) : (
-            <span className="header-note">一支球队，一群伙伴。</span>
+            null
           )}
         </div>
       </header>
@@ -433,43 +405,16 @@ export default function RegistrationApp({
         </div>
       )}
       {view === "home" && (
-        <main className="home-main">
-          <section className="hero">
-            <div className="hero-copy">
-              <div className="eyebrow">
-                <span />
-                PKU FLOORBALL · TEAM REGISTRATION
-              </div>
-              <h1>
-                <span className="hero-kicker">PKU</span>
-                <span className="hero-title-en">Floorball<span>.</span></span>
-                <em>公开赛</em>
-              </h1>
-              <div className="hero-actions">
-                <button
-                  className="button primary"
-                  onClick={() => go("register")}
-                >
-                  立即注册
-                  <ArrowUpRight size={19} />
-                </button>
-                <button
-                  className="button secondary"
-                  onClick={() => go("login")}
-                >
-                  登录
-                  <ArrowRight size={18} />
-                </button>
-              </div>
-            </div>
-            <div className="hero-ball-stage" aria-label="软式曲棍球视觉元素">
-              <div className={`hero-ball${ballJump ? " is-jumping" : ""}`} style={{ transform: `rotateX(${ballRotation.x}deg) rotateY(${ballRotation.y}deg)` }} onPointerDown={startBallDrag} onPointerMove={moveBall} onPointerUp={endBallDrag} onPointerCancel={endBallDrag} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setBallJump(false); requestAnimationFrame(() => setBallJump(true)); window.setTimeout(() => setBallJump(false), 700); } }} role="button" tabIndex={0} aria-label="拖动旋转或点击弹跳">
-                {Array.from({ length: 10 }, (_, index) => <i key={index} />)}
-              </div>
-              <span className="hero-orbit hero-orbit-one" />
-              <span className="hero-orbit hero-orbit-two" />
-            </div>
-          </section>
+        <main className="race-home">
+          <div className="race-wrap race-crumb"><a href="/">主页</a><span>/</span>赛事<span>/</span>公开赛</div>
+          <section className="race-court"><div className="race-wrap race-court-inner">
+            <div className="race-latin"><span className="pku-word">PKU</span><span className="floorball-word">Floorball<span className="title-dot">.</span></span></div>
+            <iframe className="race-ball-frame" src="/registration-visual/ball.html" title="互动三维软式曲棍球：拖动旋转、点击弹跳" />
+            <div className="race-title-row"><h1>公开赛</h1><div className="race-actions">
+              <button className="race-btn" onClick={() => go("register")}>立即注册<b>↗</b></button>
+              <button className="race-btn secondary" onClick={() => go("login")}>登录<b>→</b></button>
+            </div></div>
+          </div></section><div className="race-court-space" />
         </main>
       )}
       {(view === "login" || view === "register") && (
@@ -942,10 +887,7 @@ export default function RegistrationApp({
           正在获取球队名单…
         </main>
       )}
-      <footer className="site-footer">
-        <span>北京大学软式曲棍球协会</span>
-        <span>PLAY TOGETHER, GROW TOGETHER.</span>
-      </footer>
+      <footer className="site-foot"><div className="race-wrap foot-inner"><div><div className="foot-title">北京大学软式曲棍球协会</div><p>一群热爱软式曲棍球的读书人<br />永远在整活和抽象的路上~</p></div><div><div className="foot-title">快速访问</div><a href="/">主页</a><a href="/htmls/1-about/2-intro.html">关于我们</a><a href="/htmls/4-gallery/0-main.html">精彩瞬间</a></div><div><div className="foot-title">校队 / 社团</div><a href="/htmls/2-team/2-reward.html">球队荣誉</a><a href="/htmls/3-association/2-rk-cup.html">新生杯</a><a href="/htmls/3-association/3-pku-cup.html">北大杯</a></div><div><div className="foot-title">联系我们</div><p>Fri, Sat, Sun: 18:00–20:00<br />邱德拔体育馆B2综合训练大厅</p><a href="mailto:pkufloorball@163.com">pkufloorball@163.com</a></div></div><div className="copyright">©2025 北京大学软式曲棍球协会</div></footer>
       {applicationTarget && snapshot && (
         <Modal label="申请加入球队" onClose={() => {if (!busy) setApplicationTarget(null);}}>
           <div className="modal-heading"><h2>申请加入球队</h2><button className="icon-button" aria-label="关闭申请" disabled={busy} onClick={() => setApplicationTarget(null)}><X size={20}/></button></div>
