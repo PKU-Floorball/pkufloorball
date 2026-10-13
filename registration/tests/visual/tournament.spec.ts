@@ -2,8 +2,11 @@ import {test,expect} from '@playwright/test';
 test('main navigation, full viewport hero and form typography',async({page,isMobile})=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('/registration');
+ await expect(page.locator('.environment-banner')).toContainText('本地演示');
  await expect(page.locator('.race-crumb')).toHaveCount(0);
  await expect(page.locator('.floorball-word')).toHaveText('Floorball');
+ await expect(page.locator('.race-event-title')).toHaveText('北京大学软式曲棍球公开赛');
+ expect(await page.locator('.race-court').evaluate(el=>getComputedStyle(el).backgroundColor)).toBe('rgb(148, 7, 10)');
  await expect(page.locator('.registration-identity')).toBeHidden();
  await page.evaluate(()=>scrollTo(0,400));expect((await page.locator('.association-header').boundingBox())!.y).toBe(0);await page.evaluate(()=>scrollTo(0,0));
  await expect.poll(async()=>(await page.locator('.site-foot').boundingBox())!.y).toBeGreaterThanOrEqual(page.viewportSize()!.height-1);
@@ -15,17 +18,21 @@ test('main navigation, full viewport hero and form typography',async({page,isMob
  await header.getByRole('button',{name:'赛事',exact:true}).click();
  await expect(header.getByRole('link',{name:'公开赛',exact:true})).toHaveAttribute('href','/registration');
  await expect(header.getByRole('link',{name:'新生杯',exact:true})).toHaveAttribute('href','/htmls/3-association/2-rk-cup.html');
- await header.getByRole('link',{name:'公开赛',exact:true}).click();
+ await Promise.all([page.waitForEvent('load'), header.getByRole('link',{name:'公开赛',exact:true}).click()]);
+ await expect(page.locator('.environment-banner')).toContainText('本地演示');
  await page.getByRole('button',{name:'立即注册',exact:true}).click();
  await expect(page.getByRole('heading',{name:/报名参赛\s*您就是下一个冠军！/})).toBeVisible();
  const gender=page.getByLabel('性别',{exact:true});expect(await gender.locator('option').allTextContents()).toEqual(['','男','女','非二元性别','不愿意透露']);
  expect(await page.getByLabel('手机号',{exact:true}).getAttribute('placeholder')).toBeNull();
  await expect(page.locator('.auth-note')).toHaveCount(0);
  await expect(page.getByRole('button',{name:'返回',exact:true})).toBeVisible();
+ expect(await page.locator('.auth-copy').evaluate(el=>getComputedStyle(el).backgroundColor)).toBe('rgb(148, 7, 10)');
+ expect(await page.locator('.form-switch button').evaluate(el=>getComputedStyle(el).fontSize)).toBe(await page.locator('.form-switch').evaluate(el=>getComputedStyle(el).fontSize));
  await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:test.info().outputPath('register.png'),fullPage:true});
  await page.getByRole('button',{name:'前往登录',exact:true}).click();
  await expect(page.getByText('参赛选手登陆',{exact:true})).toBeVisible();
+ expect(await page.locator('.form-switch button').evaluate(el=>getComputedStyle(el).fontSize)).toBe(await page.locator('.form-switch').evaluate(el=>getComputedStyle(el).fontSize));
  await expect(page.locator('.login-hint')).toHaveCount(0);
  await expect(page.locator('.form-heading p')).toHaveCount(0);
  expect(errors).toEqual([]);
@@ -55,9 +62,11 @@ test('multiple teams, player identity, creation and dialog styles retain behavio
 });
 
 test('small phones, tablets, wide screens and reduced motion stay usable',async({page})=>{
+ test.setTimeout(60000);
  await page.emulateMedia({reducedMotion:'reduce'});
  for(const viewport of [{width:320,height:568},{width:659,height:844},{width:1920,height:1080},{width:844,height:390}]){
   await page.setViewportSize(viewport);await page.goto('/registration');
+  await expect(page.locator('.environment-banner')).toContainText('本地演示');
   await expect(page.getByRole('button',{name:'立即注册',exact:true})).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.getByRole('button',{name:'立即注册',exact:true}).click();

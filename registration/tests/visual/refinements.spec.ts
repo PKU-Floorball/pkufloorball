@@ -22,6 +22,9 @@ test('team cards hide contacts and operation notice scrolls into view then remov
  await page.goto('/registration/teams');await expect(page.locator('.team-card')).toBeVisible();
  await expect(page.locator('.team-contact')).toHaveCount(0);await expect(page.getByText('13800138000',{exact:true})).toHaveCount(0);
  await expect(page.locator('.team-summary .team-member-count')).toHaveText('1 人');
+ const badge=await page.locator('.my-team-label').evaluate(el=>({background:getComputedStyle(el).backgroundColor,color:getComputedStyle(el).color}));expect(badge).toEqual({background:'rgb(148, 7, 10)',color:'rgb(255, 255, 255)'});
+ await expect(page.locator('.drop-hint svg')).toHaveCount(0);await expect(page.locator('.drop-hint br')).toHaveCount(1);
+ await expect(page.locator('.drop-hint')).toHaveText('将自由球员的球员卡片拖入此处或点击下方邀请球员加入球队');
  await expect(page.locator('.team-membership-note p')).toHaveText('您已加入球队~每位选手只能属于一支球队成为自由球员后可创建新的队伍');expect(await page.locator('.team-membership-note p br').count()).toBe(2);
  await page.evaluate(()=>document.fonts.ready);
  const before=(await page.locator('.board-heading').boundingBox())!.y;
@@ -31,7 +34,9 @@ test('team cards hide contacts and operation notice scrolls into view then remov
  await dialog.getByRole('button',{name:'确认加入',exact:true}).click();
  const notice=page.locator('.feedback.success');await expect(notice).toBeVisible();await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(0);
  await expect(page.locator('.team-summary .team-member-count')).toHaveText('2 人');
- await page.waitForTimeout(6500);await expect(notice).toBeVisible();await expect(notice).toHaveCount(0,{timeout:3000});
+ await page.waitForTimeout(6500);await expect(notice).toBeVisible();await expect(notice).toHaveClass(/is-fading/);await page.waitForTimeout(450);
+ const opacity=await notice.evaluate(el=>Number(getComputedStyle(el).opacity));expect(opacity).toBeGreaterThan(0);expect(opacity).toBeLessThan(1);
+ await expect(notice).toHaveCount(0,{timeout:3000});
  expect(Math.abs((await page.locator('.board-heading').boundingBox())!.y-before)).toBeLessThan(2);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:test.info().outputPath('refined-teams.png')});

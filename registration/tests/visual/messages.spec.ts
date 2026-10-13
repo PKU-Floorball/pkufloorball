@@ -32,6 +32,9 @@ test('captain inbox shows applicant school and disables expired applications',as
  await expect(drawer.locator('.application-person')).toContainText('测试球员');await expect(drawer.locator('.application-person')).toContainText('非二元性别 · 北京大学');
  await expect(drawer.locator('.application-person')).not.toContainText('甲队');
  await expect(drawer.getByRole('button',{name:'批准',exact:true})).toBeVisible();
+ await expect(page.locator('.message-bubble')).toHaveCount(0);
+ await page.getByRole('button',{name:'关闭消息'}).click();await expect(page.locator('.message-bubble')).toHaveCount(0);
+ await page.getByRole('button',{name:'查看消息',exact:true}).click();
  expect(await drawer.getByRole('button',{name:'批准',exact:true}).evaluate(el=>getComputedStyle(el).borderRadius)).toBe('100px');
  await page.screenshot({path:test.info().outputPath('captain-inbox.png')});
  status='cancelled';await page.reload();await expect(page.locator('.message-bubble')).toHaveText('1');await page.getByRole('button',{name:/查看消息/}).click();

@@ -2257,3 +2257,10 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .application-bottom{flex-wrap:wrap;gap:14px}
 .application-bottom time,.application-bottom .status{font-size:16px}
 .application-bottom .small-button{border-radius:100px}
+
+.auth-main .form-switch button{font:inherit}
+.race-court h1.race-event-title{font-size:clamp(26px,3.5vw,44px);line-height:1.2;letter-spacing:0}
+.race-event-title>span{display:block}
+.my-team-label{background:var(--red);color:#fff}
+.feedback.success{transition:opacity 1.4s ease-in-out,transform 1.4s ease-in-out}
+@media(prefers-reduced-motion:reduce){.feedback.success{transition:none}}

@@ -153,7 +153,7 @@ export default function RegistrationApp({
     setNoticeFading(false);
     window.scrollTo({top:0,behavior:"instant"});
     const fade = window.setTimeout(() => setNoticeFading(true), 7000);
-    const remove = window.setTimeout(() => setNotice(""), 7350);
+    const remove = window.setTimeout(() => setNotice(""), 8400);
     return () => {window.clearTimeout(fade);window.clearTimeout(remove);};
   }, [notice]);
   function openCreateTeam() {
@@ -445,7 +445,7 @@ export default function RegistrationApp({
           <section className="race-court"><div className="race-wrap race-court-inner">
             <div className="race-latin"><span className="pku-word">PKU</span><span className="floorball-word">Floorball</span></div>
             <iframe className="race-ball-frame" src="/registration-visual/ball.html" title="互动三维软式曲棍球：拖动旋转、点击沿轨道滚动" />
-            <div className="race-title-row"><h1>公开赛</h1><div className="race-actions">
+            <div className="race-title-row"><h1 className="race-event-title"><span>北京大学</span><span>软式曲棍球公开赛</span></h1><div className="race-actions">
               <button className="race-btn" onClick={() => go("register")}>立即注册<ArrowRight size={21} strokeWidth={1.8} aria-hidden="true" /></button>
               <button className="race-btn secondary" onClick={() => go("login")}>登录<ArrowRight size={21} strokeWidth={1.8} aria-hidden="true" /></button>
             </div></div>
@@ -745,10 +745,9 @@ export default function RegistrationApp({
                   </div>
                   {canDrop && (
                     <div className="drop-hint">
-                      <Plus size={14} />
                       {dragOver === team.id
                         ? "松开，将球员加入本队"
-                        : "将自由球员的球员卡片拖入此处，或点击下方邀请球员加入球队"}
+                        : <span>将自由球员的球员卡片拖入此处<br />或点击下方邀请球员加入球队</span>}
                     </div>
                   )}
                   {own && viewer?.role === "player" && (

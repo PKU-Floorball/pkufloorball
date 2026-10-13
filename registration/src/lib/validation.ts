@@ -1,5 +1,14 @@
 import type { RegisterInput, Action, TeamCreation } from "./types";
 export class AppError extends Error {
+  static [Symbol.hasInstance](value: unknown): boolean {
+    if (Function.prototype[Symbol.hasInstance].call(this, value)) return true;
+    // Next dev can retain the demo store while reloading this class in another
+    // server bundle. Recognize that earlier constructor only in development.
+    return process.env.NODE_ENV === "development" && value instanceof Error &&
+      value.constructor.name === this.name &&
+      typeof (value as AppError).code === "string" &&
+      typeof (value as AppError).status === "number";
+  }
   constructor(
     public code: string,
     public status = 400,
