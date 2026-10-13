@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   CircleDot,
   LogOut,
@@ -33,6 +33,8 @@ async function api(body?: Record<string, unknown>) {
   return data;
 }
 export default function AdminPanel({ onExit }: { onExit: () => void }) {
+  const dragPreview = useRef<HTMLDivElement | null>(null);
+  useEffect(() => () => { dragPreview.current?.remove(); }, []);
   const [data, setData] = useState<AdminSnapshot | null>(null),
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(true),
@@ -99,11 +101,27 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
   }
   function startDrag(e: React.DragEvent, player: AdminPlayer) {
     if (busy || player.role === "captain") { e.preventDefault(); return; }
+    e.stopPropagation();
+    window.getSelection()?.removeAllRanges();
+    dragPreview.current?.remove();
+    const preview = document.createElement("div");
+    preview.className = "admin-player-drag-preview";
+    preview.textContent = player.name;
+    preview.setAttribute("aria-hidden", "true");
+    preview.style.fontFamily = getComputedStyle(e.currentTarget).fontFamily;
+    document.body.appendChild(preview);
+    dragPreview.current = preview;
     e.dataTransfer.setData(adminDragType, player.id);
     e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setDragImage(preview, 20, 22);
     setDraggedPlayerId(player.id);
   }
-  function endDrag() { setDraggedPlayerId(null); setDropTarget(null); }
+  function endDrag() {
+    dragPreview.current?.remove();
+    dragPreview.current = null;
+    setDraggedPlayerId(null);
+    setDropTarget(null);
+  }
   function dropProps(teamId: string | null) {
     const key = teamId || "free";
     const player = data?.players.find(p => p.id === draggedPlayerId);
@@ -188,12 +206,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
             <div className="board-heading">
               <div>
                 <div className="eyebrow">ADMIN DASHBOARD</div>
-                <h1>
-                  报名管理
-                  <span>
-                    {data.teams.length} 支球队 · {data.players.length} 位报名者
-                  </span>
-                </h1>
+                <h1>报名管理</h1>
               </div>
               <button
                 className="button secondary"
