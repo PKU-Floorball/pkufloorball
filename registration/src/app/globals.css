@@ -2276,3 +2276,44 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .my-team-label{background:var(--red);color:#fff}
 .feedback.success{transition:opacity 1.4s ease-in-out,transform 1.4s ease-in-out}
 @media(prefers-reduced-motion:reduce){.feedback.success{transition:none}}
+
+/* Compact public team cards: two teams per row, three members per team. */
+.tournament-teams { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.tournament-teams .team-card { position: relative; transition: background-color .16s ease, border-color .16s ease, box-shadow .16s ease; }
+.tournament-teams .team-card.drop-active { background: var(--red-pale); border-color: var(--red); box-shadow: inset 0 0 0 2px var(--red), 0 8px 24px #94070a20; }
+.tournament-teams .team-card.drop-active .drop-hint { background: var(--red-pale); }
+.tournament-teams .team-drop-feedback { position: absolute; inset: 0; z-index: 2; pointer-events: none; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 20px; border-radius: inherit; background: #fff4f1ed; color: var(--red); font-size: 16px; font-weight: 700; text-align: center; }
+@media(prefers-reduced-motion:reduce) { .tournament-teams .team-card { transition: none; } }
+.tournament-teams .team-top { padding: 18px 20px 0; min-height: 48px; }
+.tournament-teams .team-number { font-size: 24px; }
+.tournament-teams .team-member-count { font-size: 14px; }
+.tournament-teams .team-top .small-button,.tournament-teams .apply-button { font-size: 13px; padding: 8px 14px; min-height: 36px; }
+.tournament-teams .team-title-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 14px 20px 18px; }
+.tournament-teams .team-title-row h3 { min-width: 0; margin: 0; padding: 0; font-size: 24px; line-height: 1.4; font-weight: 700; overflow-wrap: anywhere; }
+.tournament-teams .my-team-label { flex-shrink: 0; font-size: 12px; line-height: 1.5; padding: 5px 10px; }
+.tournament-teams .roster { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 10px; min-height: 0; padding: 0 20px 20px; }
+.tournament-teams .roster-player { display: grid; grid-template-columns: 28px minmax(0, 1fr); align-content: start; align-items: start; gap: 7px; min-width: 0; padding: 12px 10px; border: 1px solid #f0e5e6; border-radius: 12px; background: #fdfbfb; }
+.tournament-teams .roster-player .avatar { width: 28px; height: 28px; font-size: 13px; }
+.tournament-teams .player-name { font-size: 14px; line-height: 1.5; }
+.tournament-teams .player-name small { font-size: 10px; margin-left: 4px; }
+.tournament-teams .player-school { font-size: 11px; line-height: 1.5; margin-top: 3px; }
+.tournament-teams .roster-player > .player-gender,.tournament-teams .captain-tag { grid-column: 1 / -1; margin: 0; font-size: 11px; line-height: 1.5; }
+.tournament-teams .roster-player .remove-player-button { grid-column: 1 / -1; justify-self: start; font-size: 11px; padding: 4px 9px; min-height: 28px; }
+.tournament-teams .drop-hint { font-size: 12px; padding: 12px 18px; line-height: 1.7; }
+.tournament-teams .member-controls { padding: 12px 20px; }
+.tournament-teams .member-controls .modal-note { margin: 0; font-size: 12px; line-height: 1.7; }
+.tournament-teams .captain-controls .small-button { font-size: 13px; padding: 8px 14px; }
+.tournament-teams .captain-controls .modal-note { font-size: 12px; padding: 0 18px; }
+.tournament-teams .apply-button:not(:disabled):hover,
+.tournament-teams .apply-button:not(:disabled):focus-visible { background: var(--red); border-color: var(--red); color: white; }
+@media(max-width:1000px) {
+  .tournament-teams { grid-template-columns: minmax(0, 1fr); }
+}
+@media(max-width:600px) {
+  .tournament-teams .roster { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0 16px 16px; }
+  .tournament-teams .team-top { padding-left: 16px; padding-right: 16px; }
+  .tournament-teams .team-title-row { padding-left: 16px; padding-right: 16px; }
+}
+@media(max-width:360px) {
+  .tournament-teams .roster { grid-template-columns: minmax(0, 1fr); }
+}

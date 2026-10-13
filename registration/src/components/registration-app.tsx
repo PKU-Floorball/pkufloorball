@@ -638,7 +638,7 @@ export default function RegistrationApp({
               已集结球队<span>{snapshot.teams.length}</span>
             </h2>
           </div>
-          <section className="teams-grid" aria-label="球队名单"
+          <section className="teams-grid tournament-teams" aria-label="球队名单"
             onDragOver={(e) => {
               if ((e.target as HTMLElement).closest(".team-card")) return;
               if (canCreateTeam && !busy && e.dataTransfer.types.includes(playerDragType)) {
@@ -696,7 +696,15 @@ export default function RegistrationApp({
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     {own ? (
-                      <span className="team-summary"><span className="team-member-count">{team.players.length} 人</span><span className="my-team-label">我的球队</span></span>
+                      <span className="team-summary">
+                        <span className="team-member-count">{team.players.length} 人</span>
+                        <button className="small-button" disabled={busy || (viewer?.role === "captain" && team.players.length < 2)} onClick={() => {
+                          setError("");
+                          if (viewer?.role === "captain") {
+                            setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction("leave_captain");
+                          } else setLeaveTeamId(team.id);
+                        }}>退出球队</button>
+                      </span>
                     ) : viewer?.role === "player" ? (
                       <button
                         className="apply-button"
@@ -712,7 +720,10 @@ export default function RegistrationApp({
                       </span>
                     )}
                   </div>
-                  <h3>{team.name}</h3>
+                  <div className="team-title-row">
+                    <h3>{team.name}</h3>
+                    {own && <span className="my-team-label">我的球队</span>}
+                  </div>
                   <div className="roster">
                     {team.players.map((p) => (
                       <div className="roster-player" key={p.id} aria-label={`队员 ${p.name}`}
@@ -763,13 +774,12 @@ export default function RegistrationApp({
                   {own && viewer?.role === "player" && (
                     <div className="member-controls">
                       <p className="modal-note">拖动自己的名字到自由球员区可退出；拖到其他球队可退出并申请加入。</p>
-                      <button className="small-button" disabled={busy} onClick={() => {setError(""); setLeaveTeamId(team.id);}}>退出球队</button>
                     </div>
                   )}
                   {canDrop && (
                     <div className="captain-controls">
                       <div>
-                        {(["transfer_captain", "leave_captain", "dissolve_team"] as const).map((action) => (
+                        {(["transfer_captain", "dissolve_team"] as const).map((action) => (
                           <button key={action} className="small-button" disabled={busy || (action !== "dissolve_team" && team.players.length < 2)} onClick={() => {setError(""); setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction(action);}}>
                             {{transfer_captain:"转让队长",leave_captain:"退出球队",dissolve_team:"解散球队"}[action]}
                           </button>
@@ -779,6 +789,12 @@ export default function RegistrationApp({
                     </div>
                   )}
 
+                  {dragOver === team.id && acceptsDrop && (
+                    <div className="team-drop-feedback" role="status">
+                      <Plus size={18} aria-hidden="true" />
+                      {canDrop ? "松开，将球员加入本队" : "松开，申请加入这支球队"}
+                    </div>
+                  )}
                 </article>
               );
             })}
