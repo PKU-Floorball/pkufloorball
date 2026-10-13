@@ -1960,3 +1960,6 @@ button:not(:disabled):active,.button:not(:disabled):active{transform:translateY(
 
 /* Decoration must not intercept the interactive ball. */
 .hero-orbit { pointer-events: none; }
+
+/* Keep punctuation on the English title line at every viewport width. */
+.hero h1 .hero-title-en > span { display: inline; }
