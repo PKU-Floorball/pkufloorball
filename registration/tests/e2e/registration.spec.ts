@@ -5,7 +5,7 @@ test("no-password registration, name login, captain approval and recruitment", a
 }) => {
   await page.goto("/registration");
   await expect(
-    page.getByRole("heading", { name: /找到你的队伍/ }),
+    page.getByRole("heading", { name: /公开赛/ }),
   ).toBeVisible();
   await page.getByRole("button", { name: "立即注册" }).click();
   await expect(

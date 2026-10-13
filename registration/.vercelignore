@@ -16,3 +16,6 @@ AGENTS.md
 public/index.html
 public/htmls
 public/assets
+
+# Local visual backups are not deployment inputs
+visual-backups
