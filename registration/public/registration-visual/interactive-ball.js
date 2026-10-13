@@ -10,6 +10,11 @@ try {
  const light=new THREE.DirectionalLight(0xffffff,3.0);light.position.set(-3,5,4);scene.add(light);
  const fill=new THREE.DirectionalLight(0xffede4,.55);fill.position.set(4,-1,2);scene.add(fill);
  const ball=new THREE.Group();scene.add(ball);
+ // The rail and the ball use the same rising path. Perspective supplies depth.
+ const path=s=>new THREE.Vector3(.55*s,.35*s+.15*s*s,-1.4*s);
+ const railPoints=Array.from({length:65},(_,i)=>path(i/64*1.65).add(new THREE.Vector3(0,-1,0)));
+ const rail=new THREE.Line(new THREE.BufferGeometry().setFromPoints(railPoints),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.18}));
+ scene.add(rail);
  const dirs=[];
  for(let a=0;a<3;a++) for(const sign of [-1,1]) {const v=new THREE.Vector3();v.setComponent(a,sign);dirs.push(v)}
  for(let a=0;a<3;a++) for(let b=a+1;b<3;b++) for(const x of [-1,1]) for(const y of [-1,1]) {const v=new THREE.Vector3();v.setComponent(a,x);v.setComponent(b,y);dirs.push(v.normalize())}
@@ -23,13 +28,29 @@ try {
  function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
  new ResizeObserver(resize).observe(host);resize();
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
- let down=false,lastX=0,lastY=0,distance=0,vx=.12,vy=.07,y=0,velocity=0,previous=performance.now(),impact=0,nextJump=performance.now()+1700,visible=true;
+ let down=false,lastX=0,lastY=0,distance=0,vx=.12,vy=.07,y=0,velocity=0,previous=performance.now(),impact=0,nextJump=performance.now()+1700,visible=true,travel=0,trackVelocity=0,rolling=false;
  new IntersectionObserver(entries=>{visible=entries[0].isIntersecting}).observe(host);
- function jump(){impact=1;if(reduced.matches){host.classList.remove('tap-feedback');void host.offsetWidth;host.classList.add('tap-feedback');return}velocity=2.0;vx+=.35;host.classList.remove('tap-feedback');void host.offsetWidth;host.classList.add('tap-feedback');nextJump=performance.now()+2600}
+ function jump(){impact=1;if(reduced.matches){host.classList.remove('tap-feedback');void host.offsetWidth;host.classList.add('tap-feedback');return}rolling=true;trackVelocity=2.2;velocity=0;host.classList.remove('tap-feedback');void host.offsetWidth;host.classList.add('tap-feedback');nextJump=performance.now()+2600}
  host.addEventListener('pointerdown',e=>{down=true;distance=0;lastX=e.clientX;lastY=e.clientY;host.setPointerCapture(e.pointerId);host.classList.add('dragging')});
  host.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;distance+=Math.abs(dx)+Math.abs(dy);ball.rotation.y+=dx*.012;ball.rotation.x+=dy*.012;vx=dx*.15;vy=dy*.15;lastX=e.clientX;lastY=e.clientY});
  host.addEventListener('pointerup',()=>{if(!down)return;down=false;host.classList.remove('dragging');if(distance<8)jump()});
  host.addEventListener('pointercancel',()=>{down=false;host.classList.remove('dragging')});
  host.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();jump()}else if(e.key.startsWith('Arrow')){e.preventDefault();ball.rotation.y+=(e.key==='ArrowLeft'?-.18:e.key==='ArrowRight'?.18:0);ball.rotation.x+=(e.key==='ArrowUp'?-.18:e.key==='ArrowDown'?.18:0)}});
- function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-previous)/1000,.04);previous=now;if(!visible||document.hidden)return;if(!reduced.matches){if(!down){ball.rotation.y+=vx*dt;ball.rotation.x+=vy*dt;vx=THREE.MathUtils.lerp(vx,.12,dt*2);vy*=Math.exp(-dt*3)}if(now>nextJump&&!down){velocity=1.25;nextJump=now+3100}velocity-=5.8*dt;y+=velocity*dt;if(y<0){y=0;velocity=velocity<-.4?-velocity*.33:0}ball.position.y=y;impact=Math.max(0,impact-dt*3);const squash=1-impact*.035;ball.scale.set(1/squash,squash,1/squash);host.style.setProperty('--shadow-scale',String(1-y*.3));host.style.setProperty('--shadow-opacity',String(.15-y*.1))}host.dataset.rotation=ball.rotation.toArray().slice(0,3).join(',');host.dataset.height=String(ball.position.y);renderer.render(scene,camera)}requestAnimationFrame(animate);
+ function animate(now){requestAnimationFrame(animate);const dt=Math.min((now-previous)/1000,.04);previous=now;if(!visible||document.hidden)return;if(!reduced.matches){if(!down){ball.rotation.y+=vx*dt;ball.rotation.x+=vy*dt;vx=THREE.MathUtils.lerp(vx,.12,dt*2);vy*=Math.exp(-dt*3)}if(now>nextJump&&!down&&!rolling){velocity=1.25;nextJump=now+3100}if(rolling){
+  const oldTravel=travel;
+  // Gravity projected onto the incline decelerates the launch and reverses it.
+  const slope=.35+.3*travel;
+  const metric=.55*.55+slope*slope+1.4*1.4;
+  trackVelocity+=(-9.81*slope/metric-.12*trackVelocity)*dt;
+  travel+=trackVelocity*dt;
+  if(travel<=0){travel=0;trackVelocity=0;rolling=false;nextJump=now+3100;impact=.25}
+  const step=travel-oldTravel;
+  ball.rotation.x-=step*1.4;ball.rotation.z-=step*.55;
+  ball.position.copy(path(travel));
+  host.style.setProperty('--shadow-x',`${travel*12}%`);
+  host.style.setProperty('--shadow-scale',String(1-travel*.25));
+  host.style.setProperty('--shadow-opacity',String(.15-travel*.06));
+ }else{
+ ball.position.x=0;ball.position.z=0;host.style.setProperty('--shadow-x','0%');
+ velocity-=5.8*dt;y+=velocity*dt;if(y<0){y=0;velocity=velocity<-.4?-velocity*.33:0}ball.position.y=y;impact=Math.max(0,impact-dt*3);const squash=1-impact*.035;ball.scale.set(1/squash,squash,1/squash);host.style.setProperty('--shadow-scale',String(1-y*.3));host.style.setProperty('--shadow-opacity',String(.15-y*.1))}}host.dataset.travel=String(travel);host.dataset.rotation=ball.rotation.toArray().slice(0,3).join(',');host.dataset.height=String(ball.position.y);renderer.render(scene,camera)}requestAnimationFrame(animate);
 } catch(error){fallback.hidden=false;host.setAttribute('aria-label','软式曲棍球图片，当前浏览器不支持三维显示');console.warn('3D ball unavailable',error)}

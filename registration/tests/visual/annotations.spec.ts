@@ -13,6 +13,9 @@ test('registration and login annotations use the supplied copy and shared fonts'
  await expect(page.getByText('参赛选手登陆',{exact:true})).toBeVisible();
  await expect(page.getByText('使用注册时的姓名进入球队大厅。',{exact:true})).toHaveCount(0);
  await expect(page.locator('.login-hint')).toHaveCount(0);
+ await expect(page.locator('.champion-title span')).toHaveText(['报名参赛','您就是下一个冠军！']);
+ await expect(page.locator('.auth-watermark')).toHaveText('FLOORBALL');
+ expect(await page.locator('.auth-copy').evaluate(el=>getComputedStyle(el).backgroundColor)).toBe('rgb(148, 7, 10)');
 });
 test('team board annotations cover the creation tile, inbox and captain dialog',async({page})=>{
  const captain={id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',name:'测试队长',gender:'女',school:'北京大学',role:'captain',teamId:'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'};
@@ -36,6 +39,8 @@ test('team board annotations cover the creation tile, inbox and captain dialog',
  await expect(creation.getByText('您的手机号将作为队长手机号展示~',{exact:true})).toBeVisible();
  await creation.getByRole('button',{name:'取消',exact:true}).click();
  viewer=captain;await page.reload();
+ await expect(page.getByText('等待一起上场',{exact:true})).toHaveCount(0);
+ expect(await page.locator('.team-card .player-name').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(16);
  await expect(page.getByRole('button',{name:'点击建队',exact:true})).toBeDisabled();
  expect(await page.locator('.identity').evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(17);
  await page.getByRole('button',{name:'转让队长',exact:true}).click();

@@ -45,7 +45,7 @@ test('multiple teams, player identity, creation and dialog styles retain behavio
  const font=await dialog.getByRole('heading').evaluate(el=>getComputedStyle(el).fontFamily);expect(font).toContain('GoogleSansFlex');expect(font).toContain('RegistrationSans');
  await dialog.getByLabel('队伍名称',{exact:true}).fill(name+'队');await dialog.getByRole('button',{name:'确认创建球队',exact:true}).click();
  await expect(page.getByRole('article',{name:name+'队',exact:true})).toBeVisible();
- await expect(page.getByRole('button',{name:'点击建队',exact:true})).toBeDisabled();await expect(page.getByText('您已加入球队。每位选手只能属于一支球队；成为自由球员后可再次创建。',{exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'点击建队',exact:true})).toBeDisabled();await expect(page.getByText('您已加入球队~每位选手只能属于一支球队，成为自由球员后可创建新的队伍',{exact:true})).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:test.info().outputPath('teams.png'),fullPage:true});
 });

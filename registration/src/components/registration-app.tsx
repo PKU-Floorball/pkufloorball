@@ -412,7 +412,7 @@ export default function RegistrationApp({
         <main className="race-home">
           <section className="race-court"><div className="race-wrap race-court-inner">
             <div className="race-latin"><span className="pku-word">PKU</span><span className="floorball-word">Floorball<span className="title-dot">.</span></span></div>
-            <iframe className="race-ball-frame" src="/registration-visual/ball.html" title="互动三维软式曲棍球：拖动旋转、点击弹跳" />
+            <iframe className="race-ball-frame" src="/registration-visual/ball.html" title="互动三维软式曲棍球：拖动旋转、点击沿轨道滚动" />
             <div className="race-title-row"><h1>公开赛</h1><div className="race-actions">
               <button className="race-btn" onClick={() => go("register")}>立即注册<ArrowRight size={21} strokeWidth={1.8} aria-hidden="true" /></button>
               <button className="race-btn secondary" onClick={() => go("login")}>登录<ArrowRight size={21} strokeWidth={1.8} aria-hidden="true" /></button>
@@ -427,26 +427,11 @@ export default function RegistrationApp({
               <ChevronLeft size={16} />
               返回
             </button>
-            <h1 className={view === "register" ? "champion-title" : undefined}>
-              {view === "register" ? (
-                <>
-                  <span>报名参赛</span>
-                  <span>您就是下一个冠军！</span>
-                </>
-              ) : (
-                <>
-                  好久不见，
-                  <br />
-                  准备上场。
-                </>
-              )}
+            <h1 className="champion-title">
+              <span>报名参赛</span>
+              <span>您就是下一个冠军！</span>
             </h1>
-            {view === "login" && <p>输入报名时填写的姓名，看看您的队友们。</p>}
-            <span className="auth-watermark" aria-hidden="true">
-              FLOOR
-              <br />
-              BALL.
-            </span>
+            <span className="auth-watermark" aria-hidden="true">FLOORBALL</span>
           </section>
           <section className="auth-card">
             {view === "register" && registered ? (
@@ -776,7 +761,7 @@ export default function RegistrationApp({
             {!canCreateTeam && viewer?.teamId && <aside className="create-team-dropzone team-membership-note" aria-label="创建球队区域">
               <Plus size={28} aria-hidden="true" />
               <h3>创建一支新球队</h3>
-              <p>您已加入球队。每位选手只能属于一支球队；成为自由球员后可再次创建。</p>
+              <p>您已加入球队~<br />每位选手只能属于一支球队，成为自由球员后可创建新的队伍</p>
               <button className="button secondary create-team-button" disabled><Plus size={20} aria-hidden="true" />点击建队</button>
             </aside>}
             {canCreateTeam && (
@@ -812,10 +797,6 @@ export default function RegistrationApp({
                     : viewer?.teamId ? "拖动自己的名字到这里可退出球队；也可拖到其他球队申请换队。" : "您可以拖动您的球员卡片到已有球队的空白处申请加入，或是创建属于您的球队~"}
                 </p>
               </div>
-              <span className="free-label">
-                <CircleDot size={14} />
-                等待一起上场
-              </span>
             </div>
             <div className="free-grid">
               {snapshot.freePlayers.map((p) => (
@@ -854,7 +835,7 @@ export default function RegistrationApp({
               ))}
             </div>
             {!snapshot.freePlayers.length && (
-              <p className="empty-free">所有伙伴都已找到球队，期待一起上场。</p>
+              <p className="empty-free">选手组队完毕，蓄势待发！</p>
             )}
           </section>
         </main>
