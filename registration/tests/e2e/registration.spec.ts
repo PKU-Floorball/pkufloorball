@@ -41,7 +41,7 @@ test("no-password registration, name login, captain approval and recruitment", a
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "点击建队", exact: true }),
-  ).toHaveCount(0);
+  ).toBeDisabled();
   await page.getByRole("button", { name: "退出登录" }).click();
   await page.getByRole("button", { name: "立即注册" }).click();
   await page.getByLabel("姓名", { exact: true }).fill("测试球员");

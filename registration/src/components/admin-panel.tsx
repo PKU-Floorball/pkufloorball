@@ -383,6 +383,8 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                         ></option>
                         <option>男</option>
                         <option>女</option>
+                        <option>非二元性别</option>
+                        <option>不愿意透露</option>
                       </select>
                     </label>
                     <label className="field">
@@ -554,6 +556,8 @@ function PlayerEditor({
           <select name="gender" defaultValue={p.gender}>
             <option>男</option>
             <option>女</option>
+            <option>非二元性别</option>
+            <option>不愿意透露</option>
           </select>
         </label>
         <label className="field">学校信息

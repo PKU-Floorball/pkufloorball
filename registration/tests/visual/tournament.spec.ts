@@ -15,7 +15,7 @@ test('main navigation, full viewport hero and form typography',async({page,isMob
  await header.getByRole('link',{name:'公开赛',exact:true}).click();
  await page.getByRole('button',{name:'立即注册',exact:true}).click();
  await expect(page.getByRole('heading',{name:/报名参赛\s*您就是下一个冠军！/})).toBeVisible();
- const gender=page.getByLabel('性别',{exact:true});expect(await gender.locator('option').allTextContents()).toEqual(['','男','女']);
+ const gender=page.getByLabel('性别',{exact:true});expect(await gender.locator('option').allTextContents()).toEqual(['','男','女','非二元性别','不愿意透露']);
  expect(await page.getByLabel('手机号',{exact:true}).getAttribute('placeholder')).toBeNull();
  await expect(page.locator('.auth-note')).toHaveCount(0);
  await expect(page.getByRole('button',{name:'返回',exact:true})).toBeVisible();
@@ -30,7 +30,7 @@ test('main navigation, full viewport hero and form typography',async({page,isMob
 test('multiple teams, player identity, creation and dialog styles retain behavior',async({page})=>{
  const base='http://127.0.0.1:3101',name=`视觉${test.info().project.name.slice(0,6)}${Date.now()}`;
  const post=async(data:Record<string,unknown>)=>{const r=await page.request.post('/registration/api/registration',{headers:{Origin:base},data});expect(r.ok()).toBe(true)};
- await post({action:'register',name,gender:'女',school:'北京大学',phone:'186'+String(Date.now()).slice(-8)});
+ await post({action:'register',name,gender:'非二元性别',school:'北京大学',phone:'186'+String(Date.now()).slice(-8)});
  await post({action:'login',name});await page.goto('/registration/teams');
  await expect(page.locator('.team-card').first()).toBeVisible();expect(await page.locator('.team-card').count()).toBeGreaterThanOrEqual(2);
  const cards=await page.locator('.team-card').evaluateAll(nodes=>nodes.map(n=>{const b=n.getBoundingClientRect();return {x:b.x,y:b.y,right:b.right,bottom:b.bottom}}));
@@ -45,7 +45,7 @@ test('multiple teams, player identity, creation and dialog styles retain behavio
  const font=await dialog.getByRole('heading').evaluate(el=>getComputedStyle(el).fontFamily);expect(font).toContain('GoogleSansFlex');expect(font).toContain('RegistrationSans');
  await dialog.getByLabel('队伍名称',{exact:true}).fill(name+'队');await dialog.getByRole('button',{name:'确认创建球队',exact:true}).click();
  await expect(page.getByRole('article',{name:name+'队',exact:true})).toBeVisible();
- await expect(page.getByRole('button',{name:'点击建队',exact:true})).toHaveCount(0);await expect(page.getByText('您已加入球队',{exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'点击建队',exact:true})).toBeDisabled();await expect(page.getByText('您已加入球队。每位选手只能属于一支球队；成为自由球员后可再次创建。',{exact:true})).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:test.info().outputPath('teams.png'),fullPage:true});
 });

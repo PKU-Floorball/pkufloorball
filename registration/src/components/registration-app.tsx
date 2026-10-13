@@ -496,6 +496,8 @@ export default function RegistrationApp({
                         ></option>
                         <option value="男">男</option>
                         <option value="女">女</option>
+                        <option value="非二元性别">非二元性别</option>
+                        <option value="不愿意透露">不愿意透露</option>
                       </select>
                     </label>
                     <label className="field">
@@ -517,7 +519,7 @@ export default function RegistrationApp({
                     </label>
                     <p className="privacy-note">
                       <ShieldCheck size={14} />
-                      报名后先作为自由球员。加入球队需队长确认；如果您创建球队，将成为队长，手机号会作为队长联系方式展示。
+                      报名后先作为自由球员。创建球队后队长将联系您加入球队~
                     </p>
                     <button
                       className="button primary full"
@@ -771,7 +773,12 @@ export default function RegistrationApp({
                 </article>
               );
             })}
-            {!canCreateTeam && viewer?.teamId && <aside className="team-membership-note"><UsersRound size={24} aria-hidden="true" /><h3>您已加入球队</h3><p>每位选手只能属于一支球队。成为自由球员后，这里会重新显示建队入口。</p></aside>}
+            {!canCreateTeam && viewer?.teamId && <aside className="create-team-dropzone team-membership-note" aria-label="创建球队区域">
+              <Plus size={28} aria-hidden="true" />
+              <h3>创建一支新球队</h3>
+              <p>您已加入球队。每位选手只能属于一支球队；成为自由球员后可再次创建。</p>
+              <button className="button secondary create-team-button" disabled><Plus size={20} aria-hidden="true" />点击建队</button>
+            </aside>}
             {canCreateTeam && (
               <div role="group" aria-label="创建球队区域"
                 className={`create-team-dropzone ${dragOver === "create-team" ? "drop-active" : ""}`}>

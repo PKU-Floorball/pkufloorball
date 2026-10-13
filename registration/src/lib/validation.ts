@@ -21,7 +21,7 @@ function phone(value: unknown) {
 export function parseRegistration(raw: Record<string, unknown>): RegisterInput {
   const name = text(raw.name, 30),
     number = phone(raw.phone);
-  if (raw.gender !== "男" && raw.gender !== "女")
+  if (raw.gender !== "男" && raw.gender !== "女" && raw.gender !== "非二元性别" && raw.gender !== "不愿意透露")
     throw new AppError("INVALID_INPUT");
   return { name, gender: raw.gender, phone: number, school: text(raw.school, 80) };
 }

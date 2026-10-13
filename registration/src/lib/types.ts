@@ -1,5 +1,5 @@
 export type Role = "captain" | "player";
-export type Gender = "男" | "女";
+export type Gender = "男" | "女" | "非二元性别" | "不愿意透露";
 export type Player = {
   id: string;
   name: string;

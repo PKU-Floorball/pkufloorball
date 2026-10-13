@@ -25,3 +25,9 @@
 - Team creation remains available only to free players, exactly as before. Existing members see an explanatory tile, and teams retain the responsive grid. Polling still runs every 15 seconds; its visible technical caption was removed.
 - The four-gender extension is prepared but not enabled in this visual release until the organizer confirms the production SQL migration. Apply `supabase/011_gender_options.sql` to production before publishing the matching form options. It preserves existing rows, function permissions and registration/membership logic.
 - `npm run test:visual` covers Chromium, Firefox, WebKit, Android and iPhone emulation. Device emulation is not a claim of testing all physical devices or operating systems. Existing `npm run test:e2e` checks core flows in the local demo, without production writes.
+
+## Complete browser annotation follow-up
+- All 14 registration/home annotations and all 19 login/team annotations are tracked in `ANNOTATION-AUDIT.md`.
+- Register form copy now exactly matches the supplied sentence (with 您). This is display copy; the existing creator-becomes-captain behavior is preserved.
+- The creation area remains visible after joining or creating a team, with a disabled button and explanation of the existing membership rule. It does not grant an extra team creation permission.
+- The four gender options are now included in registration and both administrator selectors, along with server parsing and migration tests. Production SQL migration `011_gender_options.sql` remains an external database prerequisite; a Git push cannot apply it.
