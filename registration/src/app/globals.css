@@ -2244,12 +2244,15 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 /* Header markup, Bootstrap settings and typography come from the main site. */
 .association-header{letter-spacing:.4px}
 .association-header.association-topbar{position:relative;top:auto;min-height:0;z-index:41}
-.race-court .race-chinese-title{z-index:4;pointer-events:none;font-weight:500;transform:none;letter-spacing:-.04em;max-width:none}
-.race-chinese-title .floorball-word{font-size:inherit;white-space:nowrap;width:max-content;transform:rotate(-3deg) scaleX(var(--title-scale,1));transform-origin:left center}
-.race-court .race-event-title{font-size:clamp(26px,3.5vw,44px);line-height:1.2;font-weight:700;transform:rotate(-4deg);transform-origin:left bottom;color:#fff;white-space:nowrap}
+.race-court .race-chinese-title{z-index:4;pointer-events:none;font-weight:500;font-style:normal;transform:translateX(-8px);letter-spacing:-.04em;max-width:none}
+.race-chinese-title .pku-word{margin-bottom:0}
+.race-chinese-title .floorball-word{font-size:inherit;margin-top:.5em;white-space:nowrap;width:max-content;transform:scaleX(var(--title-scale,1));transform-origin:left center}
+.race-court .race-event-title{font-size:clamp(26px,3.5vw,44px);line-height:1.2;font-weight:700;font-style:normal;transform:none;color:#fff;white-space:nowrap}
 .race-court-inner{gap:36px}
 @media(min-width:761px){.race-ball-frame{right:-6%}.race-court .race-chinese-title{max-width:calc(100% - clamp(180px,22vw,300px))}}
-@media(max-width:760px){.race-chinese-title .floorball-word{font-size:inherit}.race-chinese-title{padding-right:0}.race-court-inner{gap:32px}}
+@media(max-width:760px){.race-chinese-title .floorball-word{font-size:inherit}.race-chinese-title{padding-right:0}.race-court-inner{gap:32px}.race-ball-frame{width:clamp(235px,45vw,300px);height:clamp(235px,45vw,300px);top:73%}}
+
+@media(max-width:480px){.race-ball-frame{width:210px;height:210px;top:65%}}
 
 .team-membership-note{padding:28px 20px}
 .team-card .remove-player-button{font-size:14px;border-radius:12px}
