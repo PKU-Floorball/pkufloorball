@@ -2278,7 +2278,7 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 @media(prefers-reduced-motion:reduce){.feedback.success{transition:none}}
 
 /* Compact public team cards: two teams per row, three members per team. */
-.tournament-teams { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.tournament-teams { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: stretch; }
 .tournament-teams .team-card { position: relative; transition: background-color .16s ease, border-color .16s ease, box-shadow .16s ease; }
 .tournament-teams .team-card.drop-active { background: var(--red-pale); border-color: var(--red); box-shadow: inset 0 0 0 2px var(--red), 0 8px 24px #94070a20; }
 .tournament-teams .team-card.drop-active .drop-hint { background: var(--red-pale); }

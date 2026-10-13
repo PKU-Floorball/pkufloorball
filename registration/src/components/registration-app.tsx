@@ -796,18 +796,6 @@ export default function RegistrationApp({
                       </div>
                     ))}
                   </div>
-                  {canDrop && (
-                    <div className="drop-hint">
-                      {dragOver === team.id
-                        ? "松开，将球员加入本队"
-                        : <span>将自由球员的球员卡片拖入此处<br />或点击下方邀请球员加入球队</span>}
-                    </div>
-                  )}
-                  {own && viewer?.role === "player" && (
-                    <div className="member-controls">
-                      <p className="modal-note">拖动自己的名字到自由球员区可退出；拖到其他球队可退出并申请加入。</p>
-                    </div>
-                  )}
                   {canDrop && team.players.length < 2 && (
                     <div className="captain-controls">
                       <p className="modal-note">本队暂无其他队员，无法交接或退出；可先招募队员，或解散球队。</p>
@@ -858,7 +846,7 @@ export default function RegistrationApp({
                 </h2>
                 <p>
                   {viewer?.role === "captain"
-                    ? "球员可以创建新队伍，队长可邀请球员加入队伍，球员亦可自主申请加入队伍"
+                    ? "将自由球员卡片拖入您的球队，或点击球员右上角的“＋”邀请加入。"
                     : viewer?.teamId ? "拖动自己的名字到这里可退出球队；也可拖到其他球队申请换队。" : "您可以拖动您的球员卡片到已有球队的空白处申请加入，或是创建属于您的球队~"}
                 </p>
               </div>

@@ -34,9 +34,12 @@ for (const role of ['player', 'captain']) for (const width of [1280, 390]) {
       for (const i of [1, 2]) expect(Math.abs((await rows.nth(i).boundingBox())!.y - first.y)).toBeLessThan(2);
       expect((await rows.nth(3).boundingBox())!.y).toBeGreaterThan(first.y);
       const firstTeam = (await card.boundingBox())!;
+      expect(Math.abs((await page.getByRole('article', { name: '球队二', exact: true }).boundingBox())!.height - firstTeam.height)).toBeLessThan(2);
       expect(Math.abs((await page.getByRole('article', { name: '球队二', exact: true }).boundingBox())!.y - firstTeam.y)).toBeLessThan(2);
       expect((await page.getByRole('article', { name: '球队三', exact: true }).boundingBox())!.y).toBeGreaterThan(firstTeam.y);
     }
+    await expect(card.locator('.drop-hint, .member-controls')).toHaveCount(0);
+    if (role === 'captain') await expect(page.getByRole('region', { name: '自由球员区域' }).getByText('将自由球员卡片拖入您的球队，或点击球员右上角的“＋”邀请加入。')).toBeVisible();
     await card.screenshot({ path: test.info().outputPath('team-card.png') });
     await page.screenshot({ path: test.info().outputPath('lobby.png'), fullPage: true });
     await page.locator('.free-section').screenshot({ path: test.info().outputPath('free-players.png') });
