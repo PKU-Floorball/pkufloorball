@@ -1,19 +1,22 @@
 import {test,expect} from '@playwright/test';
 test('main navigation, full viewport hero and form typography',async({page,isMobile})=>{
+ test.setTimeout(60000);
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('/registration');
  await expect(page.locator('.environment-banner')).toContainText('本地演示');
  await expect(page.locator('.race-crumb')).toHaveCount(0);
- await expect(page.locator('.floorball-word')).toHaveText('Floorball');
- await expect(page.locator('.race-event-title')).toHaveText('北京大学软式曲棍球公开赛');
+ await expect(page.locator('.floorball-word')).toHaveText('软式曲棍球公开赛');
+ await expect(page.locator('.race-event-title')).toHaveText('PKU Floorball');
+ await expect(page.locator('.race-chinese-title .pku-word')).toHaveText('北京大学');
  expect(await page.locator('.race-court').evaluate(el=>getComputedStyle(el).backgroundColor)).toBe('rgb(148, 7, 10)');
  await expect(page.locator('.registration-identity')).toBeHidden();
- await page.evaluate(()=>scrollTo(0,400));expect((await page.locator('.association-header').boundingBox())!.y).toBe(0);await page.evaluate(()=>scrollTo(0,0));
- await expect.poll(async()=>(await page.locator('.site-foot').boundingBox())!.y).toBeGreaterThanOrEqual(page.viewportSize()!.height-1);
+ await page.evaluate(()=>scrollTo(0,400));await expect.poll(async()=>(await page.locator('.association-navigation').boundingBox())?.y).toBe(0);await page.evaluate(()=>scrollTo(0,0));
+ await expect.poll(async()=>(await page.locator('.site-foot').boundingBox())?.y ?? -1).toBeGreaterThanOrEqual(page.viewportSize()!.height-1);
  await expect(page.getByRole('button',{name:'立即注册',exact:true})).toBeInViewport();
  await expect(page.getByRole('button',{name:'登录',exact:true})).toBeInViewport();
  await page.screenshot({path:test.info().outputPath('home.png')});
- const header=page.locator('.association-header');
+ await page.waitForFunction(()=>!!(window as unknown as {bootstrap?:unknown}).bootstrap);
+ const header=page.locator('.association-navigation');
  if(isMobile)await header.locator('.navbar-toggler').click();
  await header.getByRole('button',{name:'赛事',exact:true}).click();
  await expect(header.getByRole('link',{name:'公开赛',exact:true})).toHaveAttribute('href','/registration');

@@ -221,6 +221,16 @@ export default function RegistrationApp({
     measure();
     return () => { observer.disconnect(); window.removeEventListener("resize", measure); };
   }, [view, state.mode, loading, notice, error, viewer?.id]);
+  useEffect(() => {
+    if (view !== "home") return;
+    const title = document.querySelector<HTMLElement>(".race-chinese-title");
+    const line = title?.querySelector<HTMLElement>(".floorball-word");
+    if (!title || !line) return;
+    const fit = () => line.style.setProperty("--title-scale", String(Math.min(1, title.clientWidth / line.scrollWidth)));
+    const observer = new ResizeObserver(fit); observer.observe(title);
+    void document.fonts.ready.then(fit); fit();
+    return () => observer.disconnect();
+  }, [view]);
   const refresh = useCallback(async () => {
     const data: PublicState = await request();
     setState(data);
@@ -443,9 +453,9 @@ export default function RegistrationApp({
       {view === "home" && (
         <main className="race-home">
           <section className="race-court"><div className="race-wrap race-court-inner">
-            <div className="race-latin"><span className="pku-word">PKU</span><span className="floorball-word">Floorball</span></div>
+            <h1 className="race-latin race-chinese-title"><span className="pku-word">北京大学</span><span className="floorball-word">软式曲棍球公开赛</span></h1>
             <iframe className="race-ball-frame" src="/registration-visual/ball.html" title="互动三维软式曲棍球：拖动旋转、点击沿轨道滚动" />
-            <div className="race-title-row"><h1 className="race-event-title"><span>北京大学</span><span>软式曲棍球公开赛</span></h1><div className="race-actions">
+            <div className="race-title-row"><p className="race-event-title">PKU Floorball</p><div className="race-actions">
               <button className="race-btn" onClick={() => go("register")}>立即注册<ArrowRight size={21} strokeWidth={1.8} aria-hidden="true" /></button>
               <button className="race-btn secondary" onClick={() => go("login")}>登录<ArrowRight size={21} strokeWidth={1.8} aria-hidden="true" /></button>
             </div></div>

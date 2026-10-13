@@ -95,8 +95,11 @@ console.log('Association homepage, pages and assets built.');
 
 // Registration uses the association's actual header template and assets.
 const header = await engine.parseAndRender(await readFile(path.join(source, '_includes/header-primary.html'), 'utf8'));
+// Use the generated homepage fragment, including its optimized QR-code URL.
+const top = (await readFile(path.join(output, 'index.html'), 'utf8')).match(/<header id="header">[\s\S]*?<\/header>/)?.[0];
+if (!top) throw new Error('Main association header-top template missing');
 const sprites = await readFile(path.join(source, '_includes/svgs.html'), 'utf8');
-await writeFile(path.join(app, 'src/components/association-header-data.json'), JSON.stringify({ html: sprites + header }));
+await writeFile(path.join(app, 'src/components/association-header-data.json'), JSON.stringify({ html: sprites + header, topHtml: top }));
 let scopedCss = '';
 for (const file of ['assets/vendor/bootstrap/bootstrap.min.css', 'assets/css/style.css']) {
   const root = postcss.parse(await readFile(path.join(source, file), 'utf8'));
@@ -104,7 +107,7 @@ for (const file of ['assets/vendor/bootstrap/bootstrap.min.css', 'assets/css/sty
     if (rule.parent.type === 'atrule' && /keyframes$/.test(rule.parent.name)) return;
     rule.selectors = rule.selectors.map(selector => {
       if (selector.trim() === ':root' || selector.trim() === 'body' || selector.trim() === 'html') return '.association-header';
-      return ':where(.association-header) ' + selector;
+      return '.association-header ' + selector;
     });
   });
   // Relative images in the original stylesheet resolve from /assets/css/.

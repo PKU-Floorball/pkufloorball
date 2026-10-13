@@ -2083,7 +2083,6 @@ button:not(:disabled):active,.button:not(:disabled):active{transform:translateY(
 .association-header #primary-header{border:0}
 .association-header input{font-size:1rem;min-height:0}
 .association-header .offcanvas{color:#797876}
-.association-header .navbar-brand{font-family:GoogleSansFlex,sans-serif;font-weight:500}
 .association-header .navbar-toggler{cursor:pointer}
 .registration-identity:empty{display:none}
 .registration-identity{padding:10px 24px;justify-content:flex-end;background:#fff;border-bottom:1px solid #eee}
@@ -2241,6 +2240,16 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .verification-toggle:focus-visible{outline:2px solid var(--red);outline-offset:-4px}
 @media(max-width:760px){.section-heading h2{font-size:18px}.section-heading p{font-size:15px}.free-card{padding:20px}.team-card .player-gender{font-size:18px}.team-summary{gap:8px}.team-top{padding-left:18px;padding-right:18px}.my-team-label{font-size:16px}.team-member-count{font-size:18px}.identity{font-size:21px}}
 @media(prefers-reduced-motion:reduce){.feedback.success{transition:none}}
+
+/* Header markup, Bootstrap settings and typography come from the main site. */
+.association-header{letter-spacing:.4px}
+.association-header.association-topbar{position:relative;top:auto;min-height:0;z-index:41}
+.race-court .race-chinese-title{z-index:4;pointer-events:none;font-weight:500;transform:none;letter-spacing:-.04em;max-width:none}
+.race-chinese-title .floorball-word{font-size:inherit;white-space:nowrap;width:max-content;transform:rotate(-3deg) scaleX(var(--title-scale,1));transform-origin:left center}
+.race-court .race-event-title{font-size:clamp(26px,3.5vw,44px);line-height:1.2;font-weight:700;transform:rotate(-4deg);transform-origin:left bottom;color:#fff;white-space:nowrap}
+.race-court-inner{gap:36px}
+@media(min-width:761px){.race-ball-frame{right:-6%}}
+@media(max-width:760px){.race-chinese-title .floorball-word{font-size:inherit}.race-chinese-title{padding-right:0}.race-court-inner{gap:32px}}
 
 .team-membership-note{padding:28px 20px}
 .team-card .remove-player-button{font-size:14px;border-radius:12px}

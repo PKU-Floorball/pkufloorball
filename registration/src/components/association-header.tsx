@@ -18,7 +18,8 @@ export default function AssociationHeader() {
   return <>
     <link rel="stylesheet" href="/assets/vendor/fonts/fonts.css" />
     <link rel="stylesheet" href="/association-header.css" />
-    <div ref={ref} className="association-header" dangerouslySetInnerHTML={{ __html: header.html }} />
+    <div className="association-header association-topbar" dangerouslySetInnerHTML={{ __html: header.topHtml }} />
+    <div ref={ref} className="association-header association-navigation" dangerouslySetInnerHTML={{ __html: header.html }} />
     <Script src="/assets/vendor/bootstrap/bootstrap.bundle.min.js" strategy="afterInteractive" />
   </>;
 }
