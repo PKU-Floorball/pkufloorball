@@ -103,6 +103,21 @@ test("no-password registration, name login, captain approval and recruitment", a
       .getByText("陆一凡", { exact: true }),
   ).toBeVisible();
   await page.screenshot({ path: "test-results/desktop.png", fullPage: true });
+  await page.getByRole("button", { name: "退出登录" }).click();
+  await page.getByRole("button", { name: "登录", exact: true }).click();
+  await page.getByLabel("姓名", { exact: true }).fill("陆一凡");
+  await page.getByLabel("安全验证", { exact: true }).fill("0011");
+  await page.getByRole("button", { name: "进入球队大厅" }).click();
+  await expect(page.locator(".message-bubble")).toHaveText("1");
+  await page.getByRole("button", { name: "查看消息", exact: true }).click();
+  const inbox = page.getByRole("dialog", { name: "我的消息", exact: true });
+  await expect(inbox.getByText("测试队长将您加入了「测试球队」", { exact: true })).toBeVisible();
+  await expect(inbox.getByText("已批准", { exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "关闭消息" }).click();
+  await expect(page.locator(".message-bubble")).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator(".team-card").first()).toBeVisible();
+  await expect(page.locator(".message-bubble")).toHaveCount(0);
 });
 
 test("mobile layout reflows without horizontal overflow and supports touch recruitment", async ({

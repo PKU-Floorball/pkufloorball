@@ -8,8 +8,8 @@ test('player messages show only team, time and status with unread updates',async
  await page.route('**/registration/api/registration',r=>r.fulfill({json:{ok:true,mode:'demo',snapshot:{viewer:player,teams,freePlayers:[player],applications}}}));
  await page.goto('/registration/teams');await expect(page.locator('.team-card')).toHaveCount(2);
  await expect(page.locator('.message-bubble')).toHaveCount(0);
- await page.getByRole('button',{name:'我的申请',exact:true}).click();
- const drawer=page.getByRole('dialog',{name:'我的申请',exact:true});
+ await page.getByRole('button',{name:'查看消息',exact:true}).click();
+ const drawer=page.getByRole('dialog',{name:'我的消息',exact:true});
  await expect(drawer.getByText('申请加入 甲队',{exact:true})).toBeVisible();
  await expect(drawer.locator('.application-list')).not.toContainText(player.name);
  await expect(drawer.locator('.application-list')).not.toContainText(player.gender);
@@ -18,7 +18,7 @@ test('player messages show only team, time and status with unread updates',async
  await page.getByRole('button',{name:'关闭消息'}).click();
  applications=[application('a','team-a','approved'),application('b','team-b','cancelled')];
  await page.reload();await expect(page.locator('.message-bubble')).toHaveText('2');
- await page.getByRole('button',{name:/我的申请/}).click();
+ await page.getByRole('button',{name:/查看消息/}).click();
  await expect(drawer.getByText('已批准',{exact:true})).toBeVisible();await expect(drawer.getByText('已失效',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'关闭消息'}).click();await expect(page.locator('.message-bubble')).toHaveCount(0);
  await page.reload();await expect(page.locator('.team-card')).toHaveCount(2);await expect(page.locator('.message-bubble')).toHaveCount(0);

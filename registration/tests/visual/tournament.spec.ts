@@ -50,7 +50,7 @@ test('multiple teams, player identity, creation and dialog styles retain behavio
  const cards=await page.locator('.team-card').evaluateAll(nodes=>nodes.map(n=>{const b=n.getBoundingClientRect();return {x:b.x,y:b.y,right:b.right,bottom:b.bottom}}));
  expect(cards.every((a,i)=>cards.slice(i+1).every(b=>Math.min(a.right,b.right)-Math.max(a.x,b.x)<1||Math.min(a.bottom,b.bottom)-Math.max(a.y,b.y)<1))).toBe(true);
  await expect(page.getByText('THE TEAM BOARD')).toHaveCount(0);
- await page.getByRole('button',{name:'我的申请',exact:true}).click();
+ await page.getByRole('button',{name:'查看消息',exact:true}).click();
  await expect(page.getByRole('dialog')).toBeVisible();await expect(page.getByText('TEAM INBOX')).toHaveCount(0);
  await page.getByRole('button',{name:'关闭消息',exact:true}).click();
  await page.getByRole('button',{name:'点击建队',exact:true}).click();

@@ -99,6 +99,7 @@ beforeEach(async () => {
   await db.exec(readFileSync(new URL("../supabase/008_duplicate_registration_and_player_deletion.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/009_school_information.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/010_member_exit_and_application_reasons.sql", import.meta.url), "utf8"));
+  await db.exec(readFileSync(new URL("../supabase/012_recruitment_notifications.sql", import.meta.url), "utf8"));
 });
 afterEach(async () => {
   await db.close();
@@ -174,6 +175,7 @@ describe("join actions", () => {
     await act("a", "approve", null, null, application);
     const data = await snapshot("p");
     expect(data.viewer.teamId).toBe(a.id);
+    expect(data.notifications).toEqual([]);
     expect(data.applications.map((r: any) => r.status).sort()).toEqual([
       "approved",
       "cancelled",
@@ -204,6 +206,7 @@ describe("join actions", () => {
     ).toEqual(["pending", "rejected"]);
   });
   it("recruits only to the captain own team and prevents player or anonymous actions", async () => {
+    await db.exec(readFileSync(new URL("../supabase/012_recruitment_notifications.sql", import.meta.url), "utf8"));
     await register("队长", "13800138000", "captain", "未名队");
     const player = await register("球员", "13800138001");
     await login("队长", "c");
@@ -216,7 +219,13 @@ describe("join actions", () => {
       "UNAUTHORIZED",
     );
     await act("c", "recruit", team, player);
-    expect((await snapshot("p")).viewer.teamId).toBe(team);
+    const joined = await snapshot("p");
+    expect(joined.viewer.teamId).toBe(team);
+    expect(joined.notifications).toEqual([expect.objectContaining({ actorName: "队长", teamName: "未名队" })]);
+    expect(joined.applications).toEqual([]);
+    expect((await snapshot("c")).notifications).toEqual([]);
+    await expect(act("c", "recruit", team, player)).rejects.toThrow("ALREADY_JOINED");
+    expect((await snapshot("p")).notifications).toHaveLength(1);
     await expect(act("p", "apply", team)).rejects.toThrow("ALREADY_JOINED");
   });
 });

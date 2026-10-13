@@ -32,7 +32,7 @@ test('team board annotations cover the creation tile, inbox and captain dialog',
  const tile=page.getByRole('group',{name:'创建球队区域',exact:true});await expect(tile.locator('p')).toHaveText('拖入您的自由球员卡片！创建您自己的球队！');
  expect(await tile.getByRole('button').locator('svg').evaluate(el=>getComputedStyle(el).animationName)).toBe('create-team-hop');
  await expect(page.getByText('您可以拖动您的球员卡片到已有球队的空白处申请加入，或是创建属于您的球队~',{exact:true})).toBeVisible();
- await page.getByRole('button',{name:'我的申请',exact:true}).click();
+ await page.getByRole('button',{name:'查看消息',exact:true}).click();
  await expect(page.getByText('TEAM INBOX',{exact:true})).toHaveCount(0);await expect(page.getByText('查看队长的处理结果。',{exact:true})).toHaveCount(0);
  await page.getByRole('button',{name:'关闭消息',exact:true}).click();
  await page.getByRole('button',{name:'点击建队',exact:true}).click();

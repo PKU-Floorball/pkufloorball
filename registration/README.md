@@ -47,6 +47,8 @@ REGISTRATION_DEMO=true npm run dev
 
 ## Vercel 部署
 
+直接招募通知：执行 `supabase/012_recruitment_notifications.sql`，新增仅收件球员可读取的站内通知，记录操作队长和当时的球队名称。直接招募不会生成已批准申请；真正的申请审批仍显示申请状态。迁移可重复执行，保留现有数据，不追溯补发历史招募通知。已有站点需先执行数据库迁移，再发布前端。
+
 生产地址：https://pkufloorball.site/registration
 
 - Vercel 项目：`xhhwyh/pkufloorball`

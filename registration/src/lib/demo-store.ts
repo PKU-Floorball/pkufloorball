@@ -6,6 +6,7 @@ import type {
   Action,
   Application,
   Snapshot,
+  PlayerNotification,
 } from "./types";
 import { AppError } from "./validation";
 type PrivatePlayer = Player & { phone: string };
@@ -13,6 +14,7 @@ export function createDemoStore(): Store {
   const players: PrivatePlayer[] = [],
     teams: { id: string; name: string; captainId: string }[] = [],
     applications: Application[] = [];
+  const notifications: (PlayerNotification & { playerId: string })[] = [];
   const sessions = new Map<string, { id: string; expires: number }>();
   function seed(
     input: Omit<RegisterInput, "school"> & { school?: string;
@@ -213,6 +215,7 @@ export function createDemoStore(): Store {
       return;
     }
     player.teamId = team.id;
+    if (input.action === "recruit") notifications.unshift({ id: randomUUID(), playerId: player.id, actorName: viewer.name, teamName: team.name, createdAt: new Date().toISOString() });
     for (const a of applications)
       if (a.playerId === player.id && a.status === "pending")
         a.status =
@@ -296,6 +299,7 @@ export function createDemoStore(): Store {
         freePlayers: players
           .filter((p) => !p.teamId && p.role === "player")
           .map(publicPlayer),
+        notifications: notifications.filter(n => n.playerId === viewer.id).slice(0, 100).map(({playerId: _playerId, ...n}) => n),
         applications: applications
           .filter((a) =>
             viewer.role === "captain"

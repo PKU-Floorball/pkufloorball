@@ -10,6 +10,12 @@ test('free player drops into blank team space to confirm creation, cancellation 
   const self=page.getByRole('article',{name:'自由球员 '+name,exact:true}),blank=page.getByRole('region',{name:'球队名单',exact:true});
   const teams=page.getByRole('region',{name:'球队名单',exact:true});
   const regionBox=(await teams.boundingBox())!,firstBox=(await teams.getByRole('article').first().boundingBox())!;
+  const hoverData = await page.evaluateHandle(() => { const data = new DataTransfer(); data.setData('application/x-pku-player', 'self'); return data; });
+  await teams.dispatchEvent('dragover', { dataTransfer: hoverData });
+  await expect(teams).toHaveClass(/create-drop-active/);
+  expect(await teams.evaluate(el => getComputedStyle(el, '::before').top)).toBe('-10px');
+  expect((await teams.getByRole('article').first().boundingBox())!.x).toBe(firstBox.x);
+  await teams.dispatchEvent('dragleave', { dataTransfer: hoverData });
   // Drop in the grid gap itself, outside every card and the explicit tile.
   await self.dragTo(teams,{targetPosition:{x:firstBox.x+firstBox.width-regionBox.x+10,y:30}});
   let dialog=page.getByRole('dialog',{name:'创建球队',exact:true});await expect(dialog).toBeVisible();

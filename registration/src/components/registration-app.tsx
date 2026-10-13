@@ -152,6 +152,7 @@ export default function RegistrationApp({
     if (!messagesOpen || !snapshot) return;
     setReadApplications(previous => {
       const next = {...previous};
+      for (const notification of snapshot.notifications || []) next[notification.id] = "received";
       for (const application of snapshot.applications) next[application.id] = application.status;
       sessionStorage.setItem(`floorball-messages-${snapshot.viewer.id}`, JSON.stringify(next));
       return next;
@@ -395,9 +396,9 @@ export default function RegistrationApp({
       await refresh().catch(() => setNotice("操作已保存；名单暂未刷新，请刷新页面查看。"));
     });
   }
-  const unread = snapshot?.applications.filter(a =>
+  const unread = (snapshot?.applications.filter(a =>
     (viewer?.role === "captain" || a.status !== "pending") && readApplications[a.id] !== a.status
-  ).length ?? 0;
+  ).length ?? 0) + (snapshot?.notifications?.filter(n => readApplications[n.id] !== "received").length ?? 0);
   const unavailable = loading || state.mode === "unconfigured";
   if (adminOpen)
     return (
@@ -631,12 +632,12 @@ export default function RegistrationApp({
               )}
               <button
                 className="button secondary messages-button"
-                aria-label={viewer?.role === "captain" ? "查看消息" : "我的申请"}
-                title={viewer?.role === "captain" ? "查看消息" : "我的申请"}
+                aria-label={"查看消息"}
+                title={"查看消息"}
                 onClick={() => setMessagesOpen(true)}
               >
                 <Bell size={18} />
-                <span className="mobile-action-label">{viewer?.role === "captain" ? "查看消息" : "我的申请"}</span>
+                <span className="mobile-action-label">{"查看消息"}</span>
                 {unread > 0 && <span className="message-bubble" aria-label={`${unread} 条新消息`}>{unread}</span>}
               </button>
               <button
@@ -1164,7 +1165,7 @@ export default function RegistrationApp({
       )}
       {messagesOpen && snapshot && (
         <Modal
-          label={viewer?.role === "captain" ? "入队申请消息" : "我的申请"}
+          label={viewer?.role === "captain" ? "入队申请消息" : "我的消息"}
           drawer
           onClose={() => {
             if (!busy) setMessagesOpen(false);
@@ -1172,7 +1173,7 @@ export default function RegistrationApp({
         >
           <div className="modal-heading">
             <div>
-              <h2>{viewer?.role === "captain" ? "入队申请" : "我的申请"}</h2>
+              <h2>{viewer?.role === "captain" ? "入队申请" : "我的消息"}</h2>
             </div>
             <button
               className="icon-button"
@@ -1189,10 +1190,16 @@ export default function RegistrationApp({
               {error}
             </p>
           )}
+          {!!snapshot.notifications?.length && <div className="application-list recruitment-notifications">
+            {snapshot.notifications.map(n => <article className="application-card" key={n.id}>
+              <div className="application-person"><div><strong>{n.actorName}将您加入了「{n.teamName}」</strong></div></div>
+              <div className="application-bottom"><time dateTime={n.createdAt}>{new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(n.createdAt))}</time><span className="status approved">直接加入</span></div>
+            </article>)}
+          </div>}
           {!snapshot.applications.length ? (
-            <div className="empty-inbox">
+            !snapshot.notifications?.length && <div className="empty-inbox">
               <Bell size={30} />
-              <p>暂无申请消息</p>
+              <p>暂无消息</p>
             </div>
           ) : (
             <div className="application-list">
