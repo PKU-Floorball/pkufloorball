@@ -2248,7 +2248,7 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .race-chinese-title .floorball-word{font-size:inherit;white-space:nowrap;width:max-content;transform:rotate(-3deg) scaleX(var(--title-scale,1));transform-origin:left center}
 .race-court .race-event-title{font-size:clamp(26px,3.5vw,44px);line-height:1.2;font-weight:700;transform:rotate(-4deg);transform-origin:left bottom;color:#fff;white-space:nowrap}
 .race-court-inner{gap:36px}
-@media(min-width:761px){.race-ball-frame{right:-6%}}
+@media(min-width:761px){.race-ball-frame{right:-6%}.race-court .race-chinese-title{max-width:calc(100% - clamp(180px,22vw,300px))}}
 @media(max-width:760px){.race-chinese-title .floorball-word{font-size:inherit}.race-chinese-title{padding-right:0}.race-court-inner{gap:32px}}
 
 .team-membership-note{padding:28px 20px}

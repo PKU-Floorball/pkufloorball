@@ -10,7 +10,7 @@ test('main navigation, full viewport hero and form typography',async({page,isMob
  await expect(page.locator('.race-chinese-title .pku-word')).toHaveText('北京大学');
  expect(await page.locator('.race-court').evaluate(el=>getComputedStyle(el).backgroundColor)).toBe('rgb(148, 7, 10)');
  await expect(page.locator('.registration-identity')).toBeHidden();
- await page.evaluate(()=>scrollTo(0,400));await expect.poll(async()=>(await page.locator('.association-navigation').boundingBox())?.y).toBe(0);await page.evaluate(()=>scrollTo(0,0));
+ await page.evaluate(()=>scrollTo({top:400,behavior:'instant'}));await expect.poll(async()=>(await page.locator('.association-navigation').boundingBox())?.y).toBe(0);await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(0);
  await expect.poll(async()=>(await page.locator('.site-foot').boundingBox())?.y ?? -1).toBeGreaterThanOrEqual(page.viewportSize()!.height-1);
  await expect(page.getByRole('button',{name:'立即注册',exact:true})).toBeInViewport();
  await expect(page.getByRole('button',{name:'登录',exact:true})).toBeInViewport();
