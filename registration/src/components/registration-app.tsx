@@ -118,6 +118,7 @@ export default function RegistrationApp({
     [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
   const [noticeFading, setNoticeFading] = useState(false);
+  const [readApplications, setReadApplications] = useState<Record<string, string>>({});
   const [messagesOpen, setMessagesOpen] = useState(false),
     [recruit, setRecruit] = useState<Player | null>(null),
     [removePlayer, setRemovePlayer] = useState<Player | null>(null),
@@ -133,6 +134,20 @@ export default function RegistrationApp({
   const snapshot = state.snapshot,
     viewer = snapshot?.viewer;
   const canCreateTeam = viewer?.role === "player" && !viewer.teamId;
+  useEffect(() => {
+    if (!viewer) { setReadApplications({}); return; }
+    try { setReadApplications(JSON.parse(sessionStorage.getItem(`floorball-messages-${viewer.id}`) || "{}")); }
+    catch { setReadApplications({}); }
+  }, [viewer?.id]);
+  useEffect(() => {
+    if (!messagesOpen || !snapshot) return;
+    setReadApplications(previous => {
+      const next = {...previous};
+      for (const application of snapshot.applications) next[application.id] = application.status;
+      sessionStorage.setItem(`floorball-messages-${snapshot.viewer.id}`, JSON.stringify(next));
+      return next;
+    });
+  }, [messagesOpen, snapshot]);
   useEffect(() => {
     if (!notice) return;
     setNoticeFading(false);
@@ -345,8 +360,9 @@ export default function RegistrationApp({
       await refresh().catch(() => setNotice("操作已保存；名单暂未刷新，请刷新页面查看。"));
     });
   }
-  const pending =
-    snapshot?.applications.filter((a) => a.status === "pending").length ?? 0;
+  const unread = snapshot?.applications.filter(a =>
+    (viewer?.role === "captain" || a.status !== "pending") && readApplications[a.id] !== a.status
+  ).length ?? 0;
   const unavailable = loading || state.mode === "unconfigured";
   if (adminOpen)
     return (
@@ -603,7 +619,7 @@ export default function RegistrationApp({
               >
                 <Bell size={18} />
                 {viewer?.role === "captain" ? "查看消息" : "我的申请"}
-                {pending > 0 && <span className="count-badge">{pending}</span>}
+                {unread > 0 && <span className="message-bubble" aria-label={`${unread} 条新消息`}>{unread}</span>}
               </button>
             </div>
           </div>
@@ -849,9 +865,9 @@ export default function RegistrationApp({
         <Modal label="申请加入球队" onClose={() => {if (!busy) setApplicationTarget(null);}}>
           <div className="modal-heading"><h2>申请加入球队</h2><button className="icon-button" aria-label="关闭申请" disabled={busy} onClick={() => setApplicationTarget(null)}><X size={20}/></button></div>
           <p className="confirm-copy">申请加入 <strong>{snapshot.teams.find(t => t.id === applicationTarget.teamId)?.name}</strong></p>
-          <p className="modal-note">{applicationTarget.sourceTeamId ? "确认后，您将退出当前球队并成为自由球员，同时向这支球队发送申请。新队长批准后才能加入。" : "申请发送后需等待队长批准，批准前仍是自由球员。"}</p>
+          <p className="modal-note">{applicationTarget.sourceTeamId ? "确认后，您将退出当前球队并成为自由球员，同时向这支球队发送申请。新队长批准后才能加入。" : "申请后请耐心等待审批~"}</p>
           <form onSubmit={(e) => {e.preventDefault();void act({action:applicationTarget.sourceTeamId ? "switch_apply" : "apply",teamId:applicationTarget.teamId,...(applicationTarget.sourceTeamId ? {sourceTeamId:applicationTarget.sourceTeamId} : {}),reason:applicationReason});}}>
-            <label className="field">申请理由（选填）<textarea aria-label="申请理由（选填）" rows={4} maxLength={500} placeholder="可以介绍自己、参加训练的时间或想加入的原因，不填写也能申请。" value={applicationReason} disabled={busy} onChange={(e) => setApplicationReason(e.target.value)} /></label>
+            <label className="field">申请理由（选填）<textarea aria-label="申请理由（选填）" rows={4} maxLength={500} placeholder="可以介绍自己、参加训练的时间或想要加入的原因" value={applicationReason} disabled={busy} onChange={(e) => setApplicationReason(e.target.value)} /></label>
             {error && <p className="inline-error" role="alert">{error}</p>}
             <div className="modal-actions"><button type="button" className="button secondary" disabled={busy} onClick={() => setApplicationTarget(null)}>取消</button><button className="button primary" disabled={busy}>{busy ? "正在提交…" : applicationTarget.sourceTeamId ? "退出并提交申请" : "提交申请"}</button></div>
           </form>
@@ -1155,15 +1171,15 @@ export default function RegistrationApp({
               {snapshot.applications.map((a) => (
                 <article className="application-card" key={a.id}>
                   <div className="application-person">
-                    <span className="avatar">{a.name.slice(0, 1)}</span>
+                    {viewer?.role === "captain" && <span className="avatar">{a.name.slice(0, 1)}</span>}
                     <div>
-                      <strong>{a.name}</strong>
-                      <span>
-                        {a.gender} · 申请加入 {a.teamName}
-                      </span>
+                      {viewer?.role === "captain" ? <>
+                        <strong>{a.name}</strong>
+                        <span>{a.gender} · {([...snapshot.freePlayers, ...snapshot.teams.flatMap(t => t.players)].find(p => p.id === a.playerId)?.school) || "未填写学校"}</span>
+                      </> : <strong>申请加入 {a.teamName}</strong>}
                     </div>
                   </div>
-                  {a.reason && <p className="application-reason"><strong>申请理由：</strong>{a.reason}</p>}
+                  {viewer?.role === "captain" && a.reason && <p className="application-reason"><strong>申请理由：</strong>{a.reason}</p>}
                   <div className="application-bottom">
                     <time dateTime={a.createdAt}>
                       {new Intl.DateTimeFormat("zh-CN", {

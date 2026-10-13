@@ -178,6 +178,9 @@ describe("join actions", () => {
       "approved",
       "cancelled",
     ]);
+    const competing = (await snapshot("b")).applications[0];
+    expect(competing.status).toBe("cancelled");
+    await expect(act("b", "approve", null, null, competing.id)).rejects.toThrow("APPLICATION_CLOSED");
     await expect(act("b", "recruit", b.id, player)).rejects.toThrow(
       "ALREADY_JOINED",
     );

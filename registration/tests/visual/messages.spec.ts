@@ -1,0 +1,47 @@
+import {test,expect} from '@playwright/test';
+const player={id:'player',name:'测试球员',gender:'非二元性别',school:'北京大学',role:'player',teamId:null};
+const captain={id:'captain',name:'测试队长',gender:'女',school:'北京大学',role:'captain',teamId:'team-a'};
+const application=(id:string,teamId:string,status:string)=>({id,teamId,playerId:player.id,name:player.name,gender:player.gender,teamName:teamId==='team-a'?'甲队':'乙队',reason:'想参加训练',status,createdAt:'2026-10-13T07:15:00.000Z'});
+const teams=[{id:'team-a',name:'甲队',captainId:captain.id,captainPhone:'13800138000',players:[captain]},{id:'team-b',name:'乙队',captainId:'other',captainPhone:'13800138001',players:[]}];
+test('player messages show only team, time and status with unread updates',async({page})=>{
+ let applications=[application('a','team-a','pending'),application('b','team-b','pending')];
+ await page.route('**/registration/api/registration',r=>r.fulfill({json:{ok:true,mode:'demo',snapshot:{viewer:player,teams,freePlayers:[player],applications}}}));
+ await page.goto('/registration/teams');await expect(page.locator('.team-card')).toHaveCount(2);
+ await expect(page.locator('.message-bubble')).toHaveCount(0);
+ await page.getByRole('button',{name:'我的申请',exact:true}).click();
+ const drawer=page.getByRole('dialog',{name:'我的申请',exact:true});
+ await expect(drawer.getByText('申请加入 甲队',{exact:true})).toBeVisible();
+ await expect(drawer.locator('.application-list')).not.toContainText(player.name);
+ await expect(drawer.locator('.application-list')).not.toContainText(player.gender);
+ await expect(drawer.locator('.application-reason')).toHaveCount(0);
+ await expect(drawer.locator('time').first()).toHaveText('10/13 15:15');
+ await page.getByRole('button',{name:'关闭消息'}).click();
+ applications=[application('a','team-a','approved'),application('b','team-b','cancelled')];
+ await page.reload();await expect(page.locator('.message-bubble')).toHaveText('2');
+ await page.getByRole('button',{name:/我的申请/}).click();
+ await expect(drawer.getByText('已批准',{exact:true})).toBeVisible();await expect(drawer.getByText('已失效',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'关闭消息'}).click();await expect(page.locator('.message-bubble')).toHaveCount(0);
+ await page.reload();await expect(page.locator('.team-card')).toHaveCount(2);await expect(page.locator('.message-bubble')).toHaveCount(0);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+test('captain inbox shows applicant school and disables expired applications',async({page})=>{
+ let status='pending';
+ await page.route('**/registration/api/registration',r=>r.fulfill({json:{ok:true,mode:'demo',snapshot:{viewer:captain,teams,freePlayers:[player],applications:[application('a','team-a',status)]}}}));
+ await page.goto('/registration/teams');await expect(page.locator('.message-bubble')).toHaveText('1');
+ await page.getByRole('button',{name:/查看消息/}).click();const drawer=page.getByRole('dialog',{name:'入队申请消息'});
+ await expect(drawer.locator('.application-person')).toContainText('测试球员');await expect(drawer.locator('.application-person')).toContainText('非二元性别 · 北京大学');
+ await expect(drawer.locator('.application-person')).not.toContainText('甲队');
+ await expect(drawer.getByRole('button',{name:'批准',exact:true})).toBeVisible();
+ expect(await drawer.getByRole('button',{name:'批准',exact:true}).evaluate(el=>getComputedStyle(el).borderRadius)).toBe('100px');
+ await page.screenshot({path:test.info().outputPath('captain-inbox.png')});
+ status='cancelled';await page.reload();await expect(page.locator('.message-bubble')).toHaveText('1');await page.getByRole('button',{name:/查看消息/}).click();
+ await expect(drawer.getByText('已失效',{exact:true})).toBeVisible();await expect(drawer.getByRole('button',{name:'批准',exact:true})).toHaveCount(0);await expect(drawer.getByRole('button',{name:'拒绝',exact:true})).toHaveCount(0);
+});
+test('application copy and square homepage update on desktop and mobile',async({page})=>{
+ await page.route('**/registration/api/registration',r=>r.fulfill({json:{ok:true,mode:'demo',snapshot:{viewer:player,teams,freePlayers:[player],applications:[]}}}));
+ await page.goto('/registration');await expect(page.locator('.race-court')).toBeVisible();expect(await page.locator('.race-court').evaluate(el=>getComputedStyle(el).borderRadius)).toBe('0px');
+ await page.goto('/registration/teams');await page.locator('.team-card').first().getByRole('button',{name:'申请加入',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'申请加入球队'});await expect(dialog.getByText('申请后请耐心等待审批~',{exact:true})).toBeVisible();await expect(dialog.getByLabel('申请理由（选填）')).toHaveAttribute('placeholder','可以介绍自己、参加训练的时间或想要加入的原因');
+ await page.screenshot({path:test.info().outputPath('application-dialog.png')});
+ await dialog.getByRole('button',{name:'取消',exact:true}).click();await page.getByRole('button',{name:'点击建队',exact:true}).click();await expect(page.getByText('您的手机号将作为队长手机号展示~',{exact:true})).toHaveCount(0);
+});

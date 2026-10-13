@@ -2220,3 +2220,15 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .team-membership-note{padding:28px 20px}
 .team-card .remove-player-button{font-size:14px;border-radius:12px}
 @media(max-width:700px){.team-card .remove-player-button{font-size:15px}}
+
+/* Shared application inbox and rounded tournament controls on every screen. */
+.race-court{border-radius:0}
+.race-home button,.auth-main button,.board-main button,.modal button,.registration-identity button,.admin-shell .button,.admin-shell .small-button,.admin-shell .icon-button{border-radius:100px}
+.messages-button{position:relative}
+.message-bubble{position:absolute;top:-10px;right:-8px;display:grid;place-items:center;min-width:28px;height:28px;padding:0 7px;background:var(--red);color:#fff;border:2px solid #fff;border-radius:12px 12px 12px 3px;font-size:14px;font-weight:700;box-shadow:0 2px 5px #94070a20}
+.application-card{padding:22px 0}
+.application-person strong{font-size:20px;overflow-wrap:anywhere}
+.application-person span:not(.avatar){font-size:16px;line-height:1.6}
+.application-bottom{flex-wrap:wrap;gap:14px}
+.application-bottom time,.application-bottom .status{font-size:16px}
+.application-bottom .small-button{border-radius:100px}
