@@ -36,7 +36,6 @@ try {
   const wall=new THREE.Mesh(new THREE.CylinderGeometry(.139,.131,.057,48,1,true),rimMaterial);
   wall.material=wall.material.clone();wall.material.side=THREE.DoubleSide;
   wall.position.copy(d).multiplyScalar(.961);wall.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d);ball.add(wall)}
- const seam=new THREE.Mesh(new THREE.TorusGeometry(.999,.0018,6,128),new THREE.MeshStandardMaterial({color:0xe7e4df,roughness:.6}));seam.rotation.x=Math.PI/2;ball.add(seam);
  ball.rotation.set(.35,.5,.12);
  fallback.hidden=true;host.classList.add('webgl-ready');
  function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}
@@ -44,7 +43,7 @@ try {
  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
  let down=false,lastX=0,lastY=0,distance=0,vx=.12,vy=.07,y=0,velocity=0,previous=performance.now(),impact=0,nextJump=performance.now()+1700,visible=true,travel=0,trackVelocity=0,rolling=false;
  new IntersectionObserver(entries=>{visible=entries[0].isIntersecting}).observe(host);
- function jump(){impact=1;if(reduced.matches){host.classList.remove('tap-feedback');void host.offsetWidth;host.classList.add('tap-feedback');return}rolling=true;trackVelocity=2.2;velocity=0;host.classList.remove('tap-feedback');void host.offsetWidth;host.classList.add('tap-feedback');nextJump=performance.now()+2600}
+ function jump(){impact=1;if(reduced.matches){host.classList.remove('tap-feedback');void host.offsetWidth;host.classList.add('tap-feedback');return}rolling=true;trackVelocity=2.7;velocity=0;host.classList.remove('tap-feedback');void host.offsetWidth;host.classList.add('tap-feedback');nextJump=performance.now()+2600}
  host.addEventListener('pointerdown',e=>{down=true;distance=0;lastX=e.clientX;lastY=e.clientY;host.setPointerCapture(e.pointerId);host.classList.add('dragging')});
  host.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;distance+=Math.abs(dx)+Math.abs(dy);ball.rotation.y+=dx*.012;ball.rotation.x+=dy*.012;vx=dx*.15;vy=dy*.15;lastX=e.clientX;lastY=e.clientY});
  host.addEventListener('pointerup',()=>{if(!down)return;down=false;host.classList.remove('dragging');if(distance<8)jump()});

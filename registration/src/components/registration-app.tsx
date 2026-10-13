@@ -2,16 +2,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
-  ArrowUpRight,
   Bell,
   Check,
   CheckCircle2,
   ChevronLeft,
   CircleDot,
   Crown,
+  Eye,
+  EyeOff,
   GripVertical,
   LogOut,
-  Phone,
   Plus,
   ShieldCheck,
   UserRound,
@@ -116,6 +116,8 @@ export default function RegistrationApp({
     [notice, setNotice] = useState(""),
     [registered, setRegistered] = useState(false),
     [alreadyRegistered, setAlreadyRegistered] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [noticeFading, setNoticeFading] = useState(false);
   const [messagesOpen, setMessagesOpen] = useState(false),
     [recruit, setRecruit] = useState<Player | null>(null),
     [removePlayer, setRemovePlayer] = useState<Player | null>(null),
@@ -131,6 +133,14 @@ export default function RegistrationApp({
   const snapshot = state.snapshot,
     viewer = snapshot?.viewer;
   const canCreateTeam = viewer?.role === "player" && !viewer.teamId;
+  useEffect(() => {
+    if (!notice) return;
+    setNoticeFading(false);
+    window.scrollTo({top:0,behavior:"instant"});
+    const fade = window.setTimeout(() => setNoticeFading(true), 7000);
+    const remove = window.setTimeout(() => setNotice(""), 7350);
+    return () => {window.clearTimeout(fade);window.clearTimeout(remove);};
+  }, [notice]);
   function openCreateTeam() {
     if (!canCreateTeam || busy) return;
     setError("");
@@ -170,6 +180,7 @@ export default function RegistrationApp({
     setNotice("");
     setRegistered(false);
     setAlreadyRegistered(false);
+    setShowVerification(false);
     window.history.pushState({}, "", next === "home" ? "/registration" : `/registration/${next}`);
     window.scrollTo({ top: 0, behavior: "instant" });
   }
@@ -350,7 +361,7 @@ export default function RegistrationApp({
   return (
     <div className="site-shell">
       <AssociationHeader />
-        <div className="header-actions registration-identity" hidden={view === "home" || !viewer}>
+        <div className="header-actions registration-identity" hidden={view !== "teams" || !viewer}>
           {viewer ? (
             <>
               <span className="identity">
@@ -408,7 +419,7 @@ export default function RegistrationApp({
         </div>
       )}
       {notice && (
-        <div className="feedback success" role="status">
+        <div className={`feedback success ${noticeFading ? "is-fading" : ""}`} role="status">
           <CheckCircle2 size={18} />
           {notice}
         </div>
@@ -546,9 +557,16 @@ export default function RegistrationApp({
                     </label>
                     <label className="field">
                       安全验证
-                      <input aria-label="安全验证" name="phone" type="text"
-                        placeholder="请输入手机号后四位" inputMode="numeric"
-                        autoComplete="off" pattern="[0-9]{4}" minLength={4} maxLength={4} required />
+                      <span className="secure-input">
+                        <input aria-label="安全验证" name="phone" type={showVerification ? "text" : "password"}
+                          placeholder="请输入手机号后四位" inputMode="numeric"
+                          autoComplete="off" pattern="[0-9]{4}" minLength={4} maxLength={4} required />
+                        <button type="button" className="verification-toggle"
+                          aria-label={showVerification ? "隐藏安全验证数字" : "显示安全验证数字"}
+                          aria-pressed={showVerification} onClick={() => setShowVerification(value => !value)}>
+                          {showVerification ? <EyeOff size={21} /> : <Eye size={21} />}
+                        </button>
+                      </span>
                     </label>
                     <button
                       className="button primary full"
@@ -652,7 +670,7 @@ export default function RegistrationApp({
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     {own ? (
-                      <span className="my-team-label">我的球队</span>
+                      <span className="team-summary"><span className="team-member-count">{team.players.length} 人</span><span className="my-team-label">我的球队</span></span>
                     ) : viewer?.role === "player" ? (
                       <button
                         className="apply-button"
@@ -714,7 +732,7 @@ export default function RegistrationApp({
                       <Plus size={14} />
                       {dragOver === team.id
                         ? "松开，将球员加入本队"
-                        : "拖入自由球员，或点击下方招募按钮"}
+                        : "将自由球员的球员卡片拖入此处，或点击下方邀请球员加入球队"}
                     </div>
                   )}
                   {own && viewer?.role === "player" && (
@@ -735,23 +753,14 @@ export default function RegistrationApp({
                       {team.players.length < 2 && <p className="modal-note">本队暂无其他队员，无法交接或退出；可先招募队员，或解散球队。</p>}
                     </div>
                   )}
-                  <div className="team-contact">
-                    <span>
-                      <Phone size={14} />
-                      队长联系
-                    </span>
-                    <a href={`tel:${team.captainPhone}`}>
-                      {team.captainPhone}
-                      <ArrowUpRight size={13} />
-                    </a>
-                  </div>
+
                 </article>
               );
             })}
             {!canCreateTeam && viewer?.teamId && <aside className="create-team-dropzone team-membership-note" aria-label="创建球队区域">
               <Plus size={28} aria-hidden="true" />
               <h3>创建一支新球队</h3>
-              <p>您已加入球队~<br />每位选手只能属于一支球队，成为自由球员后可创建新的队伍</p>
+              <p>您已加入球队~<br />每位选手只能属于一支球队<br />成为自由球员后可创建新的队伍</p>
               <button className="button secondary create-team-button" disabled><Plus size={20} aria-hidden="true" />点击建队</button>
             </aside>}
             {canCreateTeam && (
@@ -783,7 +792,7 @@ export default function RegistrationApp({
                 </h2>
                 <p>
                   {viewer?.role === "captain"
-                    ? "把伙伴拖进自己的球队，或点击按钮邀请入队。"
+                    ? "球员可以创建新队伍，队长可邀请球员加入队伍，球员亦可自主申请加入队伍"
                     : viewer?.teamId ? "拖动自己的名字到这里可退出球队；也可拖到其他球队申请换队。" : "您可以拖动您的球员卡片到已有球队的空白处申请加入，或是创建属于您的球队~"}
                 </p>
               </div>
@@ -812,12 +821,12 @@ export default function RegistrationApp({
                       <GripVertical className="drag-handle" size={16} />
                       <button
                         className="recruit-button"
-                        aria-label="加入我的球队"
+                        aria-label="邀请加入我的球队"
                         disabled={busy}
                         onClick={() => setRecruit(p)}
                       >
                         <Plus size={16} />
-                        <span>加入我的球队</span>
+                        <span>邀请加入我的球队</span>
                       </button>
                     </>
                   )}
@@ -976,9 +985,6 @@ export default function RegistrationApp({
                 </p>
               )}
             </fieldset>
-            <p className="modal-note">
-              您的手机号将作为队长手机号展示~
-            </p>
             {error && (
               <p className="inline-error" role="alert">
                 {error}
@@ -1018,14 +1024,14 @@ export default function RegistrationApp({
               <X size={20} />
             </button>
           </div>
-          <p className="confirm-copy">
+          <p className="confirm-copy recruit-confirm-copy">
             将 <strong>{recruit.name}</strong> 加入{" "}
             <strong>
               {snapshot.teams.find((t) => t.id === viewer?.teamId)?.name}
             </strong>
             ？
           </p>
-          <p className="modal-note">确认后，该球员会从自由球员区移至本队。</p>
+          <p className="modal-note recruit-confirm-note">确认后，该球员会从自由球员区移至您的队伍</p>
           {error && (
             <p className="inline-error" role="alert">
               {error}

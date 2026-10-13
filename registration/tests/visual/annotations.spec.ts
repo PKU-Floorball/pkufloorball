@@ -39,7 +39,7 @@ test('team board annotations cover the creation tile, inbox and captain dialog',
  const creation=page.getByRole('dialog',{name:'创建球队',exact:true});
  await expect(creation.getByLabel('队伍名称',{exact:true})).toHaveAttribute('placeholder','快来给您的球队起名吧！');
  await expect(creation.getByText('请组建属于您的队伍！后续也可以再招募队友喔~',{exact:true})).toBeVisible();
- await expect(creation.getByText('您的手机号将作为队长手机号展示~',{exact:true})).toBeVisible();
+ await expect(creation.getByText('您的手机号将作为队长手机号展示~',{exact:true})).toHaveCount(0);
  await creation.getByRole('button',{name:'取消',exact:true}).click();
  viewer=captain;await page.reload();
  await expect(page.getByText('等待一起上场',{exact:true})).toHaveCount(0);

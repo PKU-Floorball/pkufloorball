@@ -2166,3 +2166,57 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .auth-copy .auth-watermark{margin-top:auto;padding-top:48px}
 .board-heading h1{width:fit-content;transform:rotate(-4deg) skewX(-8deg);text-shadow:3px 3px 0 white,5px 5px 0 #94070a26;letter-spacing:-.04em}
 @media(max-width:760px){.auth-copy{height:auto}.auth-copy .auth-watermark{display:none}}
+
+/* Larger, clearer tournament copy and restrained PKU-red team cards. */
+.auth-main,.board-main,.modal{font-size:19px}
+.auth-main .field,.modal .field{font-size:16px}
+.auth-main input,.auth-main select,.modal input,.modal select,.modal textarea{font-size:18px}
+.auth-main .form-switch,.auth-main .admin-login-option{font-size:17px}
+.auth-main .button,.modal .button,.board-main .button{font-size:18px}
+.auth-main .small-button,.modal .small-button,.board-main .small-button{font-size:18px}
+.form-heading h2{font-size:30px}.back-link{font-size:20px}
+.section-heading h2{font-size:19px;font-weight:700}.section-heading h2>span{font-size:15px}
+.section-heading p{font-size:16px;max-width:none;line-height:1.8}
+.board-actions .button{font-size:17px}
+.team-card{border:1px solid #e5d9da;border-radius:22px;box-shadow:0 5px 18px #94070a05;background:#fff}
+.team-card.my-team{border:2px solid var(--red)}
+.team-top{padding:20px 22px 0;min-height:52px;gap:12px}
+.team-number{font-size:26px;background:none;color:var(--red);font-weight:600}
+.team-summary{display:flex;align-items:center;gap:12px}
+.my-team-label{font-size:18px;background:white;border:1px solid var(--red);border-radius:100px;padding:5px 12px}
+.team-member-count{font-size:18px;color:var(--red)}
+.team-card>h3{font-size:31px;padding:18px 22px 24px;font-weight:700}
+.team-card .player-name{font-size:20px}.team-card .player-name small{font-size:17px}
+.team-card .player-gender{font-size:18px}.team-card .captain-tag{font-size:17px}
+.team-card .player-school{font-size:16px}
+.team-card .avatar,.free-card .avatar{width:42px;height:42px;font-size:20px;background:#fff;color:var(--red);border:1px solid #e7cacc}
+.team-card .roster{padding:0 22px 24px;gap:20px}
+.team-card .apply-button,.team-card .small-button{font-size:18px;border-radius:100px}
+.team-card .drop-hint{font-size:17px;background:white;color:var(--red);border-top:1px dashed #d9b2b4;line-height:1.7;padding:14px 20px;text-align:center}
+.captain-controls>div{justify-content:center;gap:10px;flex-wrap:wrap}
+.captain-controls .small-button{padding:9px 14px;border-radius:100px}
+.captain-controls .modal-note{text-align:center;font-size:16px;line-height:1.8}
+.free-card{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:start;gap:12px 16px;padding:22px;border-radius:18px;box-shadow:none}
+.free-card h3{font-size:18px;font-weight:600}.free-card h3 small{font-size:14px}
+.free-card .player-gender{font-size:15px}.free-card .player-school{font-size:16px}
+.free-card .recruit-button{grid-column:2;justify-self:start;font-size:16px;min-height:44px;border-radius:100px;padding:10px 14px;color:var(--red);border-color:var(--red);gap:7px;white-space:normal;text-align:left}
+.free-card .drag-handle{display:none}
+.create-team-dropzone h3{font-size:22px}.create-team-dropzone p{font-size:16px}
+.empty-free,.empty-state p{font-size:18px}
+.modal .modal-note{font-size:16px}.modal .confirm-copy{font-size:18px}
+.modal .recruit-confirm-copy{font-size:18px}.modal .recruit-confirm-note{font-size:16px}
+.modal .modal-heading h2{font-size:30px}
+.identity{font-size:22px}.identity-role{font-size:18px}
+.feedback{font-size:18px}.feedback.success{opacity:1;transition:opacity .35s ease,transform .35s ease}
+.feedback.success.is-fading{opacity:0;transform:translateY(-8px)}
+.secure-input{position:relative;display:block}
+.secure-input input{width:100%;padding-right:54px}
+.verification-toggle{position:absolute;right:5px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:44px;height:44px;border:0;background:transparent;color:var(--red);border-radius:50%}
+.verification-toggle:active{transform:translateY(-50%)!important}
+.verification-toggle:focus-visible{outline:2px solid var(--red);outline-offset:-4px}
+@media(max-width:760px){.section-heading h2{font-size:18px}.section-heading p{font-size:15px}.free-card{padding:20px}.team-card .player-gender{font-size:18px}.team-summary{gap:8px}.team-top{padding-left:18px;padding-right:18px}.my-team-label{font-size:16px}.team-member-count{font-size:18px}.identity{font-size:21px}}
+@media(prefers-reduced-motion:reduce){.feedback.success{transition:none}}
+
+.team-membership-note{padding:28px 20px}
+.team-card .remove-player-button{font-size:14px;border-radius:12px}
+@media(max-width:700px){.team-card .remove-player-button{font-size:15px}}

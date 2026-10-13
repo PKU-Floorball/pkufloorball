@@ -79,7 +79,7 @@ test("no-password registration, name login, captain approval and recruitment", a
       .getByText("测试球员", { exact: true }),
   ).toBeVisible();
   const free = page.getByRole("article", { name: "自由球员 林夏" });
-  await free.getByRole("button", { name: "加入我的球队" }).click();
+  await free.getByRole("button", { name: "邀请加入我的球队" }).click();
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "确认加入" })
@@ -121,7 +121,7 @@ test("mobile layout reflows without horizontal overflow and supports touch recru
     ),
   ).toBe(true);
   await expect(
-    page.getByRole("button", { name: "加入我的球队" }).first(),
+    page.getByRole("button", { name: "邀请加入我的球队" }).first(),
   ).toBeVisible();
   await page.screenshot({ path: "test-results/mobile.png", fullPage: true });
 });
