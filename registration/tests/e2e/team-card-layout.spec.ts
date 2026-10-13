@@ -11,10 +11,16 @@ for (const role of ['player', 'captain']) for (const width of [1280, 390]) {
     const viewer = players.find(p => p.role === role)!;
     const teams = [{ id: 'team', name: '测试球队', captainId: 'captain', captainPhone: '13800138001', players }, ...['二', '三'].map(n => ({ id: n, name: `球队${n}`, captainId: `cap-${n}`, captainPhone: '13800138002', players: [{ ...players[0], id: `cap-${n}`, teamId: n }] }))];
     await page.addInitScript(() => sessionStorage.setItem('floorball-tab-login', '1'));
-    await page.route('**/registration/api/registration', route => route.fulfill({ json: { mode: 'demo', teams: [], snapshot: { viewer, teams, freePlayers: [], applications: [] } } }));
+    await page.route('**/registration/api/registration', route => route.fulfill({ json: { mode: 'demo', teams: [], snapshot: { viewer, teams, freePlayers: [{ ...players[1], id: "free", name: "自由球员甲", teamId: null }, { ...players[3], id: "free2", name: "自由球员乙", teamId: null }], applications: [] } } }));
     await page.setViewportSize({ width, height: 1000 });
     await page.goto('/registration/teams');
     const card = page.getByRole('article', { name: '测试球队', exact: true });
+    const freeCard = page.getByRole('article', { name: '自由球员 自由球员甲', exact: true });
+    await expect(freeCard).toBeVisible();
+    const freeBox = (await freeCard.boundingBox())!;
+    const memberBox = (await card.locator('.roster-player').nth(1).boundingBox())!;
+    expect(Math.abs(freeBox.width - memberBox.width)).toBeLessThan(3);
+    expect(Math.abs(freeBox.height - memberBox.height)).toBeLessThan(3);
     await expect(card.locator('.team-top').getByRole('button', { name: '退出球队', exact: true })).toBeVisible();
     const heading = await card.getByRole('heading', { name: '测试球队', exact: true }).boundingBox();
     const badge = await card.getByText('我的球队', { exact: true }).boundingBox();
@@ -30,6 +36,8 @@ for (const role of ['player', 'captain']) for (const width of [1280, 390]) {
       expect((await page.getByRole('article', { name: '球队三', exact: true }).boundingBox())!.y).toBeGreaterThan(firstTeam.y);
     }
     await card.screenshot({ path: test.info().outputPath('team-card.png') });
+    await page.screenshot({ path: test.info().outputPath('lobby.png'), fullPage: true });
+    await page.locator('.free-section').screenshot({ path: test.info().outputPath('free-players.png') });
     await card.getByRole('button', { name: '退出球队', exact: true }).click();
     const dialog = page.getByRole('dialog', { name: '退出球队', exact: true });
     await expect(dialog).toBeVisible();

@@ -2,21 +2,26 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
+  ArrowRightLeft,
   Bell,
   Check,
   CheckCircle2,
   ChevronLeft,
   CircleDot,
+  CircleHelp,
   Crown,
   Eye,
   EyeOff,
-  GripVertical,
   LogOut,
   Minus,
+  Mars,
+  NonBinary,
   Plus,
   ShieldCheck,
+  Trash2,
   UserRound,
   UsersRound,
+  Venus,
   X,
 } from "lucide-react";
 import AdminPanel from "./admin-panel";
@@ -134,6 +139,8 @@ export default function RegistrationApp({
   const [successorId, setSuccessorId] = useState("");
   const snapshot = state.snapshot,
     viewer = snapshot?.viewer;
+  const dragPreview = useRef<HTMLDivElement | null>(null);
+  useEffect(() => () => { dragPreview.current?.remove(); }, []);
   const canCreateTeam = viewer?.role === "player" && !viewer.teamId;
   useEffect(() => {
     if (!viewer) { setReadApplications({}); return; }
@@ -185,10 +192,26 @@ export default function RegistrationApp({
     setError(""); setApplicationReason("");
     setApplicationTarget({teamId, sourceTeamId:viewer.teamId});
   }
-  function startPlayerDrag(event: React.DragEvent, id: string) {
+  function startPlayerDrag(event: React.DragEvent, id: string, name: string) {
+    event.stopPropagation();
+    window.getSelection()?.removeAllRanges();
+    dragPreview.current?.remove();
+    const preview = document.createElement("div");
+    preview.className = "player-drag-preview";
+    preview.textContent = name;
+    preview.setAttribute("aria-hidden", "true");
+    preview.style.fontFamily = getComputedStyle(event.currentTarget).fontFamily;
+    document.body.appendChild(preview);
+    dragPreview.current = preview;
     event.dataTransfer.setData("text/plain", id);
     event.dataTransfer.setData(playerDragType, id);
     event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setDragImage(preview, 20, 22);
+  }
+  function endPlayerDrag() {
+    dragPreview.current?.remove();
+    dragPreview.current = null;
+    setDragOver(null);
   }
   function go(next: View) {
     setView(next);
@@ -388,38 +411,6 @@ export default function RegistrationApp({
   return (
     <div className="site-shell">
       <AssociationHeader />
-        <div className="header-actions registration-identity" hidden={view !== "teams" || !viewer}>
-          {viewer ? (
-            <>
-              <span className="identity">
-                <span className="tiny-dot" />
-                {viewer.name}
-                <span className="identity-role">
-                  {viewer.role === "captain"
-                    ? "队长"
-                    : viewer.teamId
-                      ? "队员"
-                      : "自由球员"}
-                </span>
-              </span>
-              <button
-                className="icon-button"
-                aria-label="退出登录"
-                disabled={busy}
-                onClick={() =>
-                  run({ action: "logout" }, () => {
-                    setState((s) => ({ ...s, snapshot: null }));
-                    go("home");
-                  })
-                }
-              >
-                <LogOut size={18} />
-              </button>
-            </>
-          ) : (
-            null
-          )}
-        </div>
       {state.mode === "demo" && !loading && (
         <div className="environment-banner">
           <CircleDot size={14} />
@@ -623,15 +614,45 @@ export default function RegistrationApp({
                 球队大厅
               </h1>
             </div>
-            <div className="board-actions">
+            <div className="board-actions lobby-actions">
+              {viewer && (
+              <span className="identity">
+                <span className="tiny-dot" />
+                {viewer.name}
+                <span className="identity-role">
+                  {viewer.role === "captain"
+                    ? "队长"
+                    : viewer.teamId
+                      ? "队员"
+                      : "自由球员"}
+                </span>
+              </span>
+              )}
               <button
                 className="button secondary messages-button"
+                aria-label={viewer?.role === "captain" ? "查看消息" : "我的申请"}
+                title={viewer?.role === "captain" ? "查看消息" : "我的申请"}
                 onClick={() => setMessagesOpen(true)}
               >
                 <Bell size={18} />
-                {viewer?.role === "captain" ? "查看消息" : "我的申请"}
+                <span className="mobile-action-label">{viewer?.role === "captain" ? "查看消息" : "我的申请"}</span>
                 {unread > 0 && <span className="message-bubble" aria-label={`${unread} 条新消息`}>{unread}</span>}
               </button>
+              <button
+                className="icon-button"
+                aria-label="退出登录"
+                title="退出登录"
+                disabled={busy}
+                onClick={() =>
+                  run({ action: "logout" }, () => {
+                    setState((s) => ({ ...s, snapshot: null }));
+                    go("home");
+                  })
+                }
+              >
+                <LogOut size={18} />
+              </button>
+
             </div>
           </div>
           <div className="section-heading">
@@ -699,15 +720,16 @@ export default function RegistrationApp({
                     {own ? (
                       <span className="team-summary">
                         <span className="team-member-count">{team.players.length} 人</span>
-                        <button className="small-button" disabled={busy || (viewer?.role === "captain" && team.players.length < 2)} onClick={() => {
+                        <button className="small-button" aria-label="退出球队" title="退出球队" disabled={busy || (viewer?.role === "captain" && team.players.length < 2)} onClick={() => {
                           setError("");
                           if (viewer?.role === "captain") {
                             setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction("leave_captain");
                           } else setLeaveTeamId(team.id);
-                        }}>退出球队</button>
+                        }}><LogOut className="mobile-action-icon" size={16} aria-hidden="true" /><span className="mobile-action-label">退出球队</span></button>
                         {canDrop && (["transfer_captain", "dissolve_team"] as const).map((action) => (
-                          <button key={action} className="small-button" disabled={busy || (action === "transfer_captain" && team.players.length < 2)} onClick={() => {setError(""); setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction(action);}}>
-                            {{transfer_captain:"转让队长",dissolve_team:"解散球队"}[action]}
+                          <button key={action} className="small-button" aria-label={action === "transfer_captain" ? "转让队长" : "解散球队"} title={action === "transfer_captain" ? "转让队长" : "解散球队"} disabled={busy || (action === "transfer_captain" && team.players.length < 2)} onClick={() => {setError(""); setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction(action);}}>
+                            {action === "transfer_captain" ? <ArrowRightLeft className="mobile-action-icon" size={16} aria-hidden="true" /> : <Trash2 className="mobile-action-icon" size={16} aria-hidden="true" />}
+                            <span className="mobile-action-label">{{transfer_captain:"转让队长",dissolve_team:"解散球队"}[action]}</span>
                           </button>
                         ))}
                       </span>
@@ -734,7 +756,7 @@ export default function RegistrationApp({
                     {team.players.map((p) => (
                       <div className="roster-player" key={p.id} aria-label={`队员 ${p.name}`}
                         draggable={!busy && p.id === viewer?.id && viewer.role === "player"}
-                        onDragStart={(e) => startPlayerDrag(e,p.id)} onDragEnd={() => setDragOver(null)}>
+                        onDragStart={(e) => startPlayerDrag(e,p.id,p.name)} onDragEnd={endPlayerDrag}>
 
                         <span
                           className={`avatar ${p.role === "captain" ? "captain-avatar" : ""}`}
@@ -746,13 +768,14 @@ export default function RegistrationApp({
                           {p.id === viewer?.id && <small>您</small>}
                         </span>
                         <span className="player-details">
+                          <span className={`player-gender gender-icon ${p.gender === "男" ? "male" : p.gender === "女" ? "female" : "neutral"}`} role="img" aria-label={p.gender} title={p.gender}>
+                            {p.gender === "男" ? <Mars size={14} aria-hidden="true" /> : p.gender === "女" ? <Venus size={14} aria-hidden="true" /> : p.gender === "非二元性别" ? <NonBinary size={14} aria-hidden="true" /> : <CircleHelp size={14} aria-hidden="true" />}
+                          </span>
                           {p.school && <span className="player-school" title={p.school}>{p.school}</span>}
-                          <span className="player-gender">{p.gender}</span>
                         </span>
                         {p.role === "captain" && (
-                          <span className="captain-tag">
-                            <Crown size={12} />
-                            队长
+                          <span className="captain-tag" aria-label="队长" title="队长">
+                            <Crown size={14} aria-hidden="true" />
                           </span>
                         )}
                         {canDrop && p.role === "player" && (
@@ -846,31 +869,24 @@ export default function RegistrationApp({
                   aria-label={`自由球员 ${p.name}`}
                   key={p.id}
                   draggable={!busy && (viewer?.role === "captain" || p.id === viewer?.id)}
-                  onDragStart={(e) => startPlayerDrag(e,p.id)}
-                  onDragEnd={() => setDragOver(null)}
+                  onDragStart={(e) => startPlayerDrag(e,p.id,p.name)}
+                  onDragEnd={endPlayerDrag}
                 >
                   <span className="avatar">{p.name.slice(0, 1)}</span>
-                  <div>
-                    <h3>
-                      {p.name}
-                      {p.id === viewer?.id && <small>您</small>}
-                    </h3>
-                    <span className="player-gender">{p.gender} · 自由球员</span>
-                    {p.school && <span className="player-school">{p.school}</span>}
-                  </div>
+                  <h3 className="player-name">
+                    {p.name}
+                    {p.id === viewer?.id && <small>您</small>}
+                  </h3>
+                  <span className="player-details">
+                    <span className={`player-gender gender-icon ${p.gender === "男" ? "male" : p.gender === "女" ? "female" : "neutral"}`} role="img" aria-label={p.gender} title={p.gender}>
+                      {p.gender === "男" ? <Mars size={14} aria-hidden="true" /> : p.gender === "女" ? <Venus size={14} aria-hidden="true" /> : p.gender === "非二元性别" ? <NonBinary size={14} aria-hidden="true" /> : <CircleHelp size={14} aria-hidden="true" />}
+                    </span>
+                    {p.school && <span className="player-school" title={p.school}>{p.school}</span>}
+                  </span>
                   {viewer?.role === "captain" && (
-                    <>
-                      <GripVertical className="drag-handle" size={16} />
-                      <button
-                        className="recruit-button"
-                        aria-label="邀请加入我的球队"
-                        disabled={busy}
-                        onClick={() => setRecruit(p)}
-                      >
-                        <Plus size={16} />
-                        <span>邀请加入我的球队</span>
-                      </button>
-                    </>
+                    <button className="recruit-button" aria-label="邀请加入我的球队" title="邀请加入我的球队" disabled={busy} onClick={() => setRecruit(p)}>
+                      <Plus size={14} aria-hidden="true" />
+                    </button>
                   )}
                 </article>
               ))}

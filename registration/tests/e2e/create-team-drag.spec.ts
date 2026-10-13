@@ -24,6 +24,26 @@ test('blank drop target is usable when there are no teams',async({page})=>{
   const viewer={id:'drag-empty',name:'空大厅球员',role:'player',teamId:null,gender:'女',school:'北京大学',phone:'13800138887'};
   await page.route('**/registration/api/registration',route=>route.fulfill({json:{mode:'demo',teams:[],snapshot:{viewer,teams:[],freePlayers:[viewer],applications:[]}}}));
   await page.setViewportSize({width:1280,height:1000});await page.goto('/registration/teams');
+  await page.evaluate(() => {
+    const original = DataTransfer.prototype.setDragImage;
+    DataTransfer.prototype.setDragImage = function(element, x, y) {
+      const style = getComputedStyle(element);
+      document.body.dataset.dragPreview = JSON.stringify({
+        name: element.textContent, width: element.getBoundingClientRect().width,
+        height: element.getBoundingClientRect().height, radius: style.borderRadius,
+        border: style.borderWidth, outline: style.outlineWidth,
+      });
+      original.call(this, element, x, y);
+    };
+  });
   await page.getByRole('article',{name:'自由球员 '+viewer.name,exact:true}).dragTo(page.getByRole('group',{name:'创建球队区域',exact:true}));
+  const preview = JSON.parse(await page.locator('body').getAttribute('data-drag-preview') || '{}');
+  expect(preview.name).toBe(viewer.name);
+  expect(preview.width).toBeLessThanOrEqual(260);
+  expect(preview.height).toBe(44);
+  expect(preview.radius).toBe('999px');
+  expect(preview.border).toBe('0px');
+  expect(preview.outline).toBe('0px');
+  await expect(page.locator('.player-drag-preview')).toHaveCount(0);
   await expect(page.getByRole('dialog',{name:'创建球队',exact:true})).toBeVisible();
 });
