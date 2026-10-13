@@ -14,6 +14,8 @@
       itemSelector: '.entry-item',
       layoutMode: 'masonry'
     });
+    // Lazy images can finish after the initial window load layout.
+    $grid.find('img').on('load', function () { $grid.isotope('layout'); });
 
 
     // Initialize Isotope

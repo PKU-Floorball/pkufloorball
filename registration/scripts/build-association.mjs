@@ -4,6 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Liquid } from 'liquidjs';
 import { parse } from 'yaml';
+import { createHash } from 'node:crypto';
+import sharp from 'sharp';
 const app = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const repo = path.resolve(app, '..');
 const source = path.join(app, 'association-source');
@@ -31,6 +33,48 @@ async function render(file) {
     if (!/^[\w-]+$/.test(page.layout)) throw new Error('Invalid layout');
     const layout = await readFile(path.join(source, '_layouts', page.layout + '.html'), 'utf8');
     content = await engine.parseAndRender(layout, { page, content });
+  }
+  if (file === 'index.html') {
+    const visible = content.replace(/<!--[\s\S]*?-->/g, '');
+    const references = [...new Set(visible.match(/\/?assets\/images\/[a-zA-Z0-9_./-]+\.(?:png|jpe?g)/g) || [])];
+    let originalBytes = 0, optimizedBytes = 0;
+    const optimized = new Map();
+    for (const url of references) {
+      const input = path.join(source, url.replace(/^\//, ''));
+      if (optimized.has(input)) {
+        content = content.replaceAll(url, (url.startsWith('/') ? '/' : '') + optimized.get(input));
+        continue;
+      }
+      if (!existsSync(input)) continue;
+      const bytes = await readFile(input);
+      if (bytes.length < 120000) continue;
+      const resized = await sharp(bytes).rotate().resize({ width: 1600, withoutEnlargement: true }).webp({ quality: 78, effort: 4 }).toBuffer();
+      if (resized.length >= bytes.length) continue;
+      const hash = createHash('sha256').update(bytes).update('1600-q78-v1').digest('hex').slice(0, 12);
+      const name = `${path.parse(input).name}-${hash}.webp`;
+      const asset = path.join('assets/images/optimized', name);
+      await mkdir(path.join(output, 'assets/images/optimized'), { recursive: true });
+      await writeFile(path.join(output, asset), resized);
+      optimized.set(input, asset);
+      content = content.replaceAll(url, (url.startsWith('/') ? '/' : '') + asset);
+      originalBytes += bytes.length; optimizedBytes += resized.length;
+    }
+    // The hero is a CSS background; inline images are all below the first screen.
+    for (const match of [...content.matchAll(/<img\b([^>]*)>/g)]) {
+      let attrs = match[1];
+      const src = attrs.match(/\bsrc="([^"]+)"/)?.[1];
+      if (src && !/\b(?:width|height)=/.test(attrs)) {
+        const image = path.join(output, src.replace(/^\//, ''));
+        if (existsSync(image)) {
+          const { width, height } = await sharp(image).metadata();
+          if (width && height) attrs += ` width="${width}" height="${height}"`;
+        }
+      }
+      if (!/\bloading=/.test(attrs)) attrs += ' loading="lazy"';
+      if (!/\bdecoding=/.test(attrs)) attrs += ' decoding="async"';
+      content = content.replace(match[0], `<img${attrs}>`);
+    }
+    console.log(`Homepage images: ${originalBytes} -> ${optimizedBytes} bytes`);
   }
   if (/\{%|\{\{/.test(content)) throw new Error(`Unrendered Liquid in ${file}`);
   await mkdir(path.dirname(path.join(output, file)), { recursive: true });

@@ -661,7 +661,7 @@ div#cboxOverlay {
   justify-content: center;
 }
 
-iconify-icon.video-icon {
+.video-icon {
   color: var(--bs-light);
   border-radius: 6.25rem;
   background: rgba(255, 255, 255, 0.35);
@@ -719,7 +719,7 @@ iconify-icon.video-icon {
 
 /* 4.6 Footer Section
 /*----------------------------------------------*/
-iconify-icon.social-icon {
+svg.social-icon {
   font-size: 1.125rem;
   padding: 0.75rem;
   border-radius: 4.375rem;
@@ -729,7 +729,7 @@ iconify-icon.social-icon {
   transition: all 0.5s ease;
 }
 
-iconify-icon.social-icon:hover {
+svg.social-icon:hover {
   color: #FFF;
   border: 1px solid var(--accent-color);
   background: var(--accent-color);
@@ -842,7 +842,7 @@ span.price-tick {
   border-radius: 9px;
 }
 
-iconify-icon.quote {
+.quote {
   font-size: 60px;
   color: var(--accent-color);
 }
@@ -918,3 +918,6 @@ iconify-icon.quote {
     width: 50%;
   }
 }
+/* Inline SVG replacements preserve the original icon boxes without network requests. */
+svg.social-icon { width: 2.75rem; height: 2.75rem; vertical-align: middle; }
+svg.video-icon { width: calc(1em + 3rem); height: calc(1em + 3rem); }

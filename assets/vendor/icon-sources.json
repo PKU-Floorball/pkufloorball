@@ -1,0 +1,27 @@
+[
+  {
+    "package": "@iconify-json/solar",
+    "version": "1.2.13",
+    "license": "CC-BY-4.0"
+  },
+  {
+    "package": "@iconify-json/ph",
+    "version": "1.2.2",
+    "license": "MIT"
+  },
+  {
+    "package": "@iconify-json/ion",
+    "version": "1.2.7",
+    "license": "MIT"
+  },
+  {
+    "package": "@iconify-json/ri",
+    "version": "1.2.10",
+    "license": "Apache-2.0"
+  },
+  {
+    "package": "@iconify-json/fa6-solid",
+    "version": "1.2.4",
+    "license": "CC-BY-4.0"
+  }
+]

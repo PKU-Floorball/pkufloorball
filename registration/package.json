@@ -21,6 +21,7 @@
     "next": "^16.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "sharp": "0.35.5",
     "yaml": "^2.9.1"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 # PKU Floorball unified site
 
-Homepage: https://pkufloorball.vercel.app/
-Registration: https://pkufloorball.vercel.app/registration
+Homepage: https://pkufloorball.site/
+Registration: https://pkufloorball.site/registration
 
 ## Vercel deployment
 

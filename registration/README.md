@@ -47,7 +47,7 @@ REGISTRATION_DEMO=true npm run dev
 
 ## Vercel 部署
 
-生产地址：https://pkufloorball.vercel.app/registration
+生产地址：https://pkufloorball.site/registration
 
 - Vercel 项目：`xhhwyh/pkufloorball`
 - Supabase 项目：`egeledpcdsjxqupvqupa`，新加坡区域。
@@ -120,9 +120,15 @@ SUPABASE_TEST_PROJECT_REF=YOUR_TEST_PROJECT_REF python3 tests/manual/deletion-co
 
 ## Unified Vercel deployment
 
-Homepage: https://pkufloorball.vercel.app/
-Registration: https://pkufloorball.vercel.app/registration
+Homepage: https://pkufloorball.site/
+Registration: https://pkufloorball.site/registration
 
 The Next.js routes and APIs now live under `/registration`, including `/registration/api/registration` and `/registration/api/admin`. Original association pages and assets keep `/htmls/...` and `/assets/...` paths.
 
 Run `npm run prepare:association` from the full repository before deploying with the Vercel CLI. This stages the original templates and resources into association-source for the remote build. Do not exclude association-source from Vercel uploads. Public pages are regenerated during the remote build. The existing Vercel project ID, environment settings and Supabase data are reused; migration does not reset registration data.
+
+## 访问速度优化
+
+协会页面的 Bootstrap、Swiper、图标和字体从本站 assets/vendor 加载；原图保留，构建时生成带内容哈希的 WebP 首页图片，并为屏幕外图片添加懒加载和尺寸。图库在图片加载后重新布局。构建不依赖外部资源下载。
+
+Vercel Functions 使用 sin1（新加坡），与现有 Supabase 数据库同区。长期缓存仅用于静态资源，报名及管理员接口继续禁止缓存。
