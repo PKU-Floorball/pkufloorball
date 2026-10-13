@@ -12,6 +12,7 @@ import {
   EyeOff,
   GripVertical,
   LogOut,
+  Minus,
   Plus,
   ShieldCheck,
   UserRound,
@@ -704,6 +705,11 @@ export default function RegistrationApp({
                             setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction("leave_captain");
                           } else setLeaveTeamId(team.id);
                         }}>退出球队</button>
+                        {canDrop && (["transfer_captain", "dissolve_team"] as const).map((action) => (
+                          <button key={action} className="small-button" disabled={busy || (action === "transfer_captain" && team.players.length < 2)} onClick={() => {setError(""); setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction(action);}}>
+                            {{transfer_captain:"转让队长",dissolve_team:"解散球队"}[action]}
+                          </button>
+                        ))}
                       </span>
                     ) : viewer?.role === "player" ? (
                       <button
@@ -738,27 +744,29 @@ export default function RegistrationApp({
                         <span className="player-name">
                           <span>{p.name}</span>
                           {p.id === viewer?.id && <small>您</small>}
-                          {p.school && <span className="player-school">{p.school}</span>}
                         </span>
-                        {p.role === "captain" ? (
+                        <span className="player-details">
+                          {p.school && <span className="player-school" title={p.school}>{p.school}</span>}
+                          <span className="player-gender">{p.gender}</span>
+                        </span>
+                        {p.role === "captain" && (
                           <span className="captain-tag">
                             <Crown size={12} />
                             队长
                           </span>
-                        ) : (
-                          <span className="player-gender">{p.gender}</span>
                         )}
                         {canDrop && p.role === "player" && (
                           <button
                             className="remove-player-button"
                             aria-label={`移出${p.name}`}
+                            title={`移出${p.name}`}
                             disabled={busy}
                             onClick={() => {
                               setError("");
                               setRemovePlayer(p);
                             }}
                           >
-                            移出
+                            <Minus size={14} aria-hidden="true" />
                           </button>
                         )}
                       </div>
@@ -776,16 +784,9 @@ export default function RegistrationApp({
                       <p className="modal-note">拖动自己的名字到自由球员区可退出；拖到其他球队可退出并申请加入。</p>
                     </div>
                   )}
-                  {canDrop && (
+                  {canDrop && team.players.length < 2 && (
                     <div className="captain-controls">
-                      <div>
-                        {(["transfer_captain", "dissolve_team"] as const).map((action) => (
-                          <button key={action} className="small-button" disabled={busy || (action !== "dissolve_team" && team.players.length < 2)} onClick={() => {setError(""); setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction(action);}}>
-                            {{transfer_captain:"转让队长",leave_captain:"退出球队",dissolve_team:"解散球队"}[action]}
-                          </button>
-                        ))}
-                      </div>
-                      {team.players.length < 2 && <p className="modal-note">本队暂无其他队员，无法交接或退出；可先招募队员，或解散球队。</p>}
+                      <p className="modal-note">本队暂无其他队员，无法交接或退出；可先招募队员，或解散球队。</p>
                     </div>
                   )}
 

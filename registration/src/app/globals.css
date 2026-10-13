@@ -2287,18 +2287,25 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .tournament-teams .team-top { padding: 18px 20px 0; min-height: 48px; }
 .tournament-teams .team-number { font-size: 24px; }
 .tournament-teams .team-member-count { font-size: 14px; }
+.tournament-teams .team-summary { gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.tournament-teams .team-summary .small-button { white-space: nowrap; }
 .tournament-teams .team-top .small-button,.tournament-teams .apply-button { font-size: 13px; padding: 8px 14px; min-height: 36px; }
 .tournament-teams .team-title-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 14px 20px 18px; }
 .tournament-teams .team-title-row h3 { min-width: 0; margin: 0; padding: 0; font-size: 24px; line-height: 1.4; font-weight: 700; overflow-wrap: anywhere; }
 .tournament-teams .my-team-label { flex-shrink: 0; font-size: 12px; line-height: 1.5; padding: 5px 10px; }
 .tournament-teams .roster { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 10px; min-height: 0; padding: 0 20px 20px; }
-.tournament-teams .roster-player { display: grid; grid-template-columns: 28px minmax(0, 1fr); align-content: start; align-items: start; gap: 7px; min-width: 0; padding: 12px 10px; border: 1px solid #f0e5e6; border-radius: 12px; background: #fdfbfb; }
+.tournament-teams .roster-player { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr); align-content: start; align-items: center; gap: 7px; min-width: 0; padding: 12px 10px; border: 1px solid #f0e5e6; border-radius: 12px; background: #fdfbfb; }
+.tournament-teams .roster-player:has(.remove-player-button) .player-name { padding-right: 14px; }
+.tournament-teams .player-details { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+.tournament-teams .player-details .player-school { margin: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tournament-teams .player-details .player-gender { flex-shrink: 0; margin: 0; font-size: 11px; line-height: 1.5; }
 .tournament-teams .roster-player .avatar { width: 28px; height: 28px; font-size: 13px; }
 .tournament-teams .player-name { font-size: 14px; line-height: 1.5; }
 .tournament-teams .player-name small { font-size: 10px; margin-left: 4px; }
 .tournament-teams .player-school { font-size: 11px; line-height: 1.5; margin-top: 3px; }
 .tournament-teams .roster-player > .player-gender,.tournament-teams .captain-tag { grid-column: 1 / -1; margin: 0; font-size: 11px; line-height: 1.5; }
-.tournament-teams .roster-player .remove-player-button { grid-column: 1 / -1; justify-self: start; font-size: 11px; padding: 4px 9px; min-height: 28px; }
+.tournament-teams .roster-player .remove-player-button { position: absolute; top: 4px; right: 4px; display: grid; place-items: center; width: 24px; height: 24px; min-height: 24px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--red); }
+.tournament-teams .roster-player .remove-player-button:hover:not(:disabled),.tournament-teams .roster-player .remove-player-button:focus-visible { background: var(--red-pale); }
 .tournament-teams .drop-hint { font-size: 12px; padding: 12px 18px; line-height: 1.7; }
 .tournament-teams .member-controls { padding: 12px 20px; }
 .tournament-teams .member-controls .modal-note { margin: 0; font-size: 12px; line-height: 1.7; }
@@ -2310,6 +2317,7 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
   .tournament-teams { grid-template-columns: minmax(0, 1fr); }
 }
 @media(max-width:600px) {
+  .tournament-teams .team-summary .small-button { font-size: 11px; padding: 6px 8px; min-height: 32px; }
   .tournament-teams .roster { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0 16px 16px; }
   .tournament-teams .team-top { padding-left: 16px; padding-right: 16px; }
   .tournament-teams .team-title-row { padding-left: 16px; padding-right: 16px; }
