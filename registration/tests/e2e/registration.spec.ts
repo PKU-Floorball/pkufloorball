@@ -22,6 +22,7 @@ test("no-password registration, name login, captain approval and recruitment", a
   await page.getByRole("button", { name: "完成注册" }).click();
   await page.getByRole("button", { name: "前往登录" }).click();
   await page.getByLabel("姓名", { exact: true }).fill("测试队长");
+  await page.getByLabel("安全验证",{exact:true}).fill("0001");
   await page.getByRole("button", { name: "进入球队大厅" }).click();
   await expect(
     page.getByRole("article", { name: "自由球员 测试队长", exact: true }),
@@ -51,6 +52,7 @@ test("no-password registration, name login, captain approval and recruitment", a
   await page.getByRole("button", { name: "完成注册" }).click();
   await page.getByRole("button", { name: "前往登录" }).click();
   await page.getByLabel("姓名", { exact: true }).fill("测试球员");
+  await page.getByLabel("安全验证",{exact:true}).fill("0002");
   await page.getByRole("button", { name: "进入球队大厅" }).click();
   await page
     .getByRole("article", { name: "测试球队" })
@@ -65,6 +67,7 @@ test("no-password registration, name login, captain approval and recruitment", a
   await page.getByRole("button", { name: "退出登录" }).click();
   await page.getByRole("button", { name: "登录", exact: true }).click();
   await page.getByLabel("姓名", { exact: true }).fill("测试队长");
+  await page.getByLabel("安全验证",{exact:true}).fill("0001");
   await page.getByRole("button", { name: "进入球队大厅" }).click();
   await page.getByRole("button", { name: /查看消息/ }).click();
   await page.getByRole("button", { name: "批准", exact: true }).click();
@@ -109,6 +112,7 @@ test("mobile layout reflows without horizontal overflow and supports touch recru
   await page.goto("/registration");
   await page.getByRole("button", { name: "登录", exact: true }).click();
   await page.getByLabel("姓名", { exact: true }).fill("陈宇");
+  await page.getByLabel("安全验证",{exact:true}).fill("0001");
   await page.getByRole("button", { name: "进入球队大厅" }).click();
   await expect(page.getByRole("heading", { name: /^球队大厅/ })).toBeVisible();
   expect(
@@ -166,6 +170,7 @@ test("captain removes a teammate to the free-player area after confirmation on m
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/registration/login");
   await page.getByLabel("姓名", { exact: true }).fill("陈宇");
+  await page.getByLabel("安全验证",{exact:true}).fill("0001");
   await page.getByRole("button", { name: "进入球队大厅" }).click();
   const team = page.getByRole("article", { name: "未名之翼" });
   await expect(team.getByText("王子安", { exact: true })).toBeVisible();
@@ -253,7 +258,7 @@ test("two free agents cannot select the same teammate into different new teams",
         (
           await r.post(base + "/registration/api/registration", {
             headers: { Origin: base },
-            data: { action: "login", name: names[i] },
+            data: { action: "login", name: names[i], phone: "001"+i },
           })
         ).ok(),
       ).toBe(true);
@@ -295,6 +300,7 @@ test("captain transfer, succession before exit and solo dissolution", async ({pa
   const login = async (name:string) => {
     await page.goto("/registration/login");
     await page.getByLabel("姓名",{exact:true}).fill(name);
+    await page.getByLabel("安全验证",{exact:true}).fill(({"陈宇":"0001","周悦":"0002","许星":"0005"} as Record<string,string>)[name]);
     await page.getByRole("button",{name:"进入球队大厅"}).click();
   };
   await login("周悦");
@@ -328,6 +334,7 @@ test("captain transfer, succession before exit and solo dissolution", async ({pa
 test("an open captain confirmation closes when an administrator changes the captain's team", async ({page}) => {
   await page.goto("/registration/login");
   await page.getByLabel("姓名",{exact:true}).fill("陈宇");
+  await page.getByLabel("安全验证",{exact:true}).fill("0001");
   await page.getByRole("button",{name:"进入球队大厅"}).click();
   await page.getByRole("button",{name:"解散球队",exact:true}).click();
   await expect(page.getByRole("dialog",{name:"解散球队"})).toBeVisible();
@@ -354,6 +361,7 @@ test("matching registration shows existing identity and a direct login entry", a
   await expect(page.getByRole("heading",{name:"您已经注册过了"})).toBeVisible();
   await page.getByRole("button",{name:"前往登录",exact:true}).click();
   await page.getByLabel("姓名",{exact:true}).fill("陈宇");
+  await page.getByLabel("安全验证",{exact:true}).fill("0001");
   await page.getByRole("button",{name:"进入球队大厅"}).click();
   await expect(page.getByText("我的球队",{exact:true})).toBeVisible();
 });
@@ -399,6 +407,7 @@ test("school is required and appears for free agents and team members",async ({p
   await page.getByRole("button",{name:"完成注册"}).click();
   await page.getByRole("button",{name:"前往登录",exact:true}).click();
   await page.getByLabel("姓名",{exact:true}).fill("学校浏览器选手");
+  await page.getByLabel("安全验证",{exact:true}).fill("0600");
   await page.getByRole("button",{name:"进入球队大厅"}).click();
   await expect(page.getByRole("article",{name:"自由球员 学校浏览器选手",exact:true}).getByText("某大学校友",{exact:true})).toBeVisible();
   await page.getByRole("button",{name:"点击建队",exact:true}).click();
@@ -417,11 +426,11 @@ test("self drag exits, switch drag requires confirmation and reason, free drag a
   const post=async(i:number,body:any)=>{const r=await contexts[i].request.post("http://127.0.0.1:3101/registration/api/registration",{headers:{Origin:"http://127.0.0.1:3101"},data:body});expect(r.ok()).toBe(true);};
   const snapshot=async(i:number)=>(await (await contexts[i].request.get("http://127.0.0.1:3101/registration/api/registration")).json()).snapshot;
   try {
-    for(let i=0;i<4;i++){await post(i,{action:"register",name:prefix+i,gender:"男",school:"北京大学",phone:"1390000070"+i});await post(i,{action:"login",name:prefix+i});}
+    for(let i=0;i<4;i++){await post(i,{action:"register",name:prefix+i,gender:"男",school:"北京大学",phone:"1390000070"+i});await post(i,{action:"login",name:prefix+i,phone:"070"+i});await contexts[i].addInitScript(()=>sessionStorage.setItem("floorball-tab-login","1"));}
     const ids=await Promise.all(contexts.map(async(_,i)=>(await snapshot(i)).viewer.id));
     await post(0,{action:"create_team",name:prefix+"甲",memberIds:[ids[2]]});await post(1,{action:"create_team",name:prefix+"乙",memberIds:[]});
     const a=(await snapshot(0)).viewer.teamId,b=(await snapshot(1)).viewer.teamId;
-    const page=await contexts[2].newPage();await page.setViewportSize({width:1280,height:2200});await page.goto("http://127.0.0.1:3101/registration/teams");
+    const page=await contexts[2].newPage();await page.addInitScript(()=>sessionStorage.setItem("floorball-tab-login","1"));await page.setViewportSize({width:1280,height:2200});await page.goto("http://127.0.0.1:3101/registration/teams");
     const self=()=>page.getByLabel("队员 "+prefix+2,{exact:true});
     await expect(self()).toHaveAttribute("draggable","true");
     await self().dragTo(page.getByRole("region",{name:"自由球员区域"}),{targetPosition:{x:20,y:20}});

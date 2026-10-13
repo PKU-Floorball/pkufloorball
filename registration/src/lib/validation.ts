@@ -38,10 +38,9 @@ export function parseTeamCreation(raw: Record<string, unknown>): TeamCreation {
   return { name, memberIds };
 }
 export function parseLogin(raw: Record<string, unknown>) {
-  return {
-    name: text(raw.name, 30),
-    phone: raw.phone ? phone(raw.phone) : null,
-  };
+  if (typeof raw.phone !== "string" || !/^[0-9]{4}$/.test(raw.phone))
+    throw new AppError("INVALID_PHONE_SUFFIX");
+  return { name: text(raw.name, 30), phone: raw.phone };
 }
 export function parseAction(raw: Record<string, unknown>): Action {
   if (
@@ -83,13 +82,15 @@ export function parseAction(raw: Record<string, unknown>): Action {
   return result;
 }
 export const messages: Record<string, string> = {
+  INVALID_PHONE_SUFFIX: "请输入手机号后四位数字。",
+  LOGIN_AMBIGUOUS: "存在姓名和手机号后四位均相同的选手，请联系管理员核实。",
   INVALID_SUCCESSOR: "请选择本队的一名普通队员接任队长；名单可能已变化，请刷新后重试。",
   ADMIN_PASSWORD: "管理员密码不正确。",
   CAPTAIN_CONFLICT: "该选手仍是队长，请先更换队长或解散球队，再进行调配或删除。",
   INVALID_INPUT: "请检查填写的信息。",
   INVALID_PHONE: "请输入正确的 11 位手机号。",
   NEED_PHONE: "存在同名报名者，请补充手机号。",
-  NOT_FOUND: "没有找到对应的报名信息，请检查姓名或先注册。",
+  NOT_FOUND: "姓名或安全验证不正确，请检查后重试。",
   ALREADY_REGISTERED: "您已经注册过了，直接登录即可。",
   PHONE_EXISTS: "这个手机号已被使用，但姓名不一致，请检查姓名或联系管理员。",
   TEAM_EXISTS: "这个队名已被使用，请换一个名称。",

@@ -9,7 +9,7 @@ it("validates self exit, switch source team and optional reason",()=>{
   for(const input of [{action:"leave_team"},{action:"switch_apply",teamId:b},{action:"apply",teamId:b,reason:7},{action:"apply",teamId:b,reason:"字".repeat(501)}])expect(()=>parseAction(input)).toThrow("INVALID_INPUT");
 });
 it("demo switches atomically and preserves reason, identity, approval workflow",async()=>{
-  const s=createDemoStore();await s.login("王子安",null,"m");await s.login("周悦",null,"c");
+  const s=createDemoStore();await s.login("王子安","0003","m");await s.login("周悦","0002","c");
   const d=await s.snapshot("m"),target=d.teams.find(t=>t.id!==d.viewer.teamId)!;
   await expect(s.act("m",{action:"switch_apply",teamId:target.id,sourceTeamId:target.id} as any)).rejects.toThrow("PLAYER_NOT_IN_TEAM");
   expect((await s.snapshot("m")).viewer.teamId).toBe(d.viewer.teamId);

@@ -1,9 +1,10 @@
 import {test,expect} from '@playwright/test';
 test('registration and login annotations use the supplied copy and shared fonts',async({page})=>{
  await page.goto('/registration/register');
- await expect(page.locator('.privacy-note')).toHaveText('报名后先作为自由球员。创建球队后队长将联系您加入球队~');
+ await expect(page.locator('.privacy-note')).toHaveCount(0);
  for(const old of ['JOIN THE GAME','无论是带队出发，还是寻找伙伴，都欢迎加入。','无需密码 · 简单报名','填写信息，开启你的组队之旅。'])await expect(page.getByText(old,{exact:true})).toHaveCount(0);
  await expect(page.getByRole('button',{name:'返回',exact:true})).toBeVisible();
+ if(page.viewportSize()!.width>760){const left=(await page.locator('.auth-copy').boundingBox())!,right=(await page.locator('.auth-card').boundingBox())!;expect(Math.abs(left.height-right.height)).toBeLessThan(2);}
  expect(await page.getByRole('button',{name:'返回',exact:true}).evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(16);
  const heading=page.locator('.champion-title');await expect(heading.locator('span')).toHaveText(['报名参赛','您就是下一个冠军！']);
  expect(await heading.locator('span').first().evaluate(el=>getComputedStyle(el).textShadow)).not.toBe('none');
@@ -15,6 +16,8 @@ test('registration and login annotations use the supplied copy and shared fonts'
  await expect(page.locator('.login-hint')).toHaveCount(0);
  await expect(page.locator('.champion-title span')).toHaveText(['报名参赛','您就是下一个冠军！']);
  await expect(page.locator('.auth-watermark')).toHaveText('FLOORBALL');
+ await expect(page.getByRole('heading',{name:'登陆',exact:true})).toBeVisible();
+ await expect(page.getByLabel('安全验证',{exact:true})).toHaveAttribute('placeholder','请输入手机号后四位');
  expect(await page.locator('.auth-copy').evaluate(el=>getComputedStyle(el).backgroundColor)).toBe('rgb(148, 7, 10)');
 });
 test('team board annotations cover the creation tile, inbox and captain dialog',async({page})=>{
@@ -50,6 +53,6 @@ test('team board annotations cover the creation tile, inbox and captain dialog',
  expect(await transfer.locator('.sr-only').evaluate(el=>getComputedStyle(el).clip)).toBe('rect(0px, 0px, 0px, 0px)');
  for(const selector of ['.modal-heading h2','.confirm-copy','select']){
   const font=await transfer.locator(selector).evaluate(el=>getComputedStyle(el).fontFamily);
-  expect(font).toContain('GoogleSansFlex');expect(font).toContain('RegistrationSans');expect(font).not.toMatch(/Songti|Georgia|(?:^|,)\s*serif/);
+  expect(font).toContain('GoogleSansFlex');expect(font).toContain('Source Sans 3');expect(font).not.toMatch(/Songti|Georgia|(?:^|,)\s*serif/);
  }
 });

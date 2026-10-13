@@ -29,20 +29,12 @@ describe("personal registration", () => {
       expect(() => parseRegistration({ ...personal, ...fields })).toThrow();
   });
 });
-describe("name login", () => {
-  it("accepts a name alone and optional phone for ambiguity", () => {
-    expect(parseLogin({ name: " 张三 " })).toEqual({
-      name: "张三",
-      phone: null,
-    });
-    expect(parseLogin({ name: "张三", phone: "13800138000" })).toEqual({
-      name: "张三",
-      phone: "13800138000",
-    });
-  });
-  it("rejects empty names and invalid phone", () => {
-    expect(() => parseLogin({ name: " " })).toThrow();
-    expect(() => parseLogin({ name: "张三", phone: "123" })).toThrow();
+describe("name and phone suffix login", () => {
+  it("requires exactly four digits, preserving leading zeroes", () => {
+    expect(parseLogin({name:" 张三 ",phone:"0001"})).toEqual({name:"张三",phone:"0001"});
+    for (const phone of [undefined,null,"123","12345","13800138000","abcd"," 0001 "])
+      expect(()=>parseLogin({name:"张三",phone})).toThrow();
+    expect(()=>parseLogin({name:" ",phone:"0001"})).toThrow();
   });
 });
 

@@ -56,7 +56,14 @@ export function supabaseStore(): Store {
       });
     },
     login: async (name, phone, hash) => {
-      await rpc("login_player", { p_name: name, p_phone: phone, p_hash: hash });
+      if (!phone || !/^[0-9]{4}$/.test(phone)) throw new AppError("INVALID_PHONE_SUFFIX");
+      // Keep the complete number on the server; the browser only submits its suffix.
+      const { data, error } = await client.from("players").select("phone")
+        .eq("name", name).like("phone", `%${phone}`).limit(2);
+      if (error) throw new AppError("SERVICE_UNAVAILABLE", 503);
+      if (!data?.length) throw new AppError("NOT_FOUND");
+      if (data.length !== 1) throw new AppError("LOGIN_AMBIGUOUS");
+      await rpc("login_player", { p_name: name, p_phone: data[0].phone, p_hash: hash });
     },
     snapshot: (hash) =>
       rpc<Snapshot>("registration_snapshot", { p_hash: hash }),

@@ -54,6 +54,8 @@ async function request(body?: Record<string, unknown>) {
       data.error || "操作失败，请稍后再试。",
       data.code || "SERVICE_UNAVAILABLE",
     );
+  if (body?.action === "login") sessionStorage.setItem("floorball-tab-login", "1");
+  if (body?.action === "logout") sessionStorage.removeItem("floorball-tab-login");
   return data;
 }
 function Modal({
@@ -112,8 +114,7 @@ export default function RegistrationApp({
   const [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
     [registered, setRegistered] = useState(false),
-    [alreadyRegistered, setAlreadyRegistered] = useState(false),
-    [needPhone, setNeedPhone] = useState(false);
+    [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const [messagesOpen, setMessagesOpen] = useState(false),
     [recruit, setRecruit] = useState<Player | null>(null),
     [removePlayer, setRemovePlayer] = useState<Player | null>(null),
@@ -168,7 +169,6 @@ export default function RegistrationApp({
     setNotice("");
     setRegistered(false);
     setAlreadyRegistered(false);
-    setNeedPhone(false);
     window.history.pushState({}, "", next === "home" ? "/registration" : `/registration/${next}`);
     window.scrollTo({ top: 0, behavior: "instant" });
   }
@@ -201,7 +201,12 @@ export default function RegistrationApp({
   }, []);
   useEffect(() => {
     let active = true;
-    request()
+    // A newly opened tab never restores an identity from a previous page session.
+    const initialize = async () => {
+      if (!sessionStorage.getItem("floorball-tab-login")) await request({action:"logout"});
+      return request();
+    };
+    initialize()
       .then((data: PublicState) => {
         if (active) setState(data);
       })
@@ -264,7 +269,6 @@ export default function RegistrationApp({
         setRegistered(true);
         return;
       }
-      if (e instanceof ApiError && e.code === "NEED_PHONE") setNeedPhone(true);
       if (e instanceof ApiError && e.code === "PLAYER_UNAVAILABLE") {
         setSelectedMembers([]);
         await refresh().catch(() => {});
@@ -345,7 +349,7 @@ export default function RegistrationApp({
   return (
     <div className="site-shell">
       <AssociationHeader />
-        <div className="header-actions registration-identity">
+        <div className="header-actions registration-identity" hidden={view === "home" || !viewer}>
           {viewer ? (
             <>
               <span className="identity">
@@ -411,7 +415,7 @@ export default function RegistrationApp({
       {view === "home" && (
         <main className="race-home">
           <section className="race-court"><div className="race-wrap race-court-inner">
-            <div className="race-latin"><span className="pku-word">PKU</span><span className="floorball-word">Floorball<span className="title-dot">.</span></span></div>
+            <div className="race-latin"><span className="pku-word">PKU</span><span className="floorball-word">Floorball</span></div>
             <iframe className="race-ball-frame" src="/registration-visual/ball.html" title="互动三维软式曲棍球：拖动旋转、点击沿轨道滚动" />
             <div className="race-title-row"><h1>公开赛</h1><div className="race-actions">
               <button className="race-btn" onClick={() => go("register")}>立即注册<ArrowRight size={21} strokeWidth={1.8} aria-hidden="true" /></button>
@@ -452,7 +456,7 @@ export default function RegistrationApp({
             ) : (
               <>
                 <div className="form-heading">
-                  <h2>{view === "register" ? "创建报名身份" : "登录报名站"}</h2>
+                  <h2>{view === "register" ? "创建报名身份" : "登陆"}</h2>
                 </div>
                 {view === "register" ? (
                   <form onSubmit={submitRegistration}>
@@ -502,10 +506,6 @@ export default function RegistrationApp({
                         required
                       />
                     </label>
-                    <p className="privacy-note">
-                      <ShieldCheck size={14} />
-                      报名后先作为自由球员。创建球队后队长将联系您加入球队~
-                    </p>
                     <button
                       className="button primary full"
                       disabled={busy || unavailable}
@@ -543,23 +543,12 @@ export default function RegistrationApp({
                         required
                       />
                     </label>
-                    {needPhone && (
-                      <label className="field">
-                        手机号
-                        <input
-                          aria-label="手机号"
-                          name="phone"
-                          type="tel"
-                          placeholder="输入报名时的手机号"
-                          autoComplete="tel"
-                          pattern="1[3-9][0-9]{9}"
-                          maxLength={11}
-                          required
-                          autoFocus
-                        />
-                        <small>有同名报名者，请用手机号区分。</small>
-                      </label>
-                    )}
+                    <label className="field">
+                      安全验证
+                      <input aria-label="安全验证" name="phone" type="text"
+                        placeholder="请输入手机号后四位" inputMode="numeric"
+                        autoComplete="off" pattern="[0-9]{4}" minLength={4} maxLength={4} required />
+                    </label>
                     <button
                       className="button primary full"
                       disabled={busy || unavailable}

@@ -3,11 +3,21 @@ const host=document.querySelector('.ball-stage');
 const fallback=host.querySelector('img');
 try {
  const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'low-power'});
- renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor(0,0);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1;
+ renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor(0,0);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
  host.append(renderer.domElement);
  const scene=new THREE.Scene(), camera=new THREE.PerspectiveCamera(36,1,.1,30);camera.position.set(0,.1,5.6);
- scene.add(new THREE.HemisphereLight(0xffffff,0xb8aaa2,1.1));
- const light=new THREE.DirectionalLight(0xffffff,3.0);light.position.set(-3,5,4);scene.add(light);
+ // A broad studio reflection and fine moulded-plastic grain, rather than flat shading.
+ const studio=document.createElement('canvas');studio.width=512;studio.height=256;
+ const ctx=studio.getContext('2d');ctx.fillStyle='#77736f';ctx.fillRect(0,0,512,256);
+ for(const [x,y,r] of [[120,75,110],[400,90,80]]){const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'#ffffff');g.addColorStop(.4,'#eeece8');g.addColorStop(1,'#77736f');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2)}
+ const environment=new THREE.CanvasTexture(studio);environment.mapping=THREE.EquirectangularReflectionMapping;environment.colorSpace=THREE.SRGBColorSpace;
+ const pmrem=new THREE.PMREMGenerator(renderer);const lighting=pmrem.fromEquirectangular(environment);scene.environment=lighting.texture;environment.dispose();pmrem.dispose();
+ const grain=document.createElement('canvas');grain.width=128;grain.height=128;
+ const grainCtx=grain.getContext('2d'),pixels=grainCtx.createImageData(128,128);
+ let seed=27;for(let i=0;i<pixels.data.length;i+=4){seed=(seed*1664525+1013904223)>>>0;const value=155+(seed%80);pixels.data.set([value,value,value,255],i)}grainCtx.putImageData(pixels,0,0);
+ const bump=new THREE.CanvasTexture(grain);bump.wrapS=bump.wrapT=THREE.RepeatWrapping;bump.repeat.set(8,4);
+ scene.add(new THREE.HemisphereLight(0xffffff,0x8f3235,.35));
+ const light=new THREE.DirectionalLight(0xffffff,2.1);light.position.set(-3,5,4);scene.add(light);
  const fill=new THREE.DirectionalLight(0xffede4,.55);fill.position.set(4,-1,2);scene.add(fill);
  const ball=new THREE.Group();scene.add(ball);
  // The rail and the ball use the same rising path. Perspective supplies depth.
@@ -19,10 +29,14 @@ try {
  for(let a=0;a<3;a++) for(const sign of [-1,1]) {const v=new THREE.Vector3();v.setComponent(a,sign);dirs.push(v)}
  for(let a=0;a<3;a++) for(let b=a+1;b<3;b++) for(const x of [-1,1]) for(const y of [-1,1]) {const v=new THREE.Vector3();v.setComponent(a,x);v.setComponent(b,y);dirs.push(v.normalize())}
  for(const x of [-1,1])for(const y of [-1,1])for(const z of [-1,1])dirs.push(new THREE.Vector3(x,y,z).normalize());
- function shell(color,radius,side){const mat=new THREE.MeshStandardMaterial({color,roughness:.58,metalness:0,side});mat.onBeforeCompile=shader=>{shader.uniforms.holeDirections={value:dirs};shader.vertexShader='varying vec3 shellPoint;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nshellPoint = position;');shader.fragmentShader='varying vec3 shellPoint;\nuniform vec3 holeDirections[26];\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\nfor(int i=0;i<26;i++){if(dot(normalize(shellPoint),holeDirections[i])>0.9902) discard;}');};return new THREE.Mesh(new THREE.SphereGeometry(radius,96,64),mat)}
- ball.add(shell(0xfafafa,1,THREE.FrontSide),shell(0xd5d2cd,.985,THREE.BackSide));
- const rimMaterial=new THREE.MeshStandardMaterial({color:0xfdfcf9,roughness:.58});
- for(const d of dirs){const rim=new THREE.Mesh(new THREE.TorusGeometry(.139,.007,10,40),rimMaterial);rim.position.copy(d).multiplyScalar(.991);rim.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),d);ball.add(rim)}
+ function shell(color,radius,side){const mat=new THREE.MeshStandardMaterial({color,roughness:.38,metalness:0,bumpMap:bump,bumpScale:.002,envMapIntensity:.45,side});mat.onBeforeCompile=shader=>{shader.uniforms.holeDirections={value:dirs};shader.vertexShader='varying vec3 shellPoint;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nshellPoint = position;');shader.fragmentShader='varying vec3 shellPoint;\nuniform vec3 holeDirections[26];\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\nfor(int i=0;i<26;i++){if(dot(normalize(shellPoint),holeDirections[i])>0.9902) discard;}');};return new THREE.Mesh(new THREE.SphereGeometry(radius,96,64),mat)}
+ ball.add(shell(0xf8f7f3,1,THREE.FrontSide),shell(0xcac7bf,.94,THREE.BackSide));
+ const rimMaterial=new THREE.MeshStandardMaterial({color:0xf8f7f3,roughness:.4,bumpMap:bump,bumpScale:.0015});
+ for(const d of dirs){const rim=new THREE.Mesh(new THREE.TorusGeometry(.139,.0025,8,48),rimMaterial);rim.position.copy(d).multiplyScalar(.991);rim.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),d);ball.add(rim);
+  const wall=new THREE.Mesh(new THREE.CylinderGeometry(.139,.131,.057,48,1,true),rimMaterial);
+  wall.material=wall.material.clone();wall.material.side=THREE.DoubleSide;
+  wall.position.copy(d).multiplyScalar(.961);wall.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d);ball.add(wall)}
+ const seam=new THREE.Mesh(new THREE.TorusGeometry(.999,.0018,6,128),new THREE.MeshStandardMaterial({color:0xe7e4df,roughness:.6}));seam.rotation.x=Math.PI/2;ball.add(seam);
  ball.rotation.set(.35,.5,.12);
  fallback.hidden=true;host.classList.add('webgl-ready');
  function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}

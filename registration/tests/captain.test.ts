@@ -13,7 +13,7 @@ it("requires own team and successor for captain handoff", () => {
 });
 it("demo hands off authority, leaves and dissolves with identities preserved", async () => {
   const store=createDemoStore();
-  await store.login("陈宇",null,"old"); await store.login("王子安",null,"next");
+  await store.login("陈宇","0001","old"); await store.login("王子安","0003","next");
   const original=await store.snapshot("old"), next=(await store.snapshot("next")).viewer;
   await expect(store.act("old",{action:"leave_captain",teamId:original.viewer.teamId!,playerId:original.freePlayers[0].id})).rejects.toThrow("INVALID_SUCCESSOR");
   await store.act("old",{action:"transfer_captain",teamId:original.viewer.teamId!,playerId:next.id});

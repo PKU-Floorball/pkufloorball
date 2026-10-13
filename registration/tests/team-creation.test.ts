@@ -10,7 +10,7 @@ it("demo registration ignores old membership fields and creates teams only from 
     role: "captain",
     teamName: "旧注册队",
   } as any);
-  await store.login("新人", null, "n");
+  await store.login("新人","8400", "n");
   const initial = await store.snapshot("n");
   expect(initial.viewer).toMatchObject({ role: "player", teamId: null });
   const member = initial.freePlayers.find((p) => p.name === "林夏")!;

@@ -3,6 +3,9 @@ test('main navigation, full viewport hero and form typography',async({page,isMob
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('/registration');
  await expect(page.locator('.race-crumb')).toHaveCount(0);
+ await expect(page.locator('.floorball-word')).toHaveText('Floorball');
+ await expect(page.locator('.registration-identity')).toBeHidden();
+ await page.evaluate(()=>scrollTo(0,400));expect((await page.locator('.association-header').boundingBox())!.y).toBe(0);await page.evaluate(()=>scrollTo(0,0));
  await expect.poll(async()=>(await page.locator('.site-foot').boundingBox())!.y).toBeGreaterThanOrEqual(page.viewportSize()!.height-1);
  await expect(page.getByRole('button',{name:'立即注册',exact:true})).toBeInViewport();
  await expect(page.getByRole('button',{name:'登录',exact:true})).toBeInViewport();
@@ -30,8 +33,9 @@ test('main navigation, full viewport hero and form typography',async({page,isMob
 test('multiple teams, player identity, creation and dialog styles retain behavior',async({page})=>{
  const base='http://127.0.0.1:3101',name=`视觉${test.info().project.name.slice(0,6)}${Date.now()}`;
  const post=async(data:Record<string,unknown>)=>{const r=await page.request.post('/registration/api/registration',{headers:{Origin:base},data});expect(r.ok()).toBe(true)};
- await post({action:'register',name,gender:'非二元性别',school:'北京大学',phone:'186'+String(Date.now()).slice(-8)});
- await post({action:'login',name});await page.goto('/registration/teams');
+ const phone='186'+String(Date.now()).slice(-8);
+ await post({action:'register',name,gender:'非二元性别',school:'北京大学',phone});
+ await post({action:'login',name,phone:phone.slice(-4)});await page.addInitScript(()=>sessionStorage.setItem('floorball-tab-login','1')); await page.goto('/registration/teams');
  await expect(page.locator('.team-card').first()).toBeVisible();expect(await page.locator('.team-card').count()).toBeGreaterThanOrEqual(2);
  const cards=await page.locator('.team-card').evaluateAll(nodes=>nodes.map(n=>{const b=n.getBoundingClientRect();return {x:b.x,y:b.y,right:b.right,bottom:b.bottom}}));
  expect(cards.every((a,i)=>cards.slice(i+1).every(b=>Math.min(a.right,b.right)-Math.max(a.x,b.x)<1||Math.min(a.bottom,b.bottom)-Math.max(a.y,b.y)<1))).toBe(true);
@@ -42,7 +46,7 @@ test('multiple teams, player identity, creation and dialog styles retain behavio
  await page.getByRole('button',{name:'点击建队',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'创建球队',exact:true});await expect(dialog).toBeVisible();
  await expect(dialog.getByLabel('队伍名称',{exact:true})).toHaveAttribute('placeholder','快来给您的球队起名吧！');
- const font=await dialog.getByRole('heading').evaluate(el=>getComputedStyle(el).fontFamily);expect(font).toContain('GoogleSansFlex');expect(font).toContain('RegistrationSans');
+ const font=await dialog.getByRole('heading').evaluate(el=>getComputedStyle(el).fontFamily);expect(font).toContain('GoogleSansFlex');expect(font).toContain('Source Sans 3');
  await dialog.getByLabel('队伍名称',{exact:true}).fill(name+'队');await dialog.getByRole('button',{name:'确认创建球队',exact:true}).click();
  await expect(page.getByRole('article',{name:name+'队',exact:true})).toBeVisible();
  await expect(page.getByRole('button',{name:'点击建队',exact:true})).toBeDisabled();await expect(page.getByText('您已加入球队~每位选手只能属于一支球队，成为自由球员后可创建新的队伍',{exact:true})).toBeVisible();

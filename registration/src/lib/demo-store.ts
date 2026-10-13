@@ -262,11 +262,12 @@ export function createDemoStore(): Store {
           a.status = "cancelled";
     },
     login: async (name, phone, hash) => {
+      if (!phone || !/^[0-9]{4}$/.test(phone)) throw new AppError("INVALID_PHONE_SUFFIX");
       const matches = players.filter(
-        (p) => p.name === name && (!phone || p.phone === phone),
+        (p) => p.name === name && p.phone.endsWith(phone),
       );
       if (!matches.length) throw new AppError("NOT_FOUND");
-      if (matches.length > 1) throw new AppError("NEED_PHONE");
+      if (matches.length > 1) throw new AppError("LOGIN_AMBIGUOUS");
       sessions.set(hash, {
         id: matches[0].id,
         expires: Date.now() + 604800000,

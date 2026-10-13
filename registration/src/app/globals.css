@@ -1,5 +1,5 @@
 :root {
-  --tournament-font: GoogleSansFlex, RegistrationSans, 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --tournament-font: GoogleSansFlex, 'Source Sans 3', sans-serif;
   --red: #94070a;
   --red-dark: #6d0407;
   --red-pale: #fff0f1;
@@ -2091,7 +2091,7 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 
 /* Tournament refinements: all routes share the homepage brand tokens. */
 .race-court-inner{padding-top:clamp(115px,22dvh,240px)}
-.race-court:before,.race-court:after{display:none}
+.race-court:before,.race-court:after{display:block;pointer-events:none}
 .auth-copy .auth-watermark{white-space:nowrap;font-size:clamp(30px,4.3vw,62px);letter-spacing:-.05em;line-height:1.2}
 .board-main{padding-top:28px}
 .team-card>h3{font-size:27px}
@@ -2113,3 +2113,12 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .field input:focus,.field select:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px #94070a15}
 @media(max-width:760px){.race-court-inner{padding-top:clamp(110px,20dvh,185px)}.board-main{padding-top:20px}.team-card .roster,.team-card .team-contact{padding-left:18px;padding-right:18px}}
 @media(prefers-reduced-motion:reduce){.create-team-button:not(:disabled):hover{animation:none}}
+
+/* Match the association's sticky navigation and Chinese system sans fallback. */
+.association-header{position:sticky;top:0;z-index:40}
+.registration-identity[hidden]{display:none}
+.auth-main{align-items:stretch}
+.auth-copy{height:100%;display:flex;flex-direction:column}
+.auth-copy .auth-watermark{margin-top:auto;padding-top:48px}
+.board-heading h1{width:fit-content;transform:rotate(-4deg) skewX(-8deg);text-shadow:3px 3px 0 white,5px 5px 0 #94070a26;letter-spacing:-.04em}
+@media(max-width:760px){.auth-copy{height:auto}.auth-copy .auth-watermark{display:none}}

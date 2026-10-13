@@ -3,8 +3,9 @@ test('free player drops into blank team space to confirm creation, cancellation 
   const name='拖拽建队'+Date.now(),base='http://127.0.0.1:3101';
   const post=async(data:Record<string,unknown>)=>{const r=await page.request.post('/registration/api/registration',{headers:{Origin:base},data});expect(r.ok()).toBe(true);};
   const snapshot=async()=>(await(await page.request.get('/registration/api/registration')).json()).snapshot;
-  await post({action:'register',name,gender:'女',school:'北京大学',phone:'186'+String(Date.now()).slice(-8)});
-  await post({action:'login',name});
+  const phone='186'+String(Date.now()).slice(-8);
+ await post({action:'register',name,gender:'女',school:'北京大学',phone});
+  await post({action:'login',name,phone:phone.slice(-4)});await page.addInitScript(()=>sessionStorage.setItem('floorball-tab-login','1'));
   await page.setViewportSize({width:1280,height:2200});await page.goto('/registration/teams');
   const self=page.getByRole('article',{name:'自由球员 '+name,exact:true}),blank=page.getByRole('group',{name:'创建球队区域',exact:true});
   const teams=page.getByRole('region',{name:'球队名单',exact:true});

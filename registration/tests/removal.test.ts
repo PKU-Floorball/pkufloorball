@@ -15,8 +15,8 @@ it("accepts removal only with both a target team and player", () => {
 });
 it("demo removal keeps player identity and lets them apply again as a free agent", async () => {
   const store = createDemoStore();
-  await store.login("陈宇", null, "c");
-  await store.login("王子安", null, "p");
+  await store.login("陈宇","0001", "c");
+  await store.login("王子安","0003", "p");
   const original = await store.snapshot("p");
   await store.act("c", {
     action: "remove",
@@ -39,9 +39,9 @@ it("demo removal keeps player identity and lets them apply again as a free agent
 });
 it("demo rejects removing the captain, another team member or an already free player", async () => {
   const store = createDemoStore();
-  await store.login("陈宇", null, "c");
-  await store.login("周悦", null, "other");
-  await store.login("王子安", null, "p");
+  await store.login("陈宇","0001", "c");
+  await store.login("周悦","0002", "other");
+  await store.login("王子安","0003", "p");
   const data = await store.snapshot("c"),
     own = data.teams.find((t) => t.id === data.viewer.teamId)!;
   const other = data.teams.find((t) => t.id !== data.viewer.teamId)!;
