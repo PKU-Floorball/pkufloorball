@@ -121,6 +121,9 @@ export default function RegistrationApp({
     [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [applicationTarget, setApplicationTarget] = useState<{teamId:string; sourceTeamId:string|null} | null>(null);
   const [applicationReason, setApplicationReason] = useState("");
+  const [ballRotation, setBallRotation] = useState({ x: 0, y: 0 });
+  const [ballJump, setBallJump] = useState(false);
+  const ballDrag = useRef({ active: false, moved: false, x: 0, y: 0 });
   const [leaveTeamId, setLeaveTeamId] = useState<string | null>(null);
   const [captainAction, setCaptainAction] = useState<"transfer_captain" | "leave_captain" | "dissolve_team" | null>(null);
   const [captainTeamId, setCaptainTeamId] = useState("");
@@ -320,6 +323,28 @@ export default function RegistrationApp({
   const pending =
     snapshot?.applications.filter((a) => a.status === "pending").length ?? 0;
   const unavailable = loading || state.mode === "unconfigured";
+  function startBallDrag(event: React.PointerEvent<HTMLDivElement>) {
+    ballDrag.current = { active: true, moved: false, x: event.clientX, y: event.clientY };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+  function moveBall(event: React.PointerEvent<HTMLDivElement>) {
+    if (!ballDrag.current.active) return;
+    const dx = event.clientX - ballDrag.current.x;
+    const dy = event.clientY - ballDrag.current.y;
+    if (Math.abs(dx) + Math.abs(dy) > 4) ballDrag.current.moved = true;
+    ballDrag.current.x = event.clientX;
+    ballDrag.current.y = event.clientY;
+    setBallRotation((rotation) => ({ x: rotation.x + dy * 0.35, y: rotation.y + dx * 0.35 }));
+  }
+  function endBallDrag() {
+    if (!ballDrag.current.active) return;
+    if (!ballDrag.current.moved) {
+      setBallJump(false);
+      requestAnimationFrame(() => setBallJump(true));
+      window.setTimeout(() => setBallJump(false), 700);
+    }
+    ballDrag.current.active = false;
+  }
   if (adminOpen)
     return (
       <AdminPanel
@@ -416,15 +441,10 @@ export default function RegistrationApp({
                 PKU FLOORBALL · TEAM REGISTRATION
               </div>
               <h1>
-                找到你的队伍，
-                <br />
-                <em>一起上场。</em>
+                <span className="hero-kicker">PKU</span>
+                <span className="hero-title-en">Floorball<span>.</span></span>
+                <em>公开赛</em>
               </h1>
-              <p>
-                从一个名字开始，和一群伙伴并肩。
-                <br />
-                创建你的球队，或加入一支属于你的队伍。
-              </p>
               <div className="hero-actions">
                 <button
                   className="button primary"
@@ -441,80 +461,14 @@ export default function RegistrationApp({
                   <ArrowRight size={18} />
                 </button>
               </div>
-              <div className="hero-foot">
-                <span className="mini-avatars">
-                  <b>队</b>
-                  <b>友</b>
-                  <b>你</b>
-                </span>
-                <span>
-                  {state.teams.length
-                    ? `${state.teams.length} 支球队已集结，等你加入。`
-                    : "带上热爱，剩下的交给队友。"}
-                </span>
-              </div>
             </div>
-            <div className="hero-art" aria-hidden="true">
-              <div className="court">
-                <span className="court-circle" />
-                <span className="court-line" />
-                <span className="court-goal left" />
-                <span className="court-goal right" />
+            <div className="hero-ball-stage" aria-label="软式曲棍球视觉元素">
+              <div className={`hero-ball${ballJump ? " is-jumping" : ""}`} style={{ transform: `rotateX(${ballRotation.x}deg) rotateY(${ballRotation.y}deg)` }} onPointerDown={startBallDrag} onPointerMove={moveBall} onPointerUp={endBallDrag} onPointerCancel={endBallDrag} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setBallJump(false); requestAnimationFrame(() => setBallJump(true)); window.setTimeout(() => setBallJump(false), 700); } }} role="button" tabIndex={0} aria-label="拖动旋转或点击弹跳">
+                {Array.from({ length: 10 }, (_, index) => <i key={index} />)}
               </div>
-              <span className="art-tag">YOUR TEAM STARTS HERE</span>
-              <div className="art-card art-team">
-                <div className="art-card-top">
-                  <span className="art-icon">
-                    <UsersRound size={21} />
-                  </span>
-                  <span>球队集结</span>
-                  <span className="art-check">
-                    <Check size={15} />
-                  </span>
-                </div>
-                <strong>一个人报名，一群人上场。</strong>
-                <div className="art-player">
-                  <span>队长</span>
-                  <span>队员</span>
-                  <span>队员</span>
-                  <span className="art-add">
-                    <Plus size={16} />
-                  </span>
-                </div>
-              </div>
-              <div className="art-card art-free">
-                <CircleDot size={22} />
-                <span>
-                  <strong>还没有球队？</strong>
-                  <small>成为自由球员，找到你的伙伴</small>
-                </span>
-                <ArrowUpRight size={18} />
-              </div>
-              <span className="art-bottom">PLAY TOGETHER. GROW TOGETHER.</span>
+              <span className="hero-orbit hero-orbit-one" />
+              <span className="hero-orbit hero-orbit-two" />
             </div>
-          </section>
-          <section className="how-it-works" aria-label="报名流程">
-            {[
-              [
-                "01",
-                "登记个人信息",
-                "填写姓名、性别、学校和手机号，先成为自由球员。",
-              ],
-              [
-                "02",
-                "找到你的伙伴",
-                "创建球队并挑选队友，或申请加入已有球队。",
-              ],
-              ["03", "准备一起上场", "队长确认入队，名单同步更新。"],
-            ].map(([num, title, description]) => (
-              <div className="step" key={num}>
-                <span>{num}</span>
-                <div>
-                  <h2>{title}</h2>
-                  <p>{description}</p>
-                </div>
-              </div>
-            ))}
           </section>
         </main>
       )}
