@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react";
 import AdminPanel from "./admin-panel";
+import AssociationHeader from "./association-header";
 import type { Action, Player, PublicState } from "@/lib/types";
 type View = "home" | "login" | "register" | "teams";
 const playerDragType = "application/x-pku-player";
@@ -182,6 +183,17 @@ export default function RegistrationApp({
     window.addEventListener("popstate", listener);
     return () => window.removeEventListener("popstate", listener);
   }, []);
+  useEffect(() => {
+    if (view !== "home") return;
+    const court = document.querySelector<HTMLElement>(".race-court");
+    if (!court) return;
+    const measure = () => court.style.setProperty("--race-top", `${court.getBoundingClientRect().top + window.scrollY}px`);
+    const observer = new ResizeObserver(measure);
+    document.querySelectorAll(".association-header,.environment-banner,.registration-identity,.feedback").forEach(el => observer.observe(el));
+    window.addEventListener("resize", measure);
+    measure();
+    return () => { observer.disconnect(); window.removeEventListener("resize", measure); };
+  }, [view, state.mode, loading, notice, error, viewer?.id]);
   const refresh = useCallback(async () => {
     const data: PublicState = await request();
     setState(data);
@@ -297,13 +309,13 @@ export default function RegistrationApp({
       setRemovePlayer(null);
       setNotice(
         input.action === "leave_team"
-          ? "你已退出球队，成为自由球员。"
+          ? "您已退出球队，成为自由球员。"
           : input.action === "switch_apply"
-          ? "你已退出原球队，入队申请已发送，请等待新队长审核。"
+          ? "您已退出原球队，入队申请已发送，请等待新队长审核。"
           : input.action === "transfer_captain"
-          ? "队长已转让，你仍是本队队员。"
+          ? "队长已转让，您仍是本队队员。"
           : input.action === "leave_captain"
-          ? "队长已交接，你已成为自由球员。"
+          ? "队长已交接，您已成为自由球员。"
           : input.action === "dissolve_team"
           ? "球队已解散，所有成员已成为自由球员，报名信息已保留。"
           : input.action === "remove"
@@ -332,15 +344,8 @@ export default function RegistrationApp({
     );
   return (
     <div className="site-shell">
-      <header className="site-header">
-        <a className="brand" href="/" aria-label="北京大学软式曲棍球">
-          <img className="race-association-logo" src="/registration-visual/association-logo.png" alt="协会会徽" />
-          <span>
-            <strong>北京大学软式曲棍球协会</strong>
-          </span>
-        </a>
-        <nav className="race-nav" aria-label="主站导航"><a href="/">主页</a><a href="/htmls/1-about/2-intro.html">关于</a><a href="/htmls/2-team/1-intro.html">校队</a><a href="/htmls/3-association/1-intro.html">社团</a><a className="active" href="/registration">赛事</a><a href="/htmls/4-gallery/0-main.html">图集</a><a href="/htmls/5-news/0-main.html">新闻</a><a href="/htmls/6-contact.html">联系</a></nav>
-        <div className="header-actions">
+      <AssociationHeader />
+        <div className="header-actions registration-identity">
           {viewer ? (
             <>
               <span className="identity">
@@ -372,7 +377,6 @@ export default function RegistrationApp({
             null
           )}
         </div>
-      </header>
       {state.mode === "demo" && !loading && (
         <div className="environment-banner">
           <CircleDot size={14} />
@@ -406,13 +410,12 @@ export default function RegistrationApp({
       )}
       {view === "home" && (
         <main className="race-home">
-          <div className="race-wrap race-crumb"><a href="/">主页</a><span>/</span>赛事<span>/</span>公开赛</div>
           <section className="race-court"><div className="race-wrap race-court-inner">
             <div className="race-latin"><span className="pku-word">PKU</span><span className="floorball-word">Floorball<span className="title-dot">.</span></span></div>
             <iframe className="race-ball-frame" src="/registration-visual/ball.html" title="互动三维软式曲棍球：拖动旋转、点击弹跳" />
             <div className="race-title-row"><h1>公开赛</h1><div className="race-actions">
-              <button className="race-btn" onClick={() => go("register")}>立即注册<b>↗</b></button>
-              <button className="race-btn secondary" onClick={() => go("login")}>登录<b>→</b></button>
+              <button className="race-btn" onClick={() => go("register")}>立即注册<ArrowRight size={21} strokeWidth={1.8} aria-hidden="true" /></button>
+              <button className="race-btn secondary" onClick={() => go("login")}>登录<ArrowRight size={21} strokeWidth={1.8} aria-hidden="true" /></button>
             </div></div>
           </div></section><div className="race-court-space" />
         </main>
@@ -422,17 +425,13 @@ export default function RegistrationApp({
           <section className="auth-copy">
             <button className="back-link" onClick={() => go("home")}>
               <ChevronLeft size={16} />
-              返回首页
+              返回
             </button>
-            <div className="eyebrow">
-              {view === "register" ? "JOIN THE GAME" : "WELCOME BACK"}
-            </div>
-            <h1>
+            <h1 className={view === "register" ? "champion-title" : undefined}>
               {view === "register" ? (
                 <>
-                  你的球队，
-                  <br />
-                  从这里开始。
+                  <span>报名参赛</span>
+                  <span>您就是下一个冠军！</span>
                 </>
               ) : (
                 <>
@@ -442,19 +441,7 @@ export default function RegistrationApp({
                 </>
               )}
             </h1>
-            <p>
-              {view === "register"
-                ? "无论是带队出发，还是寻找伙伴，都欢迎加入。"
-                : "输入报名时填写的姓名，看看你的队友们。"}
-            </p>
-            <div className="auth-note">
-              <UsersRound size={20} />
-              <span>
-                无需密码 · 简单报名
-                <br />
-                <small>姓名用于选择报名身份，不验证本人。</small>
-              </span>
-            </div>
+            {view === "login" && <p>输入报名时填写的姓名，看看您的队友们。</p>}
             <span className="auth-watermark" aria-hidden="true">
               FLOOR
               <br />
@@ -467,8 +454,8 @@ export default function RegistrationApp({
                 <span className="success-symbol">
                   <Check size={34} />
                 </span>
-                <h2>{alreadyRegistered ? "你已经注册过了" : "报名成功！"}</h2>
-                <p>{alreadyRegistered ? "直接登录即可，无需重复报名。" : "你的个人信息已保存，登录后可创建球队或申请加入球队。"}</p>
+                <h2>{alreadyRegistered ? "您已经注册过了" : "报名成功！"}</h2>
+                <p>{alreadyRegistered ? "直接登录即可，无需重复报名。" : "您的个人信息已保存，登录后可创建球队或申请加入球队。"}</p>
                 <button
                   className="button primary full"
                   onClick={() => go("login")}
@@ -481,11 +468,6 @@ export default function RegistrationApp({
               <>
                 <div className="form-heading">
                   <h2>{view === "register" ? "创建报名身份" : "登录报名站"}</h2>
-                  <p>
-                    {view === "register"
-                      ? "填写信息，开启你的组队之旅。"
-                      : "使用注册时的姓名进入球队大厅。"}
-                  </p>
                 </div>
                 {view === "register" ? (
                   <form onSubmit={submitRegistration}>
@@ -526,7 +508,6 @@ export default function RegistrationApp({
                         aria-label="手机号"
                         name="phone"
                         type="tel"
-                        placeholder="用于联系与重名区分"
                         autoComplete="tel"
                         inputMode="numeric"
                         pattern="1[3-9][0-9]{9}"
@@ -536,7 +517,7 @@ export default function RegistrationApp({
                     </label>
                     <p className="privacy-note">
                       <ShieldCheck size={14} />
-                      报名后先作为自由球员。创建球队后，你的手机号将作为队长联系方式展示。
+                      报名后先作为自由球员。加入球队需队长确认；如果您创建球队，将成为队长，手机号会作为队长联系方式展示。
                     </p>
                     <button
                       className="button primary full"
@@ -555,7 +536,7 @@ export default function RegistrationApp({
                 ) : (
                   <form onSubmit={submitLogin}>
                     <div className="admin-login-option">
-                      <span>报名者登录</span>
+                      <span>参赛选手登陆</span>
                       <button
                         type="button"
                         className="small-button"
@@ -592,14 +573,6 @@ export default function RegistrationApp({
                         <small>有同名报名者，请用手机号区分。</small>
                       </label>
                     )}
-                    <div className="login-hint">
-                      <CircleDot size={17} />
-                      <span>
-                        无需密码，姓名即可进入。
-                        <br />
-                        如遇重名，再补充手机号。
-                      </span>
-                    </div>
                     <button
                       className="button primary full"
                       disabled={busy || unavailable}
@@ -624,9 +597,8 @@ export default function RegistrationApp({
         <main className="board-main">
           <div className="board-heading">
             <div>
-              <div className="eyebrow">THE TEAM BOARD</div>
               <h1>
-                球队大厅<span>一起集结，准备上场。</span>
+                球队大厅
               </h1>
             </div>
             <div className="board-actions">
@@ -644,9 +616,6 @@ export default function RegistrationApp({
             <h2>
               已集结球队<span>{snapshot.teams.length}</span>
             </h2>
-            <span className="refresh-note">
-              <span className="tiny-dot" />每 15 秒同步名单
-            </span>
           </div>
           <section className="teams-grid" aria-label="球队名单"
             onDragOver={(e) => {
@@ -736,7 +705,7 @@ export default function RegistrationApp({
                         </span>
                         <span className="player-name">
                           <span>{p.name}</span>
-                          {p.id === viewer?.id && <small>你</small>}
+                          {p.id === viewer?.id && <small>您</small>}
                           {p.school && <span className="player-school">{p.school}</span>}
                         </span>
                         {p.role === "captain" ? (
@@ -802,13 +771,14 @@ export default function RegistrationApp({
                 </article>
               );
             })}
+            {!canCreateTeam && viewer?.teamId && <aside className="team-membership-note"><UsersRound size={24} aria-hidden="true" /><h3>您已加入球队</h3><p>每位选手只能属于一支球队。成为自由球员后，这里会重新显示建队入口。</p></aside>}
             {canCreateTeam && (
               <div role="group" aria-label="创建球队区域"
                 className={`create-team-dropzone ${dragOver === "create-team" ? "drop-active" : ""}`}>
                 <Plus size={28} aria-hidden="true" />
                 <h3>创建一支新球队</h3>
-                <p>把自己的自由球员卡片拖到这里，填写队名后创建球队。</p>
-                <button className="button secondary" disabled={busy} onClick={openCreateTeam}>点击建队</button>
+                <p>拖入您的自由球员卡片！<br />创建您自己的球队！</p>
+                <button className="button secondary create-team-button" disabled={busy} onClick={openCreateTeam}><Plus size={20} aria-hidden="true" />点击建队</button>
               </div>
             )}
           </section>
@@ -816,7 +786,7 @@ export default function RegistrationApp({
             <div className="empty-state">
               <UsersRound size={28} />
               <h3>还没有球队</h3>
-              <p>点击“创建球队”，为你的伙伴组建第一支队伍。</p>
+              <p>点击“创建球队”，为您的伙伴组建第一支队伍。</p>
             </div>
           )}
           <section aria-label="自由球员区域" className={`free-section ${dragOver === "free" ? "drop-active" : ""}`}
@@ -832,7 +802,7 @@ export default function RegistrationApp({
                 <p>
                   {viewer?.role === "captain"
                     ? "把伙伴拖进自己的球队，或点击按钮邀请入队。"
-                    : viewer?.teamId ? "拖动自己的名字到这里可退出球队；也可拖到其他球队申请换队。" : "拖动自己的卡片到已有球队可申请加入，拖到球队区域空白处可创建球队，也可使用按钮操作。"}
+                    : viewer?.teamId ? "拖动自己的名字到这里可退出球队；也可拖到其他球队申请换队。" : "您可以拖动您的球员卡片到已有球队的空白处申请加入，或是创建属于您的球队~"}
                 </p>
               </div>
               <span className="free-label">
@@ -854,7 +824,7 @@ export default function RegistrationApp({
                   <div>
                     <h3>
                       {p.name}
-                      {p.id === viewer?.id && <small>你</small>}
+                      {p.id === viewer?.id && <small>您</small>}
                     </h3>
                     <span className="player-gender">{p.gender} · 自由球员</span>
                     {p.school && <span className="player-school">{p.school}</span>}
@@ -892,7 +862,7 @@ export default function RegistrationApp({
         <Modal label="申请加入球队" onClose={() => {if (!busy) setApplicationTarget(null);}}>
           <div className="modal-heading"><h2>申请加入球队</h2><button className="icon-button" aria-label="关闭申请" disabled={busy} onClick={() => setApplicationTarget(null)}><X size={20}/></button></div>
           <p className="confirm-copy">申请加入 <strong>{snapshot.teams.find(t => t.id === applicationTarget.teamId)?.name}</strong></p>
-          <p className="modal-note">{applicationTarget.sourceTeamId ? "确认后，你将退出当前球队并成为自由球员，同时向这支球队发送申请。新队长批准后才能加入。" : "申请发送后需等待队长批准，批准前仍是自由球员。"}</p>
+          <p className="modal-note">{applicationTarget.sourceTeamId ? "确认后，您将退出当前球队并成为自由球员，同时向这支球队发送申请。新队长批准后才能加入。" : "申请发送后需等待队长批准，批准前仍是自由球员。"}</p>
           <form onSubmit={(e) => {e.preventDefault();void act({action:applicationTarget.sourceTeamId ? "switch_apply" : "apply",teamId:applicationTarget.teamId,...(applicationTarget.sourceTeamId ? {sourceTeamId:applicationTarget.sourceTeamId} : {}),reason:applicationReason});}}>
             <label className="field">申请理由（选填）<textarea aria-label="申请理由（选填）" rows={4} maxLength={500} placeholder="可以介绍自己、参加训练的时间或想加入的原因，不填写也能申请。" value={applicationReason} disabled={busy} onChange={(e) => setApplicationReason(e.target.value)} /></label>
             {error && <p className="inline-error" role="alert">{error}</p>}
@@ -917,9 +887,9 @@ export default function RegistrationApp({
           </div>
           <form onSubmit={(e) => {e.preventDefault(); act({action:captainAction,teamId:captainTeamId, ...(captainAction === "dissolve_team" ? {} : {playerId:successorId})});}}>
             <p className="confirm-copy">
-              {captainAction === "dissolve_team" ? `确认解散“${snapshot.teams.find(t => t.id === captainTeamId)?.name}”？所有成员将成为自由球员，报名信息会保留，入队申请会移除。` : captainAction === "leave_captain" ? "请选择接任队长。确认后，队长权限会交接给该队员，你将退出球队并成为自由球员。" : "请选择接任队长。确认后，你仍留在本队，成为普通队员。"}
+              {captainAction === "dissolve_team" ? `确认解散“${snapshot.teams.find(t => t.id === captainTeamId)?.name}”？所有成员将成为自由球员，报名信息会保留，入队申请会移除。` : captainAction === "leave_captain" ? "请选择接任队长。确认后，队长权限会交接给该队员，您将退出球队并成为自由球员。" : "请选择接任队长"}
             </p>
-            {captainAction !== "dissolve_team" && <label className="field">接任队长
+            {captainAction !== "dissolve_team" && <label className="field"><span className="sr-only">接任队长</span>
               <select aria-label="接任队长" value={successorId} required disabled={busy} onChange={(e) => setSuccessorId(e.target.value)}>
                 <option value="">请选择本队队员</option>
                 {snapshot.teams.find(t => t.id === captainTeamId)?.players.filter(p => p.role === "player").map(p => <option value={p.id} key={p.id}>{p.name}</option>)}
@@ -967,7 +937,7 @@ export default function RegistrationApp({
                 async () => {
                   setCreateTeamOpen(false);
                   setSelectedMembers([]);
-                  setNotice("球队已创建，你已成为队长，所选队员已加入球队。");
+                  setNotice("球队已创建，您已成为队长，所选队员已加入球队。");
                   await refresh().catch(() =>
                     setNotice("球队已创建；名单暂未刷新，请刷新页面查看。"),
                   );
@@ -980,7 +950,7 @@ export default function RegistrationApp({
               <input
                 aria-label="队伍名称"
                 name="name"
-                placeholder="给你的球队起一个名字"
+                placeholder="快来给您的球队起名吧！"
                 maxLength={40}
                 required
                 disabled={busy}
@@ -991,7 +961,7 @@ export default function RegistrationApp({
                 选择自由球员 <span>已选 {selectedMembers.length} 人</span>
               </legend>
               <p className="modal-note">
-                你将成为队长，勾选的伙伴直接加入球队。也可以先创建，再招募队员。
+                请组建属于您的队伍！后续也可以再招募队友喔~
               </p>
               <div className="member-options">
                 {snapshot.freePlayers
@@ -1029,7 +999,7 @@ export default function RegistrationApp({
               )}
             </fieldset>
             <p className="modal-note">
-              队名不可重复；你的手机号将显示为队长联系方式。
+              您的手机号将作为队长手机号展示~
             </p>
             {error && (
               <p className="inline-error" role="alert">
@@ -1174,7 +1144,6 @@ export default function RegistrationApp({
         >
           <div className="modal-heading">
             <div>
-              <div className="eyebrow">TEAM INBOX</div>
               <h2>{viewer?.role === "captain" ? "入队申请" : "我的申请"}</h2>
             </div>
             <button
@@ -1186,11 +1155,7 @@ export default function RegistrationApp({
               <X size={20} />
             </button>
           </div>
-          <p className="modal-note">
-            {viewer?.role === "captain"
-              ? "看看谁想和你一起上场。"
-              : "查看队长的处理结果。"}
-          </p>
+
           {error && (
             <p className="inline-error" role="alert">
               {error}

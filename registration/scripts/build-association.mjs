@@ -6,6 +6,7 @@ import { Liquid } from 'liquidjs';
 import { parse } from 'yaml';
 import { createHash } from 'node:crypto';
 import sharp from 'sharp';
+import postcss from 'postcss';
 const app = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const repo = path.resolve(app, '..');
 const source = path.join(app, 'association-source');
@@ -91,3 +92,23 @@ async function visit(dir) {
 await render('index.html');
 await visit('htmls');
 console.log('Association homepage, pages and assets built.');
+
+// Registration uses the association's actual header template and assets.
+const header = await engine.parseAndRender(await readFile(path.join(source, '_includes/header-primary.html'), 'utf8'));
+const sprites = await readFile(path.join(source, '_includes/svgs.html'), 'utf8');
+await writeFile(path.join(app, 'src/components/association-header-data.json'), JSON.stringify({ html: sprites + header }));
+let scopedCss = '';
+for (const file of ['assets/vendor/bootstrap/bootstrap.min.css', 'assets/css/style.css']) {
+  const root = postcss.parse(await readFile(path.join(source, file), 'utf8'));
+  root.walkRules(rule => {
+    if (rule.parent.type === 'atrule' && /keyframes$/.test(rule.parent.name)) return;
+    rule.selectors = rule.selectors.map(selector => {
+      if (selector.trim() === ':root' || selector.trim() === 'body' || selector.trim() === 'html') return '.association-header';
+      return ':where(.association-header) ' + selector;
+    });
+  });
+  // Relative images in the original stylesheet resolve from /assets/css/.
+  root.walkDecls(decl => { decl.value = decl.value.replace(/url\((['"]?)\.\.\//g, 'url($1/assets/'); });
+  scopedCss += root.toString();
+}
+await writeFile(path.join(output, 'association-header.css'), scopedCss);

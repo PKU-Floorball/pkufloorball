@@ -90,7 +90,7 @@ export const messages: Record<string, string> = {
   INVALID_PHONE: "请输入正确的 11 位手机号。",
   NEED_PHONE: "存在同名报名者，请补充手机号。",
   NOT_FOUND: "没有找到对应的报名信息，请检查姓名或先注册。",
-  ALREADY_REGISTERED: "你已经注册过了，直接登录即可。",
+  ALREADY_REGISTERED: "您已经注册过了，直接登录即可。",
   PHONE_EXISTS: "这个手机号已被使用，但姓名不一致，请检查姓名或联系管理员。",
   TEAM_EXISTS: "这个队名已被使用，请换一个名称。",
   TEAM_NOT_FOUND: "该球队已不存在，请重新选择。",

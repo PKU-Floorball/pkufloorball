@@ -351,7 +351,7 @@ test("matching registration shows existing identity and a direct login entry", a
   await page.getByLabel("学校信息", {exact:true}).fill("北京大学");
   await page.getByLabel("手机号",{exact:true}).fill("13800000001");
   await page.getByRole("button",{name:"完成注册"}).click();
-  await expect(page.getByRole("heading",{name:"你已经注册过了"})).toBeVisible();
+  await expect(page.getByRole("heading",{name:"您已经注册过了"})).toBeVisible();
   await page.getByRole("button",{name:"前往登录",exact:true}).click();
   await page.getByLabel("姓名",{exact:true}).fill("陈宇");
   await page.getByRole("button",{name:"进入球队大厅"}).click();

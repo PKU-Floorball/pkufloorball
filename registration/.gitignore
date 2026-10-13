@@ -12,3 +12,7 @@ screenshots/
 
 # Supabase CLI local state
 supabase/.temp/
+
+# Header styles are regenerated from the original association assets.
+public/association-header.css
+visual-test-results/

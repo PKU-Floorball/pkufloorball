@@ -8,6 +8,7 @@ import {
   UsersRound,
   Bell,
 } from "lucide-react";
+import AssociationHeader from "./association-header";
 import type { AdminSnapshot, AdminPlayer } from "@/lib/admin-types";
 async function api(body?: Record<string, unknown>) {
   const res = await fetch("/registration/api/admin", {
@@ -87,15 +88,8 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
   ) || [];
   return (
     <div className="site-shell admin-shell">
-      <header className="site-header">
-        <a className="brand" href="/" aria-label="北京大学软式曲棍球">
-          <span className="brand-symbol">
-            <CircleDot size={28} />
-          </span>
-          <span>
-            <strong>北京大学软式曲棍球</strong>
-          </span>
-        </a>
+      <AssociationHeader />
+      <header className="site-header admin-session-header">
         <span className="admin-label">
           <ShieldCheck size={16} />
           管理员

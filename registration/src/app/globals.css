@@ -2013,3 +2013,85 @@ button:not(:disabled):active,.button:not(:disabled):active{transform:translateY(
 .site-shell{max-width:none;background:#fff}.site-header{max-width:1240px;min-height:99px;height:auto;margin:0 auto;width:100%;padding:16px 40px;gap:24px;flex-wrap:wrap;position:relative;border-top:0}.site-shell{border-top:5px solid #94070a}.race-association-logo{width:52px;height:52px;object-fit:contain}.brand strong{font-size:20px;letter-spacing:0}.race-nav{display:flex;gap:25px;font-size:15px;margin-left:auto}.race-nav a{text-decoration:none}.race-nav .active{color:#94070a;border-bottom:2px solid;padding-bottom:8px}.header-actions:empty{display:none}.header-actions{margin-left:0}.race-ball-frame{position:absolute;width:400px;height:400px;right:24px;top:125px;z-index:3;border:0;background:transparent}.race-title-row{z-index:4!important}.race-latin{font-family:GoogleSansFlex,sans-serif}.race-court .race-latin{font-family:GoogleSansFlex,sans-serif}.race-court h1{font-family:RegistrationSans,'Noto Sans SC',sans-serif}.site-foot{margin-top:auto}.race-btn{position:relative}.race-btn:active{background:#f4c7be!important;transform:translateY(2px) scale(.94)!important}.race-btn.secondary:active{background:#ffffff30!important}.auth-main,.board-main{width:calc(100% - 80px)}@media(max-width:760px){.site-header{padding:14px 22px 15px;gap:14px}.brand strong{font-size:16px}.race-association-logo{width:38px;height:38px}.race-nav{width:100%;margin-left:0;overflow:auto;gap:24px;font-size:14px;white-space:nowrap;padding-bottom:5px}.race-nav a:nth-child(2),.race-nav a:nth-child(3),.race-nav a:nth-child(6),.race-nav a:nth-child(7){display:none}.race-ball-frame{width:270px;height:270px;right:-12px;top:185px}.auth-main,.board-main{width:auto}.header-actions{margin-left:auto}.race-court .race-actions{z-index:4}}
 
 .site-foot a{text-decoration:none}.race-court .race-btn{line-height:1.5}.race-ball-frame{color-scheme:light}
+
+/* The association header is rendered from the main site's template. */
+.site-shell{border-top:0}
+.association-header{position:relative;z-index:30;flex:none;min-height:80px}
+.association-header #primary-header{border:0}
+.association-header input{font-size:1rem;min-height:0}
+.association-header .offcanvas{color:#797876}
+.association-header .navbar-brand{font-family:'Oswald',sans-serif;font-weight:500}
+.association-header .navbar-toggler{cursor:pointer}
+.registration-identity:empty{display:none}
+.registration-identity{padding:10px 24px;justify-content:flex-end;background:#fff;border-bottom:1px solid #eee}
+.admin-session-header{min-height:0;height:auto;padding:12px 24px;border:0;justify-content:flex-end}
+.race-court,.race-court-inner{min-height:max(540px,calc(100dvh - var(--race-top,var(--association-header-height,94px))))}
+.race-court-inner{padding-top:clamp(32px,5vh,70px);padding-bottom:clamp(32px,5vh,70px)}
+.race-court-space{display:none}
+.race-ball-frame{width:clamp(320px,34vw,490px);height:clamp(320px,34vw,490px);top:50%;transform:translateY(-50%);right:3%}
+.race-court .race-btn svg{flex:none;transition:transform .2s ease}
+.race-court .race-btn:hover svg{transform:translateX(4px)}
+.back-link{font-size:16px;gap:5px;margin-bottom:30px;color:#94070a}
+.auth-copy .champion-title{margin:20px 0 36px;font-family:RegistrationSans,'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-weight:900;letter-spacing:-.04em;line-height:1.2;isolation:isolate}
+.champion-title span{display:block;width:fit-content;transform:rotate(-5deg) skewX(-8deg);font-size:clamp(46px,5.2vw,76px);color:#94070a;text-shadow:3px 3px 0 #f4c6bc,6px 6px 0 #94070a15}
+.champion-title span+span{margin-top:28px;padding:12px 14px 18px;transform:rotate(3deg) skewX(-7deg);background:#94070a;color:#fff;font-size:clamp(24px,2.6vw,37px);text-shadow:2px 3px 0 #4e0206;box-shadow:6px 7px 0 #edc4bb}
+.auth-copy .auth-watermark{opacity:.04}
+@media(max-width:760px){
+ .race-court,.race-court-inner{min-height:max(480px,calc(100dvh - var(--race-top,var(--association-header-height,80px))))}
+ .race-court{border-radius:0}
+ .race-court-inner{padding-top:28px;padding-bottom:30px}
+ .race-ball-frame{width:clamp(235px,65vw,370px);height:clamp(235px,65vw,370px);right:0;top:52%}
+ .race-court .race-title-row{display:flex;flex-direction:column;align-items:stretch;gap:20px}
+ .race-court h1{margin-bottom:0}
+ .race-court .race-actions{flex-wrap:nowrap}
+ .race-court .race-btn{justify-content:space-between}
+ .auth-copy{margin-bottom:32px}
+ .auth-copy .champion-title{margin:14px 0 35px}
+ .champion-title span{font-size:clamp(44px,10vw,66px)}
+ .champion-title span+span{font-size:clamp(22px,5.5vw,32px);margin-top:20px}
+ .back-link{margin-bottom:18px}
+}
+@media(prefers-reduced-motion:reduce){.race-court .race-btn svg{transition:none}}
+
+/* One red/white type system throughout the tournament, including dialogs. */
+:root{--red:#94070a;--red-dark:#6d0407;--red-pale:#fff0f1;--line:#eddcdd;--paper:#fff;--green:#94070a;--muted:#706366}
+body,.site-shell{background:#fff;font-family:GoogleSansFlex,RegistrationSans,'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif}
+.site-shell h1,.site-shell h2,.site-shell h3,.site-shell button,.site-shell input,.site-shell select,.site-shell textarea,.site-shell .team-number{font-family:GoogleSansFlex,RegistrationSans,'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif}
+.auth-card,.team-card,.free-card,.modal,.admin-login-card,.admin-create,.admin-team,.admin-player-card{background:white;border-color:#eddcdd;box-shadow:0 10px 30px #94070a09}
+.auth-card{border-top:4px solid #94070a}
+.auth-main{gap:7%;padding-bottom:60px}
+.auth-copy{padding:30px;background:#94070a;color:#fff;border-radius:4px 32px 4px 4px;min-height:340px}
+.auth-copy .back-link{color:#fff}
+.auth-copy>p{color:#ffffffbd}
+.auth-copy .champion-title span{color:#fff;text-shadow:3px 3px 0 #660308}
+.auth-copy .champion-title span+span{background:white;color:#94070a;text-shadow:1px 2px 0 #94070a20;box-shadow:5px 6px 0 #ffffff40;font-size:clamp(22px,2.5vw,34px);padding:12px}
+.auth-copy h1:not(.champion-title){font-weight:900;font-style:italic;text-shadow:3px 4px #650205;font-size:clamp(40px,4.5vw,64px)}
+.auth-copy .auth-watermark{color:#fff;opacity:.08;pointer-events:none}
+.board-heading{padding-bottom:28px;border-bottom:3px solid #94070a;gap:20px}
+.board-heading h1{color:#94070a;font-weight:900}
+.modal-heading h2{color:#94070a;font-weight:800;font-size:26px;letter-spacing:-.02em}
+.role-tabs,.self-card,.my-team-label,.team-number,.count-badge,.section-heading h2>span{background:#fff0f1;color:#94070a}
+.field input,.field select,textarea{background:#fff;border-color:#dcc7ca}
+.button.primary,.apply-button{background:#94070a;border-color:#94070a;color:#fff}
+.button.secondary,.small-button{color:#94070a;border-color:#cda5a7;background:#fff}
+.identity{font-size:18px}.identity-role{font-size:14px}
+.create-team-dropzone{background:#fff;border-color:#94070a;color:#94070a}
+.create-team-dropzone p,.team-membership-note p{color:#706366;line-height:1.9}
+.create-team-button svg{animation:create-team-hop 2.8s ease-in-out infinite}
+.create-team-button:active svg{animation:none;transform:rotate(90deg)}
+.team-membership-note{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px;border:1px dashed #ddbdc0;border-radius:20px;text-align:center;color:#94070a;min-height:200px}
+@keyframes create-team-hop{0%,15%,35%,100%{transform:translateY(0) rotate(0)}22%{transform:translateY(-7px) rotate(-12deg)}29%{transform:translateY(-3px) rotate(8deg)}}
+@media(max-width:760px){.auth-copy{padding:24px 20px;min-height:260px;border-radius:4px 24px 4px 4px}.auth-copy .champion-title span+span{font-size:clamp(19px,5.1vw,29px)}.identity{font-size:17px}.board-heading h1{font-size:42px}}
+@media(prefers-reduced-motion:reduce){.create-team-button svg{animation:none}}
+.auth-main,.board-main,.modal,.field,.button,.auth-watermark,.site-foot{font-family:GoogleSansFlex,RegistrationSans,'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.avatar,.free-card>.avatar,.success-symbol{background:#fff0f1;color:#94070a}
+.player-gender,.free-label,.drop-hint{color:#706366}
+.drop-hint{background:#fff7f7;border-color:#eddcdd}
+.team-contact{border-color:#eddcdd}
+.feedback.success{background:#fff0f1;color:#94070a;border-color:#eddcdd}
+.member-picker,.member-option{border-color:#eddcdd}
+.member-option:has(input:checked){background:#fff0f1;border-color:#94070a}
+.recruit-button{color:#94070a;border-color:#ddbdc0}
+.admin-notice,.empty-state{background:#fff0f1;color:#94070a}
+.environment-banner{background:#fff7f7;color:#706366}

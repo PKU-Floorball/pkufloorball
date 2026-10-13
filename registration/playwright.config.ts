@@ -14,7 +14,7 @@ export default defineConfig({
     command:
       "REGISTRATION_BUILD_DIR=.next-e2e REGISTRATION_DEMO=true npm run dev -- --hostname 127.0.0.1 --port 3101",
     url: "http://127.0.0.1:3101",
-    reuseExistingServer: false,
+    reuseExistingServer: !!process.env.PLAYWRIGHT_REUSE_SERVER,
     timeout: 120000,
   },
 });

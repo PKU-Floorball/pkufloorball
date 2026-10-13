@@ -8,8 +8,8 @@ test('association homepage links to registration and back, deep pages preserve a
   await page.getByRole('button', { name: '赛事', exact: true }).click();
   await page.getByRole('link', { name: '公开赛', exact: true }).click();
   await expect(page).toHaveURL(/\/registration$/);
-  await page.getByRole('link', { name: '北京大学软式曲棍球', exact: true }).click();
-  await expect(page).toHaveURL(/\/$/);
+  await page.getByRole('link', { name: '北京大学软式曲棍球协会', exact: true }).click();
+  await expect(page).toHaveURL(/\/index\.html$/);
   const deep = await page.request.get('/htmls/3-association/2-rk-cup/24-rk-cup/main.html');
   expect(deep.ok()).toBe(true);
   expect(await deep.text()).toContain('/assets/css/cup-style.css');
