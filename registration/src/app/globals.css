@@ -1633,6 +1633,35 @@ strong {
 .admin-team-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%; background: #f7f3f3; color: var(--muted); font-size: 12px; }
 .admin-team-captain-badge { color: var(--red); background: var(--red-pale); border-radius: 6px; padding: 3px 8px; font-size: 11px; white-space: nowrap; }
 .admin-team-gender { color: var(--muted); font-size: 12px; }
+.admin-team-roster li { flex-wrap: wrap; }
+.admin-team-roster li[draggable="true"] { cursor: grab; }
+.admin-roster-member-info { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.admin-roster-member-info .admin-team-gender,.admin-roster-member-info .admin-team-captain-badge { margin-left: auto; }
+.admin-drag-handle { color: var(--muted); flex-shrink: 0; pointer-events: none; }
+.admin-team-add { margin-top: 16px; }
+.admin-team-add > summary,.admin-member-transfer > summary { color: var(--red); font-size: 13px; cursor: pointer; list-style: none; }
+.admin-team-add > summary { display: flex; align-items: center; gap: 6px; }
+.admin-team-add > summary::-webkit-details-marker,.admin-member-transfer > summary::-webkit-details-marker { display: none; }
+.admin-team-roster .admin-member-transfer[open] { width: 100%; }
+.admin-member-transfer[open] > summary { text-align: right; }
+.admin-roster-form { display: flex; align-items: flex-end; gap: 10px; margin-top: 12px; }
+.admin-roster-form .field { flex: 1; min-width: 0; margin: 0; font-size: 12px; }
+.admin-roster-form .field select { min-height: 40px; font-size: 13px; padding: 9px 10px; }
+.admin-roster-form .button { flex-shrink: 0; min-height: 40px; padding: 9px 12px; font-size: 13px; border-radius: 10px; }
+.admin-roster-hint { color: var(--muted); font-size: 12px; line-height: 1.8; margin-top: 14px; }
+.admin-team.drop-active,.admin-free-players.drop-active { outline: 2px dashed var(--red); outline-offset: 3px; background: var(--red-pale); }
+.admin-free-players { margin-top: 28px; padding: 24px; border: 1px solid var(--line); border-radius: 20px; }
+.admin-free-heading h2 { display: flex; align-items: center; gap: 8px; font-size: 18px; }
+.admin-free-heading h2 span { font-size: 13px; color: var(--muted); }
+.admin-free-heading p { color: var(--muted); font-size: 12px; line-height: 1.8; margin: 10px 0 18px; }
+.admin-free-roster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; }
+@media(max-width:760px) {
+  .admin-free-players { padding: 20px; }
+  .admin-free-roster { grid-template-columns: minmax(0, 1fr); }
+  .admin-roster-form { flex-wrap: wrap; }
+  .admin-roster-form .field { flex-basis: 100%; }
+  .admin-roster-member-info { gap: 6px; }
+}
 .admin-team-editor { padding: 22px 24px 24px; border-top: 1px solid var(--line); background: #fffafa; }
 .admin-team-editor form { margin-bottom: 18px; }
 .admin-team-editor .field { font-size: 13px; }
@@ -1886,8 +1915,9 @@ textarea:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 .admin-player-details > summary:hover { background: #fafaf6; }
 .admin-player-overview { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(100px, 1fr) minmax(0, 4fr); gap: 16px; align-items: center; }
 .admin-player-overview > strong { font-size: 14px; overflow-wrap: anywhere; }
-.admin-player-metadata { display: grid; grid-template-columns: 30px minmax(0, 1.5fr) 110px minmax(0, 1fr); gap: 14px; font-size: 12px; color: var(--muted); }
+.admin-player-metadata { display: grid; grid-template-columns: 96px minmax(0, 1.5fr) 110px minmax(0, 1fr); gap: 14px; font-size: 12px; color: var(--muted); }
 .admin-player-metadata > span { overflow-wrap: anywhere; }
+.admin-player-metadata > span:first-child { white-space: nowrap; }
 .admin-player-phone { font-variant-numeric: tabular-nums; }
 .admin-player-role { color: var(--muted); font-size: 11px; flex-shrink: 0; }
 .admin-player-toggle { color: var(--red); font-size: 12px; flex-shrink: 0; }
@@ -1921,13 +1951,13 @@ textarea:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 @media (min-width: 1001px) {
   .admin-player-edit-body {
     display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(0, 1.1fr);
+    grid-template-columns: minmax(0, 1fr);
     align-items: end;
     gap: 12px;
   }
   .admin-player-edit-body > .admin-inline-form {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 64px minmax(0, 1.3fr) 126px auto;
+    grid-template-columns: minmax(0, 1fr) 148px minmax(0, 1.3fr) 150px auto;
     align-items: end;
     gap: 10px;
   }

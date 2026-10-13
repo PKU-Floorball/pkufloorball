@@ -10,10 +10,13 @@ import {
   Pencil,
   Phone,
   Crown,
+  GripVertical,
 } from "lucide-react";
 import AssociationHeader from "./association-header";
 import AssociationFooter from "./association-footer";
 import type { AdminSnapshot, AdminPlayer, AdminTeam } from "@/lib/admin-types";
+const adminDragType = "application/x-pku-admin-player";
+type MovePlayer = (playerId: string, teamId: string | null) => void;
 async function api(body?: Record<string, unknown>) {
   const res = await fetch("/registration/api/admin", {
     method: body ? "POST" : "GET",
@@ -36,7 +39,9 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
     [tab, setTab] = useState<"teams" | "players" | "messages">("teams"),
-    [search, setSearch] = useState("");
+    [search, setSearch] = useState(""),
+    [draggedPlayerId, setDraggedPlayerId] = useState<string | null>(null),
+    [dropTarget, setDropTarget] = useState<string | null>(null);
   async function refresh() {
     setData(await api());
   }
@@ -85,6 +90,40 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     e.preventDefault();
     const form = e.currentTarget;
     void run({ ...Object.fromEntries(new FormData(form)), ...body });
+  }
+  function movePlayer(playerId: string, teamId: string | null) {
+    const player = data?.players.find(p => p.id === playerId);
+    if (busy || !player || player.role === "captain" || player.teamId === teamId) return;
+    if (teamId && !data?.teams.some(t => t.id === teamId)) return;
+    void run({ action: "move_player", playerId, teamId });
+  }
+  function startDrag(e: React.DragEvent, player: AdminPlayer) {
+    if (busy || player.role === "captain") { e.preventDefault(); return; }
+    e.dataTransfer.setData(adminDragType, player.id);
+    e.dataTransfer.effectAllowed = "move";
+    setDraggedPlayerId(player.id);
+  }
+  function endDrag() { setDraggedPlayerId(null); setDropTarget(null); }
+  function dropProps(teamId: string | null) {
+    const key = teamId || "free";
+    const player = data?.players.find(p => p.id === draggedPlayerId);
+    const canDrop = !busy && player && player.role !== "captain" && player.teamId !== teamId;
+    return {
+      onDragOver: (e: React.DragEvent<HTMLElement>) => {
+        if (!canDrop || !e.dataTransfer.types.includes(adminDragType)) return;
+        e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDropTarget(key);
+      },
+      onDragLeave: (e: React.DragEvent<HTMLElement>) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDropTarget(null);
+      },
+      onDrop: (e: React.DragEvent<HTMLElement>) => {
+        if (!canDrop) return;
+        e.preventDefault();
+        const id = e.dataTransfer.getData(adminDragType);
+        if (id === draggedPlayerId) movePlayer(id, teamId);
+        endDrag();
+      },
+    };
   }
   const available = data?.players.filter((p) => p.role !== "captain") || [];
   const filteredPlayers = data?.players.filter(p =>
@@ -259,6 +298,11 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                       data={data}
                       busy={busy}
                       submit={submit}
+                      move={movePlayer}
+                      startDrag={startDrag}
+                      endDrag={endDrag}
+                      dropHandlers={dropProps(team.id)}
+                      dropActive={dropTarget === team.id}
                       remove={() => {
                         if (window.confirm(`删除“${team.name}”？所有成员将保留报名信息并转为自由球员。`))
                           void run({ action: "delete_team", teamId: team.id });
@@ -269,6 +313,13 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                 {!data.teams.length && (
                   <p className="empty-free">还没有球队，可在上方创建。</p>
                 )}
+                <section className={`admin-free-players ${dropTarget === "free" ? "drop-active" : ""}`} aria-label="管理员自由球员" {...dropProps(null)}>
+                  <div className="admin-free-heading"><h2><UsersRound size={18} />自由球员 <span>{data.players.filter(p => !p.teamId).length}</span></h2><p>选择球队加入，或将球员拖到球队卡片；队员也可拖回这里。</p></div>
+                  <ul className="admin-team-roster admin-free-roster">
+                    {data.players.filter(p => !p.teamId).map(p => <RosterMember key={p.id} player={p} teams={data.teams} busy={busy} move={movePlayer} startDrag={startDrag} endDrag={endDrag} />)}
+                  </ul>
+                  {!data.players.some(p => !p.teamId) && <p className="modal-note">暂无自由球员</p>}
+                </section>
               </>
             )}
             {tab === "players" && (
@@ -346,9 +397,6 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                         busy={busy}
                         submit={submit}
                         remove={() => run({ action: "delete_player", playerId: p.id })}
-                        move={(teamId) =>
-                          run({ action: "move_player", playerId: p.id, teamId })
-                        }
                       />
                     ))}
                 </section>
@@ -420,12 +468,17 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     </div>
   );
 }
-function TeamCard({ team, data, busy, submit, remove }: {
+function TeamCard({ team, data, busy, submit, remove, move, startDrag, endDrag, dropHandlers, dropActive }: {
   team: AdminTeam;
   data: AdminSnapshot;
   busy: boolean;
   submit: (e: React.FormEvent<HTMLFormElement>, body: Record<string, unknown>) => void;
   remove: () => void;
+  move: MovePlayer;
+  startDrag: (e: React.DragEvent, player: AdminPlayer) => void;
+  endDrag: () => void;
+  dropHandlers: React.HTMLAttributes<HTMLElement>;
+  dropActive: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const captain = data.players.find(p => p.id === team.captainId);
@@ -433,7 +486,7 @@ function TeamCard({ team, data, busy, submit, remove }: {
     .filter(p => p.teamId === team.id)
     .sort((a, b) => Number(b.id === team.captainId) - Number(a.id === team.captainId));
   return (
-    <article className="team-card admin-team" aria-label={team.name}>
+    <article className={`team-card admin-team ${dropActive ? "drop-active" : ""}`} aria-label={team.name} {...dropHandlers}>
       <div className="admin-team-heading">
         <div>
           <h2>{team.name}</h2>
@@ -457,14 +510,25 @@ function TeamCard({ team, data, busy, submit, remove }: {
       <div className="admin-team-members">
         <h3>成员名单</h3>
         <ul className="admin-team-roster">
-          {members.map(p => (
-            <li key={p.id}>
-              <span className="admin-team-member-name"><span className="admin-team-avatar" aria-hidden="true">{p.name.slice(0, 1)}</span>{p.name}</span>
-              <span className={p.id === team.captainId ? "admin-team-captain-badge" : "admin-team-gender"}>{p.id === team.captainId ? "队长" : p.gender}</span>
-            </li>
-          ))}
+          {members.map(p => <RosterMember key={p.id} player={p} teams={data.teams} busy={busy} move={move} startDrag={startDrag} endDrag={endDrag} />)}
         </ul>
         {!members.length && <p className="modal-note">暂无成员</p>}
+        <details className="admin-team-add">
+          <summary><Plus size={14} />添加球员</summary>
+          <form className="admin-roster-form" onSubmit={e => {
+            e.preventDefault();
+            move(String(new FormData(e.currentTarget).get("playerId")), team.id);
+          }}>
+            <label className="field">选择要添加的球员
+              <select name="playerId" aria-label="选择要添加的球员" defaultValue="" required disabled={busy}>
+                <option value="" disabled>选择自由球员或其他队员</option>
+                {data.players.filter(p => p.role !== "captain" && p.teamId !== team.id).map(p => <option key={p.id} value={p.id}>{p.name} · {data.teams.find(t => t.id === p.teamId)?.name || "自由球员"}</option>)}
+              </select>
+            </label>
+            <button className="button secondary" disabled={busy || !data.players.some(p => p.role !== "captain" && p.teamId !== team.id)}>确认添加</button>
+          </form>
+        </details>
+        <p className="admin-roster-hint">可拖入自由球员或其他队员；队长需先更换队长才能调配。</p>
       </div>
       {editing && (
         <div className="admin-team-editor" id={`team-editor-${team.id}`}>
@@ -494,12 +558,49 @@ function TeamCard({ team, data, busy, submit, remove }: {
     </article>
   );
 }
+function RosterMember({ player: p, teams, busy, move, startDrag, endDrag }: {
+  player: AdminPlayer;
+  teams: AdminTeam[];
+  busy: boolean;
+  move: MovePlayer;
+  startDrag: (e: React.DragEvent, player: AdminPlayer) => void;
+  endDrag: () => void;
+}) {
+  const canMove = p.role !== "captain";
+  return (
+    <li draggable={canMove && !busy} onDragStart={e => startDrag(e, p)} onDragEnd={endDrag}>
+      <div className="admin-roster-member-info">
+        {canMove && <GripVertical size={14} className="admin-drag-handle" aria-hidden="true" />}
+        <span className="admin-team-member-name"><span className="admin-team-avatar" aria-hidden="true">{p.name.slice(0, 1)}</span><span>{p.name}</span></span>
+        <span className={canMove ? "admin-team-gender" : "admin-team-captain-badge"}>{canMove ? p.gender : "队长"}</span>
+      </div>
+      {canMove && (
+        <details className="admin-member-transfer">
+          <summary>{p.teamId ? "转队" : "加入球队"}</summary>
+          <form className="admin-roster-form" onSubmit={e => {
+            e.preventDefault();
+            const target = String(new FormData(e.currentTarget).get("teamId"));
+            move(p.id, target === "free" ? null : target);
+          }}>
+            <label className="field">目标球队
+              <select name="teamId" aria-label="目标球队" defaultValue="" required disabled={busy}>
+                <option value="" disabled>选择目标球队</option>
+                {teams.filter(t => t.id !== p.teamId).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                {p.teamId && <option value="free">自由球员</option>}
+              </select>
+            </label>
+            <button className="button secondary" disabled={busy || (!p.teamId && !teams.length)}>确认调配</button>
+          </form>
+        </details>
+      )}
+    </li>
+  );
+}
 function PlayerEditor({
   player: p,
   data,
   busy,
   submit,
-  move,
   remove,
 }: {
   player: AdminPlayer;
@@ -509,7 +610,6 @@ function PlayerEditor({
     e: React.FormEvent<HTMLFormElement>,
     body: Record<string, unknown>,
   ) => void;
-  move: (teamId: string | null) => Promise<void>;
   remove: () => Promise<void>;
 }) {
   return (
@@ -566,21 +666,6 @@ function PlayerEditor({
         </button>
       </form>
       <div className="admin-player-edit-actions">
-      <label className="field">
-        调整所属球队
-        <select
-          value={p.teamId || ""}
-          disabled={busy || p.role === "captain"}
-          onChange={(e) => move(e.target.value || null)}
-        >
-          <option value="">自由球员</option>
-          {data.teams.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name}
-            </option>
-          ))}
-        </select>
-      </label>
       <button type="button" className="button secondary" disabled={busy || p.role === "captain"} onClick={() => {
         if (confirm(`确认删除“${p.name}”（${p.phone}）的报名信息？相关申请和登录会话也会清除，删除后需重新注册。`)) void remove();
       }}>删除选手</button>
