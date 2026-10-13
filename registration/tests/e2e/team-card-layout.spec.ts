@@ -23,8 +23,8 @@ for (const role of ['player', 'captain']) for (const width of [1280, 390]) {
     const memberBox = (await card.locator('.roster-player').nth(1).boundingBox())!;
     expect(Math.abs(freeBox.width - memberBox.width)).toBeLessThan(3);
     expect(Math.abs(freeBox.height - memberBox.height)).toBeLessThan(3);
-    await expect(card.locator('.team-top').getByRole('button', { name: '退出球队', exact: true })).toBeVisible();
-    const heading = await card.getByRole('heading', { name: '测试球队', exact: true }).boundingBox();
+    await expect(card.locator('.team-title-row').getByRole('button', { name: '退出球队', exact: true })).toBeVisible();
+    const heading = await card.locator('.team-number').boundingBox();
     const badge = await card.getByText('我的球队', { exact: true }).boundingBox();
     expect(Math.abs(heading!.y + heading!.height / 2 - badge!.y - badge!.height / 2)).toBeLessThan(2);
     expect(badge!.x).toBeGreaterThan(heading!.x);

@@ -660,10 +660,14 @@ export default function RegistrationApp({
             <h2>
               已集结球队<span>{snapshot.teams.length}</span>
             </h2>
+            <button className="button secondary lobby-create-button" disabled={busy || !canCreateTeam} title={canCreateTeam ? "创建球队" : "退出当前球队后可创建新球队"} onClick={openCreateTeam}><Plus size={18} aria-hidden="true" />点击建队</button>
           </div>
-          <section className="teams-grid tournament-teams" aria-label="球队名单"
+          <section className={`teams-grid tournament-teams ${canCreateTeam ? "can-create-team" : ""} ${dragOver === "create-team" ? "create-drop-active" : ""}`} aria-label="球队名单"
             onDragOver={(e) => {
-              if ((e.target as HTMLElement).closest(".team-card")) return;
+              if ((e.target as HTMLElement).closest(".team-card")) {
+                setDragOver(current => current === "create-team" ? null : current);
+                return;
+              }
               if (canCreateTeam && !busy && e.dataTransfer.types.includes(playerDragType)) {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = "move";
@@ -721,18 +725,7 @@ export default function RegistrationApp({
                     {own ? (
                       <span className="team-summary">
                         <span className="team-member-count">{team.players.length} 人</span>
-                        <button className="small-button" aria-label="退出球队" title="退出球队" disabled={busy || (viewer?.role === "captain" && team.players.length < 2)} onClick={() => {
-                          setError("");
-                          if (viewer?.role === "captain") {
-                            setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction("leave_captain");
-                          } else setLeaveTeamId(team.id);
-                        }}><LogOut className="mobile-action-icon" size={16} aria-hidden="true" /><span className="mobile-action-label">退出球队</span></button>
-                        {canDrop && (["transfer_captain", "dissolve_team"] as const).map((action) => (
-                          <button key={action} className="small-button" aria-label={action === "transfer_captain" ? "转让队长" : "解散球队"} title={action === "transfer_captain" ? "转让队长" : "解散球队"} disabled={busy || (action === "transfer_captain" && team.players.length < 2)} onClick={() => {setError(""); setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction(action);}}>
-                            {action === "transfer_captain" ? <ArrowRightLeft className="mobile-action-icon" size={16} aria-hidden="true" /> : <Trash2 className="mobile-action-icon" size={16} aria-hidden="true" />}
-                            <span className="mobile-action-label">{{transfer_captain:"转让队长",dissolve_team:"解散球队"}[action]}</span>
-                          </button>
-                        ))}
+                        <span className="my-team-label">我的球队</span>
                       </span>
                     ) : viewer?.role === "player" ? (
                       <button
@@ -751,7 +744,20 @@ export default function RegistrationApp({
                   </div>
                   <div className="team-title-row">
                     <h3>{team.name}</h3>
-                    {own && <span className="my-team-label">我的球队</span>}
+                    {own && <span className="team-summary">
+                        <button className="small-button" aria-label="退出球队" title="退出球队" disabled={busy || (viewer?.role === "captain" && team.players.length < 2)} onClick={() => {
+                          setError("");
+                          if (viewer?.role === "captain") {
+                            setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction("leave_captain");
+                          } else setLeaveTeamId(team.id);
+                        }}><LogOut className="mobile-action-icon" size={16} aria-hidden="true" /><span className="mobile-action-label">退出球队</span></button>
+                        {canDrop && (["transfer_captain", "dissolve_team"] as const).map((action) => (
+                          <button key={action} className="small-button" aria-label={action === "transfer_captain" ? "转让队长" : "解散球队"} title={action === "transfer_captain" ? "转让队长" : "解散球队"} disabled={busy || (action === "transfer_captain" && team.players.length < 2)} onClick={() => {setError(""); setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction(action);}}>
+                            {action === "transfer_captain" ? <ArrowRightLeft className="mobile-action-icon" size={16} aria-hidden="true" /> : <Trash2 className="mobile-action-icon" size={16} aria-hidden="true" />}
+                            <span className="mobile-action-label">{{transfer_captain:"转让队长",dissolve_team:"解散球队"}[action]}</span>
+                          </button>
+                        ))}
+                    </span>}
                   </div>
                   <div className="roster">
                     {team.players.map((p) => (
@@ -811,21 +817,7 @@ export default function RegistrationApp({
                 </article>
               );
             })}
-            {!canCreateTeam && viewer?.teamId && <aside className="create-team-dropzone team-membership-note" aria-label="创建球队区域">
-              <Plus size={28} aria-hidden="true" />
-              <h3>创建一支新球队</h3>
-              <p>您已加入球队~<br />每位选手只能属于一支球队<br />成为自由球员后可创建新的队伍</p>
-              <button className="button secondary create-team-button" disabled><Plus size={20} aria-hidden="true" />点击建队</button>
-            </aside>}
-            {canCreateTeam && (
-              <div role="group" aria-label="创建球队区域"
-                className={`create-team-dropzone ${dragOver === "create-team" ? "drop-active" : ""}`}>
-                <Plus size={28} aria-hidden="true" />
-                <h3>创建一支新球队</h3>
-                <p>拖入您的自由球员卡片！<br />创建您自己的球队！</p>
-                <button className="button secondary create-team-button" disabled={busy} onClick={openCreateTeam}><Plus size={20} aria-hidden="true" />点击建队</button>
-              </div>
-            )}
+            {dragOver === "create-team" && canCreateTeam && <div className="create-drop-feedback" role="status"><Plus size={18} aria-hidden="true" />松开，创建您的球队</div>}
           </section>
           {!snapshot.teams.length && !canCreateTeam && (
             <div className="empty-state">
@@ -847,7 +839,7 @@ export default function RegistrationApp({
                 <p>
                   {viewer?.role === "captain"
                     ? "将自由球员卡片拖入您的球队，或点击球员右上角的“＋”邀请加入。"
-                    : viewer?.teamId ? "拖动自己的名字到这里可退出球队；也可拖到其他球队申请换队。" : "您可以拖动您的球员卡片到已有球队的空白处申请加入，或是创建属于您的球队~"}
+                    : viewer?.teamId ? "拖动自己的名字到这里可退出球队；也可拖到其他球队申请换队。" : "拖动您的卡片到球队申请加入，或拖到“已集结球队”的空白处创建球队。"}
                 </p>
               </div>
             </div>

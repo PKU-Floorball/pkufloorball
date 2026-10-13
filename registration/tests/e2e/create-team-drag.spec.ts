@@ -7,7 +7,7 @@ test('free player drops into blank team space to confirm creation, cancellation 
  await post({action:'register',name,gender:'女',school:'北京大学',phone});
   await post({action:'login',name,phone:phone.slice(-4)});await page.addInitScript(()=>sessionStorage.setItem('floorball-tab-login','1'));
   await page.setViewportSize({width:1280,height:2200});await page.goto('/registration/teams');
-  const self=page.getByRole('article',{name:'自由球员 '+name,exact:true}),blank=page.getByRole('group',{name:'创建球队区域',exact:true});
+  const self=page.getByRole('article',{name:'自由球员 '+name,exact:true}),blank=page.getByRole('region',{name:'球队名单',exact:true});
   const teams=page.getByRole('region',{name:'球队名单',exact:true});
   const regionBox=(await teams.boundingBox())!,firstBox=(await teams.getByRole('article').first().boundingBox())!;
   // Drop in the grid gap itself, outside every card and the explicit tile.
@@ -17,13 +17,31 @@ test('free player drops into blank team space to confirm creation, cancellation 
   // Other identities cannot create a team through a forged drop.
   await blank.evaluate((el)=>{const dataTransfer=new DataTransfer();dataTransfer.setData('application/x-pku-player','someone-else');el.dispatchEvent(new DragEvent('drop',{bubbles:true,dataTransfer}));});
   await expect(dialog).toHaveCount(0);
-  await self.dragTo(blank);dialog=page.getByRole('dialog',{name:'创建球队',exact:true});await dialog.getByLabel('队伍名称',{exact:true}).fill(name+'队');await dialog.getByRole('button',{name:'确认创建球队',exact:true}).click();
-  await expect(page.getByRole('article',{name:name+'队',exact:true})).toBeVisible();expect((await snapshot()).viewer.role).toBe('captain');await expect(blank).toHaveCount(0);
+  await self.dragTo(blank,{targetPosition:{x:20,y:(await blank.boundingBox())!.height-25}});dialog=page.getByRole('dialog',{name:'创建球队',exact:true});await dialog.getByLabel('队伍名称',{exact:true}).fill(name+'队');await dialog.getByRole('button',{name:'确认创建球队',exact:true}).click();
+  await expect(page.getByRole('article',{name:name+'队',exact:true})).toBeVisible();expect((await snapshot()).viewer.role).toBe('captain');await expect(page.getByRole('button',{name:'点击建队',exact:true})).toBeDisabled();
 });
 test('blank drop target is usable when there are no teams',async({page})=>{
   const viewer={id:'drag-empty',name:'空大厅球员',role:'player',teamId:null,gender:'女',school:'北京大学',phone:'13800138887'};
   await page.route('**/registration/api/registration',route=>route.fulfill({json:{mode:'demo',teams:[],snapshot:{viewer,teams:[],freePlayers:[viewer],applications:[]}}}));
   await page.setViewportSize({width:1280,height:1000});await page.goto('/registration/teams');
+  const list = page.getByRole('region', { name: '球队名单', exact: true });
+  await expect(page.getByRole('group', { name: '创建球队区域', exact: true })).toHaveCount(0);
+  const transfer = await page.evaluateHandle(() => {
+    const data = new DataTransfer(); data.setData('application/x-pku-player', 'drag-empty'); return data;
+  });
+  await list.dispatchEvent('dragover', { dataTransfer: transfer });
+  await expect(list).toHaveClass(/create-drop-active/);
+  await expect(list.getByRole('status')).toHaveText('松开，创建您的球队');
+  await list.screenshot({ path: test.info().outputPath('create-hover.png') });
+  await list.dispatchEvent('dragleave', { dataTransfer: transfer });
+  await expect(list).not.toHaveClass(/create-drop-active/);
+  const create = page.getByRole('button', { name: '点击建队', exact: true });
+  const heading = await page.getByRole('heading', { name: /已集结球队/ }).boundingBox();
+  const button = await create.boundingBox();
+  expect(button!.x).toBeGreaterThan(heading!.x);
+  expect(Math.abs(button!.y + button!.height / 2 - heading!.y - heading!.height / 2)).toBeLessThan(3);
+  await create.click();
+  await page.getByRole('dialog', { name: '创建球队', exact: true }).getByRole('button', { name: '取消', exact: true }).click();
   await page.evaluate(() => {
     const original = DataTransfer.prototype.setDragImage;
     DataTransfer.prototype.setDragImage = function(element, x, y) {
@@ -36,7 +54,7 @@ test('blank drop target is usable when there are no teams',async({page})=>{
       original.call(this, element, x, y);
     };
   });
-  await page.getByRole('article',{name:'自由球员 '+viewer.name,exact:true}).dragTo(page.getByRole('group',{name:'创建球队区域',exact:true}));
+  await page.getByRole('article',{name:'自由球员 '+viewer.name,exact:true}).dragTo(page.getByRole('region',{name:'球队名单',exact:true}));
   const preview = JSON.parse(await page.locator('body').getAttribute('data-drag-preview') || '{}');
   expect(preview.name).toBe(viewer.name);
   expect(preview.width).toBeLessThanOrEqual(260);
