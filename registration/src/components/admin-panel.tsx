@@ -419,21 +419,18 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
             {tab === "messages" && (
               <section className="admin-applications">
                 {data.applications.map((a) => (
-                  <article className="application-card" key={a.id}>
+                  <article className="application-card admin-application-card" key={a.id}>
                     <div className="application-person">
                       <span className="avatar">{a.name.slice(0, 1)}</span>
                       <div>
                         <strong>{a.name}</strong>
                         <span>申请加入 {a.teamName}</span>
+                        <time dateTime={a.createdAt}>{new Date(a.createdAt).toLocaleString("zh-CN", {
+                          timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
+                        })}</time>
                       </div>
                     </div>
-                    {a.reason && <p className="application-reason"><strong>申请理由：</strong>{a.reason}</p>}
-                    <div className="application-bottom">
-                      <span>
-                        {new Date(a.createdAt).toLocaleString("zh-CN", {
-                          timeZone: "Asia/Shanghai",
-                        })}
-                      </span>
+                    <div className="admin-application-actions">
                       {a.status === "pending" ? (
                         <div>
                           <button
@@ -467,6 +464,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                         </span>
                       )}
                     </div>
+                    {a.reason && <p className="application-reason"><strong>申请理由：</strong>{a.reason}</p>}
                   </article>
                 ))}
                 {!data.applications.length && (
@@ -580,17 +578,19 @@ function RosterMember({ player: p, teams, busy, move, startDrag, endDrag }: {
   endDrag: () => void;
 }) {
   const canMove = p.role !== "captain";
+  const [transferOpen, setTransferOpen] = useState(false);
   return (
     <li draggable={canMove && !busy} onDragStart={e => startDrag(e, p)} onDragEnd={endDrag}>
+      <div className="admin-roster-row">
       <div className="admin-roster-member-info">
         {canMove && <GripVertical size={14} className="admin-drag-handle" aria-hidden="true" />}
         <span className="admin-team-member-name"><span className="admin-team-avatar" aria-hidden="true">{p.name.slice(0, 1)}</span><span>{p.name}</span></span>
         <span className={canMove ? "admin-team-gender" : "admin-team-captain-badge"}>{canMove ? p.gender : "队长"}</span>
       </div>
-      {canMove && (
-        <details className="admin-member-transfer">
-          <summary>{p.teamId ? "转队" : "加入球队"}</summary>
-          <form className="admin-roster-form" onSubmit={e => {
+      {canMove && <button type="button" className="admin-roster-toggle" disabled={busy} aria-expanded={transferOpen} aria-controls={`transfer-${p.id}`} onClick={() => setTransferOpen(!transferOpen)}>{transferOpen ? "取消" : p.teamId ? "转队" : "加入球队"}</button>}
+      </div>
+      {canMove && transferOpen && (
+          <form className="admin-roster-form admin-member-transfer" id={`transfer-${p.id}`} onSubmit={e => {
             e.preventDefault();
             const target = String(new FormData(e.currentTarget).get("teamId"));
             move(p.id, target === "free" ? null : target);
@@ -604,7 +604,6 @@ function RosterMember({ player: p, teams, busy, move, startDrag, endDrag }: {
             </label>
             <button className="button secondary" disabled={busy || (!p.teamId && !teams.length)}>确认调配</button>
           </form>
-        </details>
       )}
     </li>
   );
