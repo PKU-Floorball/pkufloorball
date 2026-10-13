@@ -50,12 +50,14 @@ REGISTRATION_DEMO=true npm run dev
 生产地址：https://pkufloorball.site/registration
 
 - Vercel 项目：`xhhwyh/pkufloorball`
+- 已连接 GitHub 仓库 `PKU-Floorball/pkufloorball`，生产分支为 `main`。推送到 `main` 后，Vercel 自动构建，成功后更新 `https://pkufloorball.site/` 和 `/registration`；构建失败时保留此前上线的版本。
+- Git 构建的 Root Directory 为 `registration`，Framework 为 Next.js，并开启 Include source files outside of the Root Directory，使构建能读取仓库根目录的协会主页模板和资源。日常发布只需提交并推送 GitHub，无需手动执行 Vercel CLI。
 - Supabase 项目：`egeledpcdsjxqupvqupa`，新加坡区域。
 - Supabase 控制台：https://supabase.com/dashboard/project/egeledpcdsjxqupvqupa
 - 使用完整仓库执行下方 CLI 部署命令，先打包原站源码；Framework 为 Next.js，Node.js 22 或更高。
 - 生产环境配置上述三个服务端环境变量，禁止启用 `REGISTRATION_DEMO`。
 
-本地 CLI 发布：
+需要手动发布时可使用本地 CLI：
 
 ```bash
 cd registration
