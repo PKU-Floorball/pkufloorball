@@ -1612,27 +1612,41 @@ strong {
   margin-bottom: 0;
   white-space: nowrap;
 }
-.admin-team h2 {
-  font-size: 22px;
-  margin: 0 0 22px;
-}
-.admin-team form {
-  margin-bottom: 20px;
-}
-.admin-roster {
-  border-top: 1px solid #e5e7eb;
-  margin-top: 20px;
-  padding-top: 6px;
-}
-.admin-roster p {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  padding: 8px 0;
-  margin: 0;
-}
-.admin-roster p span:last-child {
-  color: #737d89;
+.admin-team-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 24px 24px 18px; }
+.admin-team-heading > div { min-width: 0; }
+.admin-team h2 { font-size: 22px; line-height: 1.4; margin: 0 0 8px; overflow-wrap: anywhere; }
+.admin-team-count { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.admin-team .button { min-height: 38px; padding: 8px 14px; font-size: 13px; border-radius: 10px; box-shadow: none; }
+.admin-team-edit-toggle { flex-shrink: 0; }
+.admin-team-contact { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 0 24px 20px; padding: 14px 16px; background: var(--red-pale); border-radius: 12px; font-size: 13px; }
+.admin-team-contact > span,.admin-team-contact a { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.admin-team-contact strong { overflow-wrap: anywhere; }
+.admin-team-contact svg { color: var(--red); flex-shrink: 0; }
+.admin-team-contact a { color: var(--red); white-space: nowrap; text-decoration: none; font-variant-numeric: tabular-nums; }
+.admin-team-contact a:hover { text-decoration: underline; }
+.admin-team-caption { color: var(--muted); white-space: nowrap; }
+.admin-team-members { padding: 0 24px 20px; }
+.admin-team h3 { margin: 0 0 12px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.admin-team-roster { list-style: none; margin: 0; padding: 0; }
+.admin-team-roster li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.admin-team-member-name { display: flex; align-items: center; gap: 10px; min-width: 0; overflow-wrap: anywhere; }
+.admin-team-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%; background: #f7f3f3; color: var(--muted); font-size: 12px; }
+.admin-team-captain-badge { color: var(--red); background: var(--red-pale); border-radius: 6px; padding: 3px 8px; font-size: 11px; white-space: nowrap; }
+.admin-team-gender { color: var(--muted); font-size: 12px; }
+.admin-team-editor { padding: 22px 24px 24px; border-top: 1px solid var(--line); background: #fffafa; }
+.admin-team-editor form { margin-bottom: 18px; }
+.admin-team-editor .field { font-size: 13px; }
+.admin-team-editor .field input,.admin-team-editor .field select { min-width: 0; min-height: 42px; padding: 10px 12px; font-size: 14px; }
+.admin-team-danger-zone { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding-top: 18px; border-top: 1px solid var(--line); }
+.admin-team-danger-zone p { font-size: 12px; color: var(--muted); }
+.admin-team-danger-zone .admin-danger { margin: 0; border-radius: 8px; font-size: 12px; }
+.admin-main .teams-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+@media (max-width: 760px) {
+  .admin-main .teams-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .admin-team-heading { padding: 20px 20px 16px; }
+  .admin-team-contact { margin: 0 20px 18px; }
+  .admin-team-members { padding: 0 20px 16px; }
+  .admin-team-editor { padding: 20px; }
 }
 .admin-danger {
   color: #b43a3a;

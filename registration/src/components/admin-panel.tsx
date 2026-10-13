@@ -7,9 +7,13 @@ import {
   Plus,
   UsersRound,
   Bell,
+  Pencil,
+  Phone,
+  Crown,
 } from "lucide-react";
 import AssociationHeader from "./association-header";
-import type { AdminSnapshot, AdminPlayer } from "@/lib/admin-types";
+import AssociationFooter from "./association-footer";
+import type { AdminSnapshot, AdminPlayer, AdminTeam } from "@/lib/admin-types";
 async function api(body?: Record<string, unknown>) {
   const res = await fetch("/registration/api/admin", {
     method: body ? "POST" : "GET",
@@ -249,105 +253,17 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                 </section>
                 <section className="teams-grid" aria-label="管理员球队名单">
                   {data.teams.map((team) => (
-                    <article
-                      className="team-card admin-team"
+                    <TeamCard
                       key={team.id}
-                      aria-label={team.name}
-                    >
-                      <h2>{team.name}</h2>
-                      <form
-                        onSubmit={(e) =>
-                          submit(e, { action: "rename_team", teamId: team.id })
-                        }
-                        className="admin-inline-form"
-                      >
-                        <label className="field">
-                          队伍名称
-                          <input
-                            key={team.name}
-                            name="name"
-                            defaultValue={team.name}
-                            maxLength={40}
-                            required
-                          />
-                        </label>
-                        <button className="button secondary" disabled={busy}>
-                          保存队名
-                        </button>
-                      </form>
-                      <form
-                        onSubmit={(e) =>
-                          submit(e, { action: "set_captain", teamId: team.id })
-                        }
-                        className="admin-inline-form"
-                      >
-                        <label className="field">
-                          队长
-                          <select
-                            key={team.captainId}
-                            name="playerId"
-                            defaultValue={team.captainId}
-                          >
-                            {data.players
-                              .filter(
-                                (p) =>
-                                  p.role !== "captain" ||
-                                  p.id === team.captainId,
-                              )
-                              .map((p) => (
-                                <option key={p.id} value={p.id}>
-                                  {p.name}
-                                  {p.id === team.captainId ? "（现任）" : ""}
-                                </option>
-                              ))}
-                          </select>
-                        </label>
-                        <button className="button secondary" disabled={busy}>
-                          更换队长
-                        </button>
-                      </form>
-                      <div className="admin-roster">
-                        {data.players
-                          .filter((p) => p.teamId === team.id)
-                          .sort(
-                            (a, b) =>
-                              Number(b.id === team.captainId) -
-                              Number(a.id === team.captainId),
-                          )
-                          .map((p) => (
-                            <p key={p.id}>
-                              <span>{p.name}</span>
-                              <span>
-                                {p.role === "captain" ? "队长" : p.gender}
-                              </span>
-                            </p>
-                          ))}
-                      </div>
-                      <p className="modal-note">
-                        队长联系：
-                        {
-                          data.players.find((p) => p.id === team.captainId)
-                            ?.phone
-                        }
-                      </p>
-                      <button
-                        className="small-button admin-danger"
-                        disabled={busy}
-                        onClick={() => {
-                          if (
-                            window.confirm(
-                              `删除“${team.name}”？所有成员将保留报名信息并转为自由球员。`,
-                            )
-                          )
-                            void run({
-                              action: "delete_team",
-                              teamId: team.id,
-                            });
-                        }}
-                      >
-                        删除球队
-                      </button>
-                    </article>
+                      team={team}
+                      data={data}
+                      busy={busy}
+                      submit={submit}
+                      remove={() => {
+                        if (window.confirm(`删除“${team.name}”？所有成员将保留报名信息并转为自由球员。`))
+                          void run({ action: "delete_team", teamId: team.id });
+                      }}
+                    />
                   ))}
                 </section>
                 {!data.teams.length && (
@@ -500,11 +416,82 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
           </>
         )}
       </main>
-      <footer className="site-footer">
-        <span>北京大学软式曲棍球协会</span>
-        <span>报名管理</span>
-      </footer>
+      <AssociationFooter />
     </div>
+  );
+}
+function TeamCard({ team, data, busy, submit, remove }: {
+  team: AdminTeam;
+  data: AdminSnapshot;
+  busy: boolean;
+  submit: (e: React.FormEvent<HTMLFormElement>, body: Record<string, unknown>) => void;
+  remove: () => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const captain = data.players.find(p => p.id === team.captainId);
+  const members = data.players
+    .filter(p => p.teamId === team.id)
+    .sort((a, b) => Number(b.id === team.captainId) - Number(a.id === team.captainId));
+  return (
+    <article className="team-card admin-team" aria-label={team.name}>
+      <div className="admin-team-heading">
+        <div>
+          <h2>{team.name}</h2>
+          <span className="admin-team-count"><UsersRound size={14} />{members.length} 位成员</span>
+        </div>
+        <button
+          className="button secondary admin-team-edit-toggle"
+          disabled={busy}
+          aria-expanded={editing}
+          aria-controls={`team-editor-${team.id}`}
+          onClick={() => setEditing(!editing)}
+        >
+          {!editing && <Pencil size={14} />}
+          {editing ? "取消编辑" : "编辑"}
+        </button>
+      </div>
+      <div className="admin-team-contact">
+        <span><Crown size={15} /><span className="admin-team-caption">队长</span><strong>{captain?.name || "暂无队长"}</strong></span>
+        {captain?.phone && <a href={`tel:${captain.phone}`}><Phone size={14} />{captain.phone}</a>}
+      </div>
+      <div className="admin-team-members">
+        <h3>成员名单</h3>
+        <ul className="admin-team-roster">
+          {members.map(p => (
+            <li key={p.id}>
+              <span className="admin-team-member-name"><span className="admin-team-avatar" aria-hidden="true">{p.name.slice(0, 1)}</span>{p.name}</span>
+              <span className={p.id === team.captainId ? "admin-team-captain-badge" : "admin-team-gender"}>{p.id === team.captainId ? "队长" : p.gender}</span>
+            </li>
+          ))}
+        </ul>
+        {!members.length && <p className="modal-note">暂无成员</p>}
+      </div>
+      {editing && (
+        <div className="admin-team-editor" id={`team-editor-${team.id}`}>
+          <h3>编辑球队</h3>
+          <form className="admin-inline-form" onSubmit={e => submit(e, { action: "rename_team", teamId: team.id })}>
+            <label className="field">队伍名称
+              <input key={team.name} name="name" defaultValue={team.name} maxLength={40} required disabled={busy} />
+            </label>
+            <button className="button secondary" disabled={busy}>保存队名</button>
+          </form>
+          <form className="admin-inline-form" onSubmit={e => submit(e, { action: "set_captain", teamId: team.id })}>
+            <label className="field">队长
+              <select key={team.captainId} name="playerId" defaultValue={team.captainId} disabled={busy}>
+                {data.players.filter(p => p.role !== "captain" || p.id === team.captainId).map(p => (
+                  <option key={p.id} value={p.id}>{p.name}{p.id === team.captainId ? "（现任）" : ""}</option>
+                ))}
+              </select>
+            </label>
+            <button className="button secondary" disabled={busy}>更换队长</button>
+          </form>
+          <div className="admin-team-danger-zone">
+            <p>删除后，成员将转为自由球员。</p>
+            <button className="small-button admin-danger" disabled={busy} onClick={remove}>删除球队</button>
+          </div>
+        </div>
+      )}
+    </article>
   );
 }
 function PlayerEditor({
