@@ -27,6 +27,7 @@ import {
 import AdminPanel from "./admin-panel";
 import AssociationHeader from "./association-header";
 import AssociationFooter from "./association-footer";
+import { groupPlayersBySchool } from "@/lib/player-schools";
 import type { Action, Player, PublicState } from "@/lib/types";
 type View = "home" | "login" | "register" | "teams";
 const playerDragType = "application/x-pku-player";
@@ -520,7 +521,7 @@ export default function RegistrationApp({
                       </select>
                     </label>
                     <label className="field">
-                      学校信息
+                      学校信息（填写学校全称）
                       <input aria-label="学校信息" name="school" placeholder="例如：北京大学 / 北京大学校友" maxLength={80} required />
                     </label>
                     <label className="field">
@@ -862,8 +863,11 @@ export default function RegistrationApp({
                 </p>
               </div>
             </div>
-            <div className="free-grid">
-              {snapshot.freePlayers.map((p) => (
+            {groupPlayersBySchool(snapshot.freePlayers).map(({ school, players }) => (
+              <div className="school-free-group" role="group" aria-label={`${school}自由球员`} key={school}>
+                <h3 className="school-group-title">{school}<span>{players.length} 人</span></h3>
+                <div className="free-grid">
+              {players.map((p) => (
                 <article
                   className={`free-card ${p.id === viewer?.id ? "self-card" : ""}`}
                   aria-label={`自由球员 ${p.name}`}
@@ -890,7 +894,9 @@ export default function RegistrationApp({
                   )}
                 </article>
               ))}
-            </div>
+                </div>
+              </div>
+            ))}
             {!snapshot.freePlayers.length && (
               <p className="empty-free">选手组队完毕，蓄势待发！</p>
             )}

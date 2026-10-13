@@ -2378,3 +2378,7 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
   .free-section .free-grid { grid-template-columns: minmax(0, 1fr); }
   .free-section .free-card { width: calc(100% - 36px); }
 }
+
+.school-free-group + .school-free-group { margin-top: 24px; }
+.school-group-title { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; padding: 0 8px; font-size: 16px; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+.school-group-title > span { flex-shrink: 0; color: var(--muted); font-size: 12px; font-weight: 400; }

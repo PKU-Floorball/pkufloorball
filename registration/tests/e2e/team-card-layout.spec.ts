@@ -17,6 +17,8 @@ for (const role of ['player', 'captain']) for (const width of [1280, 390]) {
     const card = page.getByRole('article', { name: '测试球队', exact: true });
     const freeCard = page.getByRole('article', { name: '自由球员 自由球员甲', exact: true });
     await expect(freeCard).toBeVisible();
+    await expect(page.getByRole('group', { name: '北京大学自由球员', exact: true }).getByRole('article')).toHaveCount(1);
+    await expect(page.getByRole('group', { name: '其他自由球员', exact: true }).getByRole('article', { name: '自由球员 自由球员乙', exact: true })).toBeVisible();
     const freeBox = (await freeCard.boundingBox())!;
     const memberBox = (await card.locator('.roster-player').nth(1).boundingBox())!;
     expect(Math.abs(freeBox.width - memberBox.width)).toBeLessThan(3);
