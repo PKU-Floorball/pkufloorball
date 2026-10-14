@@ -41,7 +41,6 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
-    [notice, setNotice] = useState(""),
     [tab, setTab] = useState<"teams" | "players" | "messages">("teams"),
     [search, setSearch] = useState(""),
     [draggedPlayerId, setDraggedPlayerId] = useState<string | null>(null),
@@ -69,7 +68,6 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     if (busy) return;
     setBusy(true);
     setError("");
-    setNotice("");
     try {
       await api(body);
       if (logout) {
@@ -77,7 +75,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
         onExit();
         return;
       }
-      setNotice(body.action === "login" ? "" : body.action === "delete_player" ? "选手已删除，相关申请和登录会话已清理。" : "修改已保存。");
+
       await refresh().catch(() =>
         setError("操作已保存；名单刷新失败，请点击刷新名单。"),
       );
@@ -226,11 +224,6 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                 {error}
               </p>
             )}
-            {notice && (
-              <p className="admin-notice" role="status">
-                {notice}
-              </p>
-            )}
             <nav className="admin-tabs" aria-label="管理分类">
               {(
                 [
@@ -311,8 +304,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                       key={team.id}
                       team={team}
                       error={error}
-                      notice={notice}
-                      clearFeedback={() => {setError(""); setNotice("");}}
+                      clearFeedback={() => setError("")}
                       data={data}
                       busy={busy}
                       submit={submit}
@@ -484,10 +476,9 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     </div>
   );
 }
-function TeamCard({ team, data, busy, error, notice, clearFeedback, submit, remove, move, startDrag, endDrag, dropHandlers, dropActive }: {
+function TeamCard({ team, data, busy, error, clearFeedback, submit, remove, move, startDrag, endDrag, dropHandlers, dropActive }: {
   team: AdminTeam;
   error: string;
-  notice: string;
   clearFeedback: () => void;
   data: AdminSnapshot;
   busy: boolean;
@@ -551,7 +542,6 @@ function TeamCard({ team, data, busy, error, notice, clearFeedback, submit, remo
         <Modal label="编辑球队" onClose={() => {if (!busy) setEditing(false);}}>
           <div className="modal-heading"><h2>编辑球队</h2><button className="icon-button" aria-label="关闭编辑球队" disabled={busy} onClick={() => setEditing(false)}><X size={20}/></button></div>
           {error && <p role="alert" className="feedback error">{error}</p>}
-          {notice && <p role="status" className="feedback success">{notice}</p>}
           <div className="admin-team-editor">
           <form className="admin-inline-form" onSubmit={e => submit(e, { action: "rename_team", teamId: team.id })}>
             <label className="field">队伍名称

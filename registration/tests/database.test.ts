@@ -101,6 +101,7 @@ beforeEach(async () => {
   await db.exec(readFileSync(new URL("../supabase/010_member_exit_and_application_reasons.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/012_recruitment_notifications.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/013_captain_team_name.sql", import.meta.url), "utf8"));
+  await db.exec(readFileSync(new URL("../supabase/014_admin_roster_notifications.sql", import.meta.url), "utf8"));
 });
 afterEach(async () => {
   await db.close();
@@ -209,6 +210,7 @@ describe("join actions", () => {
   it("recruits only to the captain own team and prevents player or anonymous actions", async () => {
     await db.exec(readFileSync(new URL("../supabase/012_recruitment_notifications.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/013_captain_team_name.sql", import.meta.url), "utf8"));
+  await db.exec(readFileSync(new URL("../supabase/014_admin_roster_notifications.sql", import.meta.url), "utf8"));
     await register("队长", "13800138000", "captain", "未名队");
     const player = await register("球员", "13800138001");
     await login("队长", "c");
@@ -649,5 +651,66 @@ it("only the current owning captain can rename a team with a valid unique name",
   expect((await snapshot("member")).applications[0].teamName).toBe("新队名");
   expect((await teams()).find(t=>t.id===team)!.name).toBe("新队名");
   const permissions = await db.query<{allowed:boolean}>("select has_function_privilege('anon','registration_rename_team(text,uuid,text)','execute') as allowed");
+  expect(permissions.rows[0].allowed).toBe(false);
+});
+
+it("administrator team changes notify the player and both captains atomically, without no-op duplicates", async () => {
+  await register("甲队长","13800138901","captain","甲队");
+  await register("乙队长","13800138902","captain","乙队");
+  const member=await register("队员","13800138903");
+  await login("甲队长","a"); await login("乙队长","b"); await login("队员","p");
+  await adminLogin();
+  const a=(await teams()).find(t=>t.name==="甲队")!.id, b=(await teams()).find(t=>t.name==="乙队")!.id;
+  await expect(admin({action:"move_player",playerId:member,teamId:a},"p")).rejects.toThrow("UNAUTHORIZED");
+  expect((await snapshot("p")).notifications).toHaveLength(0);
+  await admin({action:"move_player",playerId:member,teamId:a});
+  expect((await snapshot("p")).notifications[0].message).toBe("管理员将您加入了「甲队」。");
+  expect((await snapshot("a")).notifications[0].message).toContain("「队员」");
+  expect((await snapshot("b")).notifications).toHaveLength(0);
+  await admin({action:"move_player",playerId:member,teamId:b});
+  expect((await snapshot("p")).notifications[0].message).toContain("从「甲队」调整至「乙队」");
+  expect((await snapshot("a")).notifications).toHaveLength(2);
+  expect((await snapshot("b")).notifications).toHaveLength(1);
+  await admin({action:"move_player",playerId:member,teamId:b});
+  await admin({action:"rename_team",teamId:b,name:"新乙队"});
+  expect((await snapshot("p")).notifications).toHaveLength(2);
+  await admin({action:"move_player",playerId:member,teamId:null});
+  expect((await snapshot("p")).notifications[0].message).toBe("管理员将您移出了「新乙队」，现为自由球员。");
+  await db.exec(readFileSync(new URL("../supabase/014_admin_roster_notifications.sql",import.meta.url),"utf8"));
+  await admin({action:"move_player",playerId:member,teamId:b});
+  expect((await snapshot("p")).notifications).toHaveLength(4);
+  await admin({action:"delete_team",teamId:b});
+  expect((await snapshot("p")).notifications[0].message).toContain("现为自由球员");
+  expect((await snapshot("b")).notifications.some((n:any)=>n.message.includes("「队员」") && n.message.includes("移出"))).toBe(true);
+});
+it("administrator captain changes notify incoming and outgoing captains and rollback on failure", async () => {
+  const old=await register("原队长","13800138911","captain","本队");
+  const member=await register("新队长","13800138912");
+  await login("原队长","old"); await login("新队长","new"); await adminLogin();
+  const team=(await teams())[0].id;
+  await admin({action:"set_captain",teamId:team,playerId:member});
+  expect((await snapshot("new")).notifications.some((n:any)=>n.message.includes("并设为队长"))).toBe(true);
+  expect((await snapshot("old")).notifications.some((n:any)=>n.message.includes("由队长调整为队员"))).toBe(true);
+  const count=(await snapshot("new")).notifications.length;
+  await expect(admin({action:"move_player",teamId:null,playerId:member})).rejects.toThrow("CAPTAIN_CONFLICT");
+  expect((await snapshot("new")).notifications).toHaveLength(count);
+  await admin({action:"delete_player",playerId:old});
+  expect((await snapshot("new")).notifications[0].message).toContain("删除了「原队长」");
+});
+
+it("administrator approvals and team creation deliver private notifications and keep the internal helper inaccessible", async () => {
+  await register("队长","13800138921","captain","原队");
+  const member=await register("球员","13800138922");
+  await login("队长","c"); await login("球员","p"); await adminLogin();
+  const team=(await teams())[0].id;
+  await act("p","apply",team);
+  const application=(await snapshot("p")).applications[0].id;
+  await admin({action:"approve",applicationId:application});
+  expect((await snapshot("p")).notifications[0].message).toContain("管理员将您加入了");
+  expect((await snapshot("c")).notifications).toHaveLength(1);
+  await admin({action:"create_team",playerId:member,name:"新球队"});
+  expect((await snapshot("p")).notifications[0].message).toContain("并设为队长");
+  expect((await snapshot("c")).notifications).toHaveLength(2);
+  const permissions=await db.query<{allowed:boolean}>("select has_function_privilege('service_role','registration_notify_admin_roster(jsonb)','execute') as allowed");
   expect(permissions.rows[0].allowed).toBe(false);
 });

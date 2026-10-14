@@ -138,3 +138,5 @@ Run `npm run prepare:association` from the full repository before deploying with
 Vercel Functions 使用 sin1（新加坡），与现有 Supabase 数据库同区。长期缓存仅用于静态资源，报名及管理员接口继续禁止缓存。
 
 队长编辑球队：执行 `supabase/013_captain_team_name.sql` 后发布前端，支持当前队长修改本人球队名称，校验 1–40 字和名称唯一性。
+
+管理员组队变更通知：先执行 `supabase/014_admin_roster_notifications.sql`，再发布前端。管理员调队、移出、更换队长、建队及删除球队造成的实际成员变化，会在同一事务中通知受影响球员和新旧队长。无变化或失败不通知；历史直接招募通知继续显示，通知仅收件人可见。迁移可重复执行，不补发历史通知。

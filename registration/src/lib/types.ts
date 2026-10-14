@@ -27,7 +27,7 @@ export type Application = {
   status: "pending" | "approved" | "rejected" | "cancelled";
   createdAt: string;
 };
-export type PlayerNotification = { id: string; actorName: string; teamName: string; createdAt: string };
+export type PlayerNotification = { message?: string | null; id: string; actorName: string; teamName: string; createdAt: string };
 export type Snapshot = {
   notifications?: PlayerNotification[];
   viewer: Player;

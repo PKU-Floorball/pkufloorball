@@ -57,6 +57,7 @@ for (const width of [1280, 390]) {
     await editor.getByRole('button', { name: '更换队长', exact: true }).click();
     await expect(card.getByText('13800138002')).toBeVisible();
     expect(actions.at(-1)).toMatchObject({ action: 'set_captain', teamId: 'team', playerId: 'member' });
+    await expect(page.getByText('修改已保存。', {exact:true})).toHaveCount(0);
     await page.screenshot({ path: test.info().outputPath('team-editor.png'), fullPage: true });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });

@@ -1149,7 +1149,7 @@ export default function RegistrationApp({
       )}
       {messagesOpen && snapshot && (
         <Modal
-          label={viewer?.role === "captain" ? "入队申请消息" : "我的消息"}
+          label="我的消息"
           drawer
           onClose={() => {
             if (!busy) setMessagesOpen(false);
@@ -1157,7 +1157,7 @@ export default function RegistrationApp({
         >
           <div className="modal-heading">
             <div>
-              <h2>{viewer?.role === "captain" ? "入队申请" : "我的消息"}</h2>
+              <h2>我的消息</h2>
             </div>
             <button
               className="icon-button"
@@ -1176,8 +1176,8 @@ export default function RegistrationApp({
           )}
           {!!snapshot.notifications?.length && <div className="application-list recruitment-notifications">
             {snapshot.notifications.map(n => <article className="application-card" key={n.id}>
-              <div className="application-person"><div><strong>{n.actorName}将您加入了「{n.teamName}」</strong></div></div>
-              <div className="application-bottom"><time dateTime={n.createdAt}>{new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(n.createdAt))}</time><span className="status approved">直接加入</span></div>
+              <div className="application-person"><div><strong>{n.message || `${n.actorName}将您加入了「${n.teamName}」`}</strong></div></div>
+              <div className="application-bottom"><time dateTime={n.createdAt}>{new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(n.createdAt))}</time><span className="status approved">{n.message ? "管理员调整" : "直接加入"}</span></div>
             </article>)}
           </div>}
           {!snapshot.applications.length ? (

@@ -28,7 +28,7 @@ test('captain inbox shows applicant school and disables expired applications',as
  let status='pending';
  await page.route('**/registration/api/registration',r=>r.fulfill({json:{ok:true,mode:'demo',snapshot:{viewer:captain,teams,freePlayers:[player],applications:[application('a','team-a',status)]}}}));
  await page.goto('/registration/teams');await expect(page.locator('.message-bubble')).toHaveText('1');
- await page.getByRole('button',{name:/查看消息/}).click();const drawer=page.getByRole('dialog',{name:'入队申请消息'});
+ await page.getByRole('button',{name:/查看消息/}).click();const drawer=page.getByRole('dialog',{name:'我的消息'});
  await expect(drawer.locator('.application-person')).toContainText('测试球员');await expect(drawer.locator('.application-person')).toContainText('非二元性别 · 北京大学');
  await expect(drawer.locator('.application-person')).not.toContainText('甲队');
  await expect(drawer.getByRole('button',{name:'批准',exact:true})).toBeVisible();
