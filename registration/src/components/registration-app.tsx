@@ -14,6 +14,7 @@ import {
   EyeOff,
   LogOut,
   Minus,
+  MessageCircle,
   Mars,
   NonBinary,
   Plus,
@@ -116,6 +117,7 @@ export default function RegistrationApp({
   initialView: View;
 }) {
   const [adminOpen, setAdminOpen] = useState(false);
+  const [teamContactOpen, setTeamContactOpen] = useState(false);
   const [view, setView] = useState<View>(initialView),
     [state, setState] = useState<PublicState>(empty),
     [loading, setLoading] = useState(true),
@@ -752,13 +754,13 @@ export default function RegistrationApp({
                   <div className="team-title-row">
                     <h3>{team.name}</h3>
                     {own && <span className="team-summary">
+                        {canDrop && <button className="small-button" aria-label="编辑球队" title="编辑球队" aria-expanded={editingTeamId === team.id} disabled={busy} onClick={() => {setError(""); setEditedTeamName(team.name); setEditingTeamId(editingTeamId === team.id ? null : team.id);}}><Pencil className="mobile-action-icon" size={16} aria-hidden="true" /><span className="mobile-action-label">编辑球队</span></button>}
                         <button className="small-button" aria-label="退出球队" title="退出球队" disabled={busy || (viewer?.role === "captain" && team.players.length < 2)} onClick={() => {
                           setError("");
                           if (viewer?.role === "captain") {
                             setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction("leave_captain");
                           } else setLeaveTeamId(team.id);
                         }}><LogOut className="mobile-action-icon" size={16} aria-hidden="true" /><span className="mobile-action-label">退出球队</span></button>
-                        {canDrop && <button className="small-button" aria-label="编辑球队" title="编辑球队" aria-expanded={editingTeamId === team.id} disabled={busy} onClick={() => {setError(""); setEditedTeamName(team.name); setEditingTeamId(editingTeamId === team.id ? null : team.id);}}><Pencil className="mobile-action-icon" size={16} aria-hidden="true" /><span className="mobile-action-label">编辑球队</span></button>}
                     </span>}
                   </div>
                   {canDrop && editingTeamId === team.id && <div className="team-editor" role="group" aria-label="编辑球队信息">
@@ -843,17 +845,16 @@ export default function RegistrationApp({
             onDragLeave={(e) => {if (!e.currentTarget.contains(e.relatedTarget as Node))setDragOver(null);}}
             onDrop={(e) => {e.preventDefault();setDragOver(null);if (!busy && viewer?.role === "player" && viewer.teamId && e.dataTransfer.getData(playerDragType) === viewer.id) {setError("");setLeaveTeamId(viewer.teamId);}}}>
 
-            <div className="section-heading">
-              <div>
-                <h2>
-                  自由球员<span>{snapshot.freePlayers.length}</span>
-                </h2>
-                <p>
-                  {viewer?.role === "captain"
-                    ? "将自由球员卡片拖入您的球队，或点击球员右上角的“＋”邀请加入。"
-                    : viewer?.teamId ? "拖动自己的名字到这里可退出球队；也可拖到其他球队申请换队。" : "拖动您的卡片到球队申请加入，或拖到“已集结球队”的空白处创建球队。"}
-                </p>
-              </div>
+            <div className="section-heading free-heading">
+              <h2>自由球员<span>{snapshot.freePlayers.length}</span></h2>
+              <button className="small-button team-contact-button" onClick={() => setTeamContactOpen(true)}>
+                <MessageCircle size={16} aria-hidden="true" />联系管理员组队
+              </button>
+              <p>
+                {viewer?.role === "captain"
+                  ? "将自由球员卡片拖入您的球队，或点击球员右上角的“＋”邀请加入。"
+                  : viewer?.teamId ? "拖动自己的名字到这里可退出球队；也可拖到其他球队申请换队。" : "拖动您的卡片到球队申请加入，或拖到“已集结球队”的空白处创建球队。"}
+              </p>
             </div>
             {groupPlayersBySchool(snapshot.freePlayers).map(({ school, players }) => (
               <div className="school-free-group" role="group" aria-label={`${school}自由球员`} key={school}>
@@ -1172,6 +1173,19 @@ export default function RegistrationApp({
               {busy ? "正在移出…" : "确认移出"}
             </button>
           </div>
+        </Modal>
+      )}
+      {teamContactOpen && snapshot && (
+        <Modal label="联系管理员组队" onClose={() => setTeamContactOpen(false)}>
+          <div className="modal-heading">
+            <h2>联系管理员组队</h2>
+            <button className="icon-button" aria-label="关闭联系方式" onClick={() => setTeamContactOpen(false)}><X size={20} /></button>
+          </div>
+          <p className="modal-note">暂时找不到队伍？添加管理员微信，协助您联系组队。</p>
+          <label className="field admin-wechat">管理员微信号
+            <input aria-label="管理员微信号" value="15510749915" readOnly onFocus={e => e.currentTarget.select()} />
+          </label>
+          <p className="modal-note">点击微信号可选中复制，添加好友时请备注“旱地冰球组队”。</p>
         </Modal>
       )}
       {messagesOpen && snapshot && (

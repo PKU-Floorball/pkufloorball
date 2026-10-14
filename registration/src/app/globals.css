@@ -2336,6 +2336,8 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .lobby-actions .identity { font-size: 16px; min-width: 0; overflow-wrap: anywhere; }
 .lobby-actions .identity-role { font-size: 13px; flex-shrink: 0; }
 .lobby-actions > .icon-button { flex-shrink: 0; }
+.lobby-actions { align-items: center; }
+.lobby-actions .messages-button { margin-top: 0; }
 @media(max-width:600px) { .lobby-actions { gap: 10px; } .lobby-actions .messages-button { font-size: 14px; padding: 10px 14px; } }
 .mobile-action-icon { display: none; }
 @media(max-width:600px) {
@@ -2402,3 +2404,13 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .team-editor .field input { min-height: 38px; font-size: 14px; padding: 8px 10px; }
 .tournament-teams .team-editor .small-button { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; min-height: 38px; padding: 8px 12px; }
 .team-editor-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid #ecd7d8; }
+
+.free-section .free-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 12px; }
+.free-heading h2 { margin: 0; }
+.free-heading .team-contact-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; justify-self: end; white-space: nowrap; font-size: 14px; padding: 9px 13px; }
+.free-heading p { grid-column: 1 / -1; margin: 0; }
+.admin-wechat input { font-size: 24px; letter-spacing: .06em; color: var(--red); text-align: center; }
+@media(max-width:600px) {
+  .free-heading .team-contact-button { font-size: 12px; padding: 8px 10px; gap: 5px; min-height: 40px; }
+  .free-heading h2 { gap: 6px; }
+}

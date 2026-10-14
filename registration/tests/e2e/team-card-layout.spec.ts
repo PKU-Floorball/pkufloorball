@@ -17,6 +17,24 @@ for (const role of ['player', 'captain']) for (const width of [1280, 390]) {
     const card = page.getByRole('article', { name: '测试球队', exact: true });
     const freeCard = page.getByRole('article', { name: '自由球员 自由球员甲', exact: true });
     await expect(freeCard).toBeVisible();
+    const identityBox = (await page.locator('.lobby-actions .identity').boundingBox())!;
+    for (const name of ['查看消息', '退出登录']) {
+      const box = (await page.getByRole('button', {name, exact:true}).boundingBox())!;
+      expect(Math.abs(box.y + box.height / 2 - identityBox.y - identityBox.height / 2)).toBeLessThan(2);
+    }
+    const contact = page.getByRole('button', {name:'联系管理员组队', exact:true});
+    const contactBox = (await contact.boundingBox())!;
+    const freeHeadingBox = (await page.locator('.free-heading h2').boundingBox())!;
+    expect(contactBox.x).toBeGreaterThan(freeHeadingBox.x);
+    expect(Math.abs(contactBox.y + contactBox.height / 2 - freeHeadingBox.y - freeHeadingBox.height / 2)).toBeLessThan(2);
+    await contact.click();
+    const contactDialog = page.getByRole('dialog', {name:'联系管理员组队', exact:true});
+    await expect(contactDialog.getByRole('textbox', {name:'管理员微信号'})).toHaveValue('15510749915');
+    await expect(contactDialog).toContainText('暂时找不到队伍');
+    await contactDialog.screenshot({path:test.info().outputPath('admin-contact.png')});
+    await page.keyboard.press('Escape');
+    await expect(contactDialog).toHaveCount(0);
+
     await expect(page.getByRole('group', { name: '北京大学自由球员', exact: true }).getByRole('article')).toHaveCount(1);
     await expect(page.getByRole('group', { name: '其他自由球员', exact: true }).getByRole('article', { name: '自由球员 自由球员乙', exact: true })).toBeVisible();
     const freeBox = (await freeCard.boundingBox())!;
@@ -41,6 +59,9 @@ for (const role of ['player', 'captain']) for (const width of [1280, 390]) {
     await expect(card.locator('.drop-hint, .member-controls')).toHaveCount(0);
     if (role === 'captain') await expect(page.getByRole('region', { name: '自由球员区域' }).getByText('将自由球员卡片拖入您的球队，或点击球员右上角的“＋”邀请加入。')).toBeVisible();
     if (role === 'captain') {
+      const editBox = (await card.getByRole('button', {name:'编辑球队', exact:true}).boundingBox())!;
+      const exitBox = (await card.getByRole('button', {name:'退出球队', exact:true}).boundingBox())!;
+      expect(editBox.x).toBeLessThan(exitBox.x);
       await expect(card.getByRole('button', {name:'解散球队', exact:true})).toHaveCount(0);
       await card.getByRole('button', {name:'编辑球队', exact:true}).click();
       await expect(card.getByRole('textbox', {name:'球队名称', exact:true})).toHaveValue('测试球队');
