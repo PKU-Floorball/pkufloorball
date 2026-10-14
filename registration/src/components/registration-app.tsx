@@ -816,12 +816,6 @@ export default function RegistrationApp({
                       </div>
                     ))}
                   </div>
-                  {canDrop && team.players.length < 2 && (
-                    <div className="captain-controls">
-                      <p className="modal-note">本队暂无其他队员，无法交接或退出；可先招募队员，或解散球队。</p>
-                    </div>
-                  )}
-
                   {dragOver === team.id && acceptsDrop && (
                     <div className="team-drop-feedback" role="status">
                       <Plus size={18} aria-hidden="true" />
