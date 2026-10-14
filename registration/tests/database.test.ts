@@ -100,6 +100,7 @@ beforeEach(async () => {
   await db.exec(readFileSync(new URL("../supabase/009_school_information.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/010_member_exit_and_application_reasons.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/012_recruitment_notifications.sql", import.meta.url), "utf8"));
+  await db.exec(readFileSync(new URL("../supabase/013_captain_team_name.sql", import.meta.url), "utf8"));
 });
 afterEach(async () => {
   await db.close();
@@ -207,6 +208,7 @@ describe("join actions", () => {
   });
   it("recruits only to the captain own team and prevents player or anonymous actions", async () => {
     await db.exec(readFileSync(new URL("../supabase/012_recruitment_notifications.sql", import.meta.url), "utf8"));
+  await db.exec(readFileSync(new URL("../supabase/013_captain_team_name.sql", import.meta.url), "utf8"));
     await register("队长", "13800138000", "captain", "未名队");
     const player = await register("球员", "13800138001");
     await login("队长", "c");
@@ -624,4 +626,28 @@ it("members leave themselves and atomically switch to an application with an opt
   await expect(act("a","leave_team",a)).rejects.toThrow("CAPTAIN_CONFLICT");
   await expect(act("unknown","leave_team",a)).rejects.toThrow("UNAUTHORIZED");
   await act("m","apply",a);expect((await snapshot("m")).applications.find((x:any)=>x.status==="pending").reason).toBe("");
+});
+
+
+it("only the current owning captain can rename a team with a valid unique name", async () => {
+  await register("甲队长", "13800138001", "captain", "甲队");
+  await register("乙队长", "13800138002", "captain", "乙队");
+  await register("队员", "13800138003");
+  await login("甲队长", "captain");
+  await login("乙队长", "other");
+  await login("队员", "member");
+  const team = (await teams()).find(t => t.name === "甲队")!.id;
+  const rename = (token:string, name:string) => db.query("select registration_rename_team($1,$2,$3)",[token,team,name]);
+  await expect(rename("member","非法")).rejects.toThrow("FORBIDDEN");
+  await expect(rename("other","非法")).rejects.toThrow("FORBIDDEN");
+  await expect(rename("captain","乙队")).rejects.toThrow("TEAM_EXISTS");
+  await expect(rename("captain","  ")).rejects.toThrow("INVALID_INPUT");
+  await expect(rename("captain","名".repeat(41))).rejects.toThrow("INVALID_INPUT");
+  await act("member","apply",team);
+  await rename("captain"," 新队名 ");
+  await rename("captain","新队名");
+  expect((await snapshot("member")).applications[0].teamName).toBe("新队名");
+  expect((await teams()).find(t=>t.id===team)!.name).toBe("新队名");
+  const permissions = await db.query<{allowed:boolean}>("select has_function_privilege('anon','registration_rename_team(text,uuid,text)','execute') as allowed");
+  expect(permissions.rows[0].allowed).toBe(false);
 });

@@ -167,6 +167,16 @@ export function createDemoStore(): Store {
       return;
     }
     if (viewer.role !== "captain") throw new AppError("FORBIDDEN", 403);
+    if (input.action === "rename_team") {
+      const team = teams.find(t => t.id === input.teamId && t.captainId === viewer.id);
+      if (!team || viewer.role !== "captain") throw new AppError("FORBIDDEN", 403);
+      const name = input.name?.trim() || "";
+      if (!name || name.length > 40) throw new AppError("INVALID_INPUT");
+      if (teams.some(t => t.id !== team.id && t.name === name)) throw new AppError("TEAM_EXISTS");
+      team.name = name;
+      for (const application of applications) if (application.teamId === team.id) application.teamName = name;
+      return;
+    }
     if (["transfer_captain", "leave_captain", "dissolve_team"].includes(input.action)) {
       const team = teams.find((t) => t.id === input.teamId && t.captainId === viewer.id);
       if (!team) throw new AppError("FORBIDDEN", 403);

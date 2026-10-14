@@ -136,3 +136,5 @@ Run `npm run prepare:association` from the full repository before deploying with
 协会页面的 Bootstrap、Swiper、图标和字体从本站 assets/vendor 加载；原图保留，构建时生成带内容哈希的 WebP 首页图片，并为屏幕外图片添加懒加载和尺寸。图库在图片加载后重新布局。构建不依赖外部资源下载。
 
 Vercel Functions 使用 sin1（新加坡），与现有 Supabase 数据库同区。长期缓存仅用于静态资源，报名及管理员接口继续禁止缓存。
+
+队长编辑球队：执行 `supabase/013_captain_team_name.sql` 后发布前端，支持当前队长修改本人球队名称，校验 1–40 字和名称唯一性。

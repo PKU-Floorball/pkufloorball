@@ -53,7 +53,7 @@ export function parseLogin(raw: Record<string, unknown>) {
 }
 export function parseAction(raw: Record<string, unknown>): Action {
   if (
-    !["apply", "recruit", "approve", "reject", "remove", "transfer_captain", "leave_captain", "dissolve_team", "leave_team", "switch_apply"].includes(
+    !["rename_team", "apply", "recruit", "approve", "reject", "remove", "transfer_captain", "leave_captain", "dissolve_team", "leave_team", "switch_apply"].includes(
       String(raw.action),
     )
   )
@@ -69,7 +69,7 @@ export function parseAction(raw: Record<string, unknown>): Action {
   if (
     (result.action === "apply" ||
       result.action === "recruit" ||
-      ["remove", "transfer_captain", "leave_captain", "dissolve_team", "leave_team", "switch_apply"].includes(result.action)) &&
+      ["rename_team", "remove", "transfer_captain", "leave_captain", "dissolve_team", "leave_team", "switch_apply"].includes(result.action)) &&
     !result.teamId
   )
     throw new AppError("INVALID_INPUT");
@@ -83,6 +83,7 @@ export function parseAction(raw: Record<string, unknown>): Action {
     !result.applicationId
   )
     throw new AppError("INVALID_INPUT");
+  if (result.action === "rename_team") result.name = text(raw.name, 40);
   if (result.action === "switch_apply" && !result.sourceTeamId) throw new AppError("INVALID_INPUT");
   if (result.action === "apply" || result.action === "switch_apply") {
     if (raw.reason !== undefined && (typeof raw.reason !== "string" || raw.reason.trim().length > 500)) throw new AppError("INVALID_INPUT");

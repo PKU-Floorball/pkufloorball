@@ -17,6 +17,7 @@ import {
   Mars,
   NonBinary,
   Plus,
+  Pencil,
   ShieldCheck,
   Trash2,
   UserRound,
@@ -136,6 +137,8 @@ export default function RegistrationApp({
   const [applicationReason, setApplicationReason] = useState("");
   const [leaveTeamId, setLeaveTeamId] = useState<string | null>(null);
   const [captainAction, setCaptainAction] = useState<"transfer_captain" | "leave_captain" | "dissolve_team" | null>(null);
+  const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
+  const [editedTeamName, setEditedTeamName] = useState("");
   const [captainTeamId, setCaptainTeamId] = useState("");
   const [successorId, setSuccessorId] = useState("");
   const snapshot = state.snapshot,
@@ -181,9 +184,11 @@ export default function RegistrationApp({
   useEffect(() => {
     if (captainAction && snapshot && !snapshot.teams.some(t => t.id === captainTeamId && t.captainId === snapshot.viewer.id)) {
       setCaptainAction(null);
+      setEditingTeamId(null);
       setSuccessorId("");
     }
-  }, [snapshot, captainAction, captainTeamId]);
+    if (editingTeamId && snapshot && !snapshot.teams.some(t => t.id === editingTeamId && t.captainId === snapshot.viewer.id)) setEditingTeamId(null);
+  }, [snapshot, captainAction, captainTeamId, editingTeamId]);
   useEffect(() => {
     if (!snapshot) return;
     if (applicationTarget && (snapshot.viewer.role !== "player" || snapshot.viewer.teamId !== applicationTarget.sourceTeamId || !snapshot.teams.some(t => t.id === applicationTarget.teamId))) setApplicationTarget(null);
@@ -370,12 +375,13 @@ export default function RegistrationApp({
       setApplicationTarget(null);
       setApplicationReason("");
       setLeaveTeamId(null);
+      setEditingTeamId(null);
       setCaptainAction(null);
       setSuccessorId("");
       setRecruit(null);
       setRemovePlayer(null);
       setNotice(
-        input.action === "leave_team"
+        input.action === "rename_team" ? "球队名称已更新。" : input.action === "leave_team"
           ? "您已退出球队，成为自由球员。"
           : input.action === "switch_apply"
           ? "您已退出原球队，入队申请已发送，请等待新队长审核。"
@@ -752,14 +758,19 @@ export default function RegistrationApp({
                             setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction("leave_captain");
                           } else setLeaveTeamId(team.id);
                         }}><LogOut className="mobile-action-icon" size={16} aria-hidden="true" /><span className="mobile-action-label">退出球队</span></button>
-                        {canDrop && (["transfer_captain", "dissolve_team"] as const).map((action) => (
-                          <button key={action} className="small-button" aria-label={action === "transfer_captain" ? "转让队长" : "解散球队"} title={action === "transfer_captain" ? "转让队长" : "解散球队"} disabled={busy || (action === "transfer_captain" && team.players.length < 2)} onClick={() => {setError(""); setSuccessorId(""); setCaptainTeamId(team.id); setCaptainAction(action);}}>
-                            {action === "transfer_captain" ? <ArrowRightLeft className="mobile-action-icon" size={16} aria-hidden="true" /> : <Trash2 className="mobile-action-icon" size={16} aria-hidden="true" />}
-                            <span className="mobile-action-label">{{transfer_captain:"转让队长",dissolve_team:"解散球队"}[action]}</span>
-                          </button>
-                        ))}
+                        {canDrop && <button className="small-button" aria-label="编辑球队" title="编辑球队" aria-expanded={editingTeamId === team.id} disabled={busy} onClick={() => {setError(""); setEditedTeamName(team.name); setEditingTeamId(editingTeamId === team.id ? null : team.id);}}><Pencil className="mobile-action-icon" size={16} aria-hidden="true" /><span className="mobile-action-label">编辑球队</span></button>}
                     </span>}
                   </div>
+                  {canDrop && editingTeamId === team.id && <div className="team-editor" role="group" aria-label="编辑球队信息">
+                    <form onSubmit={e => {e.preventDefault(); void act({action:"rename_team", teamId:team.id, name:editedTeamName});}}>
+                      <label className="field">球队名称<input aria-label="球队名称" value={editedTeamName} maxLength={40} required disabled={busy} onChange={e => setEditedTeamName(e.target.value)} /></label>
+                      <button className="small-button" disabled={busy || !editedTeamName.trim() || editedTeamName.trim() === team.name}>{busy ? "正在保存…" : "保存队名"}</button>
+                    </form>
+                    <div className="team-editor-actions">
+                      <button className="small-button" disabled={busy || team.players.length < 2} onClick={() => {setError(""); setSuccessorId(""); setCaptainTeamId(team.id); setEditingTeamId(null); setCaptainAction("transfer_captain");}}><ArrowRightLeft size={15} aria-hidden="true" />转让队长</button>
+                      <button className="small-button" disabled={busy} onClick={() => {setError(""); setCaptainTeamId(team.id); setEditingTeamId(null); setCaptainAction("dissolve_team");}}><Trash2 size={15} aria-hidden="true" />解散球队</button>
+                    </div>
+                  </div>}
                   <div className="roster">
                     {team.players.map((p) => (
                       <div className="roster-player" key={p.id} aria-label={`队员 ${p.name}`}

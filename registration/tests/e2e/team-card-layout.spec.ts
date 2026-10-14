@@ -40,6 +40,16 @@ for (const role of ['player', 'captain']) for (const width of [1280, 390]) {
     }
     await expect(card.locator('.drop-hint, .member-controls')).toHaveCount(0);
     if (role === 'captain') await expect(page.getByRole('region', { name: '自由球员区域' }).getByText('将自由球员卡片拖入您的球队，或点击球员右上角的“＋”邀请加入。')).toBeVisible();
+    if (role === 'captain') {
+      await expect(card.getByRole('button', {name:'解散球队', exact:true})).toHaveCount(0);
+      await card.getByRole('button', {name:'编辑球队', exact:true}).click();
+      await expect(card.getByRole('textbox', {name:'球队名称', exact:true})).toHaveValue('测试球队');
+      await expect(card.getByRole('button', {name:'转让队长', exact:true})).toBeVisible();
+      await expect(card.getByRole('button', {name:'解散球队', exact:true})).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      await card.screenshot({path:test.info().outputPath('team-editor.png')});
+      await card.getByRole('button', {name:'编辑球队', exact:true}).click();
+    }
     await card.screenshot({ path: test.info().outputPath('team-card.png') });
     await page.screenshot({ path: test.info().outputPath('lobby.png'), fullPage: true });
     await page.locator('.free-section').screenshot({ path: test.info().outputPath('free-players.png') });

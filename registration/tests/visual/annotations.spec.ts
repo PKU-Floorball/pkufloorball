@@ -46,6 +46,7 @@ test('team board annotations cover the creation tile, inbox and captain dialog',
  expect(await page.locator('.team-card .player-name').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(16);
  await expect(page.getByRole('button',{name:'点击建队',exact:true})).toBeDisabled();
  expect(await page.locator('.identity').evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(17);
+ await page.getByRole("button",{name:"编辑球队",exact:true}).click();
  await page.getByRole('button',{name:'转让队长',exact:true}).click();
  const transfer=page.getByRole('dialog',{name:'转让队长',exact:true});
  await expect(transfer.locator('.confirm-copy')).toHaveText('请选择接任队长');
