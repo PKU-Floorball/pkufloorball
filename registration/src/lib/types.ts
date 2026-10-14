@@ -31,7 +31,7 @@ export type PlayerNotification = { message?: string | null; id: string; actorNam
 export type Snapshot = {
   readMessages?: Record<string, string>;
   notifications?: PlayerNotification[];
-  viewer: Player;
+  viewer: Player & {phone?: string};
   teams: Team[];
   freePlayers: Player[];
   applications: Application[];
@@ -44,13 +44,14 @@ export type RegisterInput = {
 };
 export type TeamCreation = { name: string; memberIds: string[] };
 export type Action = {
-  action: "read_messages" | "rename_team" | "apply" | "recruit" | "approve" | "reject" | "remove" | "transfer_captain" | "leave_captain" | "dissolve_team" | "leave_team" | "switch_apply";
+  action: "update_profile" | "read_messages" | "rename_team" | "apply" | "recruit" | "approve" | "reject" | "remove" | "transfer_captain" | "leave_captain" | "dissolve_team" | "leave_team" | "switch_apply";
   teamId?: string;
   playerId?: string;
   applicationId?: string;
   sourceTeamId?: string;
   name?: string;
   reason?: string;
+  profile?: RegisterInput;
   receipts?: {id: string; status: string}[];
 };
 export type PublicState = {

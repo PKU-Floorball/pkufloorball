@@ -2421,3 +2421,9 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .modal .admin-team-editor { margin: 0; padding: 0; border: 0; background: transparent; }
 
 .captain-c { display: grid; place-items: center; width: 18px; height: 18px; border: 1.5px solid currentColor; border-radius: 4px; font: 700 12px/1 Arial, sans-serif; }
+
+.lobby-actions .profile-entry { display: inline-flex; align-items: center; gap: 8px; padding: 6px 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.profile-entry > svg { flex-shrink: 0; color: var(--red); }
+.profile-entry:hover { color: var(--red); }
+.profile-entry:focus-visible { outline: 2px solid var(--red); outline-offset: 4px; }
+.profile-form .field { margin-bottom: 16px; }

@@ -68,6 +68,10 @@ export function supabaseStore(): Store {
     snapshot: (hash) =>
       rpc<Snapshot>("registration_snapshot", { p_hash: hash }),
     act: async (hash: string, input: Action) => {
+      if (input.action === "update_profile") {
+        await rpc("registration_update_profile", {p_hash:hash,p_input:input.profile});
+        return;
+      }
       if (input.action === "read_messages") {
         await rpc("registration_read_messages", {p_hash:hash,p_receipts:input.receipts});
         return;

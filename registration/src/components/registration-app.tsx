@@ -64,8 +64,6 @@ async function request(body?: Record<string, unknown>) {
       data.error || "操作失败，请稍后再试。",
       data.code || "SERVICE_UNAVAILABLE",
     );
-  if (body?.action === "login") sessionStorage.setItem("floorball-tab-login", "1");
-  if (body?.action === "logout") sessionStorage.removeItem("floorball-tab-login");
   return data;
 }
 export default function RegistrationApp({
@@ -73,6 +71,7 @@ export default function RegistrationApp({
 }: {
   initialView: View;
 }) {
+  const [profileOpen, setProfileOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [teamContactOpen, setTeamContactOpen] = useState(false);
   const [view, setView] = useState<View>(initialView),
@@ -106,6 +105,7 @@ export default function RegistrationApp({
   useEffect(() => () => { dragPreview.current?.remove(); }, []);
   const canCreateTeam = viewer?.role === "player" && !viewer.teamId;
   useEffect(() => {
+    setProfileOpen(false);
     if (!viewer) { setReadApplications({}); return; }
     try { setReadApplications(JSON.parse(sessionStorage.getItem(`floorball-messages-${viewer.id}`) || "{}")); }
     catch { setReadApplications({}); }
@@ -201,6 +201,7 @@ export default function RegistrationApp({
   }
   useEffect(() => {
     const listener = () => {
+      setAdminOpen(new URLSearchParams(location.search).get("admin") === "1");
       const path = location.pathname.replace(/^\/registration\/?/, "");
       setView(
         ["login", "register", "teams"].includes(path) ? (path as View) : "home",
@@ -238,12 +239,8 @@ export default function RegistrationApp({
   }, []);
   useEffect(() => {
     let active = true;
-    // A newly opened tab never restores an identity from a previous page session.
-    const initialize = async () => {
-      if (!sessionStorage.getItem("floorball-tab-login")) await request({action:"logout"});
-      return request();
-    };
-    initialize()
+    setAdminOpen(new URLSearchParams(location.search).get("admin") === "1");
+    request()
       .then((data: PublicState) => {
         if (active) setState(data);
       })
@@ -262,7 +259,11 @@ export default function RegistrationApp({
       setView("login");
       window.history.replaceState({}, "", "/registration/login");
     }
-  }, [loading, view, viewer]);
+    if (!loading && view === "login" && viewer && !adminOpen) {
+      setView("teams");
+      window.history.replaceState({}, "", "/registration/teams");
+    }
+  }, [loading, view, viewer, adminOpen]);
   useEffect(() => {
     if (!viewer) return;
     let active = true;
@@ -535,7 +536,7 @@ export default function RegistrationApp({
                       <button
                         type="button"
                         className="small-button"
-                        onClick={() => setAdminOpen(true)}
+                        onClick={() => {window.history.pushState({}, "", "/registration/login?admin=1"); setAdminOpen(true);}}
                       >
                         <ShieldCheck size={14} />
                         管理员登录
@@ -594,7 +595,7 @@ export default function RegistrationApp({
             </div>
             <div className="board-actions lobby-actions">
               {viewer && (
-              <span className="identity">
+              <button className="identity profile-entry" aria-label="编辑个人信息" title="编辑个人信息" aria-haspopup="dialog" onClick={() => {setError(""); setProfileOpen(true);}}>
                 <span className="tiny-dot" />
                 {viewer.name}
                 <span className="identity-role">
@@ -604,7 +605,8 @@ export default function RegistrationApp({
                       ? "队员"
                       : "自由球员"}
                 </span>
-              </span>
+                <Pencil size={14} aria-hidden="true" />
+              </button>
               )}
               <button
                 className="button secondary messages-button"
@@ -1141,6 +1143,28 @@ export default function RegistrationApp({
               <button className="small-button" disabled={busy} onClick={() => {setError(""); setCaptainTeamId(editingTeam.id); setEditingTeamId(null); setCaptainAction("dissolve_team");}}><Trash2 size={15} aria-hidden="true" />解散球队</button>
             </div>
           </div>
+        </Modal>
+      )}
+      {profileOpen && viewer && (
+        <Modal label="个人信息" onClose={() => {if (!busy) setProfileOpen(false);}}>
+          <div className="modal-heading"><h2>个人信息</h2><button className="icon-button" aria-label="关闭个人信息" disabled={busy} onClick={() => setProfileOpen(false)}><X size={20}/></button></div>
+          {error && <p className="inline-error" role="alert">{error}</p>}
+          <form className="profile-form" onSubmit={e => {
+            e.preventDefault();
+            const profile = Object.fromEntries(new FormData(e.currentTarget));
+            void run({action:"update_profile",profile},async () => {
+              setProfileOpen(false);
+              setNotice("个人信息已保存，下次请使用更新后的姓名和手机号后四位登录。");
+              await refresh().catch(() => setNotice("个人信息已保存，请刷新页面查看。"));
+            });
+          }}>
+            <label className="field">姓名<input name="name" autoComplete="name" maxLength={30} defaultValue={viewer.name} required disabled={busy}/></label>
+            <label className="field">性别<select aria-label="性别" name="gender" defaultValue={viewer.gender} disabled={busy}>{["男","女","非二元性别","不愿意透露"].map(g=><option key={g}>{g}</option>)}</select></label>
+            <label className="field">学校信息（填写学校全称）<input name="school" maxLength={80} defaultValue={viewer.school} placeholder="例如：北京大学 / 北京大学校友" required disabled={busy}/></label>
+            <label className="field">手机号<input name="phone" type="tel" autoComplete="tel" inputMode="numeric" pattern="1[3-9][0-9]{9}" maxLength={11} defaultValue={viewer.phone || ""} required disabled={busy}/></label>
+            <p className="modal-note">修改姓名或手机号后，下次请使用新姓名和手机号后四位登录。</p>
+            <div className="modal-actions"><button type="button" className="button secondary" disabled={busy} onClick={() => setProfileOpen(false)}>取消</button><button className="button" disabled={busy}>{busy ? "正在保存…" : "保存个人信息"}</button></div>
+          </form>
         </Modal>
       )}
       {teamContactOpen && snapshot && (

@@ -1,0 +1,43 @@
+import {test,expect} from '@playwright/test';
+
+for (const width of [1280,390]) test(`self profile can be edited without losing the team at ${width}px`,async({page,context})=>{
+  const suffix=String(Date.now()).slice(-8);
+  const name='个人信息'+suffix, phone='137'+suffix, updatedName='修改信息'+suffix, updatedPhone='136'+suffix;
+  const post=async(body:Record<string,unknown>)=>{
+    const response=await page.request.post('/registration/api/registration',{data:body,headers:{Origin:'http://127.0.0.1:3101'}});
+    expect(response.ok()).toBe(true);return response.json();
+  };
+  await post({action:'register',name,phone,gender:'男',school:'北京大学'});
+  await post({action:'login',name,phone:phone.slice(-4)});
+  await post({action:'create_team',name:'个人球队'+suffix,memberIds:[]});
+  await page.setViewportSize({width,height:1000});
+  await page.goto('/registration/teams');
+  await page.getByRole('button',{name:'编辑个人信息'}).click();
+  const dialog=page.getByRole('dialog',{name:'个人信息',exact:true});
+  await expect(dialog.getByLabel('手机号',{exact:true})).toHaveValue(phone);
+  await dialog.getByLabel('姓名',{exact:true}).fill(updatedName);
+  await dialog.getByLabel('性别',{exact:true}).selectOption('女');
+  await dialog.getByLabel('学校信息（填写学校全称）',{exact:true}).fill('北京大学校友');
+  await dialog.getByLabel('手机号',{exact:true}).fill(updatedPhone);
+  await dialog.screenshot({path:test.info().outputPath('profile-editor.png')});
+  await dialog.getByRole('button',{name:'保存个人信息'}).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'编辑个人信息'})).toContainText(updatedName);
+  await expect(page.getByRole('article',{name:'个人球队'+suffix,exact:true})).toContainText('北京大学校友');
+  await expect(page.getByRole('article',{name:'个人球队'+suffix,exact:true}).locator('.captain-tag')).toHaveText('C');
+  const snapshot=await (await page.request.get('/registration/api/registration')).json();
+  expect(snapshot.snapshot.viewer.role).toBe('captain');
+  await page.reload();
+  await expect(page.getByRole('button',{name:'编辑个人信息'})).toContainText(updatedName);
+  const newTab=await context.newPage();await newTab.goto('/registration/login');
+  await expect(newTab).toHaveURL(/teams$/);
+  await expect(newTab.getByRole('button',{name:'编辑个人信息'})).toContainText(updatedName);
+  await newTab.close();
+  await page.getByRole('button',{name:'退出登录',exact:true}).click();
+  await page.goto('/registration/login');
+  await page.getByLabel('姓名',{exact:true}).fill(updatedName);
+  await page.getByLabel('安全验证',{exact:true}).fill(updatedPhone.slice(-4));
+  await page.getByRole('button',{name:'进入球队大厅'}).click();
+  await expect(page.getByRole('button',{name:'编辑个人信息'})).toContainText(updatedName);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});

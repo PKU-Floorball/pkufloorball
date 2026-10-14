@@ -8,7 +8,7 @@ import type {
   Snapshot,
   PlayerNotification,
 } from "./types";
-import { AppError } from "./validation";
+import { AppError, parseRegistration } from "./validation";
 type PrivatePlayer = Player & { phone: string };
 export function createDemoStore(): Store {
   const players: PrivatePlayer[] = [],
@@ -124,6 +124,14 @@ export function createDemoStore(): Store {
   }
   function act(hash: string, input: Action) {
     const viewer = actor(hash);
+    if (input.action === "update_profile") {
+      const profile = parseRegistration(input.profile || {});
+      if (players.some(p=>p.id!==viewer.id && p.phone===profile.phone)) throw new AppError("PHONE_EXISTS");
+      if (players.some(p=>p.id!==viewer.id && p.name===profile.name && p.phone.slice(-4)===profile.phone.slice(-4))) throw new AppError("LOGIN_AMBIGUOUS");
+      Object.assign(viewer,profile);
+      for (const a of applications) if (a.playerId===viewer.id) Object.assign(a,{name:viewer.name,gender:viewer.gender,school:viewer.school});
+      return;
+    }
     if (input.action === "read_messages") {
       const read = readMessages[viewer.id] ||= {};
       for (const r of input.receipts || []) {
@@ -300,7 +308,7 @@ export function createDemoStore(): Store {
       const viewer = actor(hash);
       return {
         readMessages: {...readMessages[viewer.id]},
-        viewer: publicPlayer(viewer),
+        viewer: {...publicPlayer(viewer),phone:viewer.phone},
         teams: [...teams]
           .sort(
             (a, b) =>

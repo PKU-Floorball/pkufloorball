@@ -53,12 +53,17 @@ export function parseLogin(raw: Record<string, unknown>) {
 }
 export function parseAction(raw: Record<string, unknown>): Action {
   if (
-    !["read_messages", "rename_team", "apply", "recruit", "approve", "reject", "remove", "transfer_captain", "leave_captain", "dissolve_team", "leave_team", "switch_apply"].includes(
+    !["update_profile", "read_messages", "rename_team", "apply", "recruit", "approve", "reject", "remove", "transfer_captain", "leave_captain", "dissolve_team", "leave_team", "switch_apply"].includes(
       String(raw.action),
     )
   )
     throw new AppError("INVALID_INPUT");
   const result: Action = { action: raw.action as Action["action"] };
+  if (result.action === "update_profile") {
+    if (!raw.profile || typeof raw.profile !== "object" || Array.isArray(raw.profile)) throw new AppError("INVALID_INPUT");
+    result.profile = parseRegistration(raw.profile as Record<string, unknown>);
+    return result;
+  }
   if (result.action === "read_messages") {
     if (!Array.isArray(raw.receipts) || raw.receipts.length > 30 || raw.receipts.some(r => !r || typeof r.id !== "string" || !uuid.test(r.id) || !["received","pending","approved","rejected","cancelled"].includes(r.status))) throw new AppError("INVALID_INPUT");
     result.receipts = raw.receipts.map(r => ({id:r.id,status:r.status}));

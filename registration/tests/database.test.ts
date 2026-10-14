@@ -99,10 +99,12 @@ beforeEach(async () => {
   await db.exec(readFileSync(new URL("../supabase/008_duplicate_registration_and_player_deletion.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/009_school_information.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/010_member_exit_and_application_reasons.sql", import.meta.url), "utf8"));
+  await db.exec(readFileSync(new URL("../supabase/011_gender_options.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/012_recruitment_notifications.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/013_captain_team_name.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/014_admin_roster_notifications.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/015_message_read_receipts.sql", import.meta.url), "utf8"));
+  await db.exec(readFileSync(new URL("../supabase/016_self_profile.sql", import.meta.url), "utf8"));
 });
 afterEach(async () => {
   await db.close();
@@ -213,6 +215,7 @@ describe("join actions", () => {
   await db.exec(readFileSync(new URL("../supabase/013_captain_team_name.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/014_admin_roster_notifications.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/015_message_read_receipts.sql", import.meta.url), "utf8"));
+  await db.exec(readFileSync(new URL("../supabase/016_self_profile.sql", import.meta.url), "utf8"));
     await register("队长", "13800138000", "captain", "未名队");
     const player = await register("球员", "13800138001");
     await login("队长", "c");
@@ -742,4 +745,29 @@ it("message receipts follow the account across sessions and renames while new st
   await expect(mark("invalid",[])).rejects.toThrow("UNAUTHORIZED");
   await db.exec(readFileSync(new URL("../supabase/015_message_read_receipts.sql",import.meta.url),"utf8"));
   expect((await snapshot("p2")).readMessages[notification.id]).toBe("received");
+});
+
+it("self profile changes preserve identity and memberships and expose the phone only to its owner", async () => {
+  const captain=await register("队长","13800138941","captain","本队");
+  const member=await register("球员","13800138942");
+  await login("队长","c"); await login("球员","p");
+  const team=(await teams())[0].id;
+  await act("c","recruit",team,member);
+  const update=(token:string,profile:unknown)=>db.query("select registration_update_profile($1,$2::jsonb)",[token,JSON.stringify(profile)]);
+  const profile={name:"新姓名",gender:"非二元性别",school:"北京大学校友",phone:"13800138943"};
+  await expect(update("invalid",profile)).rejects.toThrow("UNAUTHORIZED");
+  await expect(update("p",{...profile,phone:"13800138941"})).rejects.toThrow("PHONE_EXISTS");
+  await expect(update("p",{...profile,school:""})).rejects.toThrow("INVALID_INPUT");
+  await update("p",{...profile,playerId:captain,role:"captain",teamId:null});
+  const result=await snapshot("p");
+  expect(result.viewer).toMatchObject({...profile,id:member,teamId:team,role:"player"});
+  expect(result.notifications).toHaveLength(1);
+  expect(result.teams[0].players.find((p:any)=>p.id===member).phone).toBeUndefined();
+  expect((await snapshot("c")).viewer.phone).toBe("13800138941");
+  await expect(login("球员","old-login","13800138942")).rejects.toThrow("NOT_FOUND");
+  await login("新姓名","new-login","13800138943");
+  expect((await snapshot("new-login")).viewer.id).toBe(member);
+  await update("c",{name:"新队长",gender:"女",school:"北京大学",phone:"13800138944"});
+  expect((await snapshot("c")).viewer).toMatchObject({id:captain,teamId:team,role:"captain"});
+  expect((await snapshot("p")).teams[0].captainPhone).toBe("13800138944");
 });

@@ -60,5 +60,7 @@ for (const width of [1280, 390]) {
     await expect(page.getByText('修改已保存。', {exact:true})).toHaveCount(0);
     await page.screenshot({ path: test.info().outputPath('team-editor.png'), fullPage: true });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await page.reload();
+    await expect(page.getByRole('button', {name:'球队管理', exact:true})).toBeVisible();
   });
 }

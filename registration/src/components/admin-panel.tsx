@@ -64,6 +64,38 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
       active = false;
     };
   }, []);
+  const authenticated = data !== null;
+  useEffect(() => {
+    if (!authenticated || busy || draggedPlayerId) return;
+    let active = true, pending = false;
+    const editing = () => {
+      const focused = document.activeElement;
+      return !!document.querySelector(".admin-shell dialog[open], .admin-shell details[open]") ||
+        (focused instanceof HTMLElement && focused.matches("input, select, textarea") && !!focused.closest(".admin-shell") && !focused.closest(".admin-search"));
+    };
+    const poll = async () => {
+      if (pending || document.visibilityState !== "visible" || editing()) return;
+      pending = true;
+      try {
+        const updated = await api();
+        if (active && !editing()) setData(updated);
+      } catch (e) {
+        if (active && (e as {status?:number}).status === 401) {
+          setData(null);
+          setError("管理员登录已过期，请重新登录。");
+        }
+      } finally { pending = false; }
+    };
+    const timer = window.setInterval(() => {void poll();}, 15000);
+    window.addEventListener("focus", poll);
+    document.addEventListener("visibilitychange", poll);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", poll);
+      document.removeEventListener("visibilitychange", poll);
+    };
+  }, [authenticated, busy, draggedPlayerId]);
   async function run(body: Record<string, unknown>, logout = false) {
     if (busy) return;
     setBusy(true);
