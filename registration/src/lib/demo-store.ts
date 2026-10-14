@@ -14,6 +14,7 @@ export function createDemoStore(): Store {
   const players: PrivatePlayer[] = [],
     teams: { id: string; name: string; captainId: string }[] = [],
     applications: Application[] = [];
+  const readMessages: Record<string, Record<string,string>> = {};
   const notifications: (PlayerNotification & { playerId: string })[] = [];
   const sessions = new Map<string, { id: string; expires: number }>();
   function seed(
@@ -123,6 +124,15 @@ export function createDemoStore(): Store {
   }
   function act(hash: string, input: Action) {
     const viewer = actor(hash);
+    if (input.action === "read_messages") {
+      const read = readMessages[viewer.id] ||= {};
+      for (const r of input.receipts || []) {
+        if (notifications.some(n=>n.id===r.id && n.playerId===viewer.id && r.status==="received") ||
+          applications.some(a=>a.id===r.id && a.status===r.status && (a.playerId===viewer.id || teams.some(t=>t.id===a.teamId && t.captainId===viewer.id))))
+          read[r.id]=r.status;
+      }
+      return;
+    }
     if (input.action === "leave_team") {
       if (viewer.role === "captain") throw new AppError("CAPTAIN_CONFLICT");
       if (!input.teamId || !viewer.teamId || input.teamId !== viewer.teamId) throw new AppError("PLAYER_NOT_IN_TEAM");
@@ -289,6 +299,7 @@ export function createDemoStore(): Store {
     snapshot: async (hash): Promise<Snapshot> => {
       const viewer = actor(hash);
       return {
+        readMessages: {...readMessages[viewer.id]},
         viewer: publicPlayer(viewer),
         teams: [...teams]
           .sort(

@@ -102,6 +102,7 @@ beforeEach(async () => {
   await db.exec(readFileSync(new URL("../supabase/012_recruitment_notifications.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/013_captain_team_name.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/014_admin_roster_notifications.sql", import.meta.url), "utf8"));
+  await db.exec(readFileSync(new URL("../supabase/015_message_read_receipts.sql", import.meta.url), "utf8"));
 });
 afterEach(async () => {
   await db.close();
@@ -211,6 +212,7 @@ describe("join actions", () => {
     await db.exec(readFileSync(new URL("../supabase/012_recruitment_notifications.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/013_captain_team_name.sql", import.meta.url), "utf8"));
   await db.exec(readFileSync(new URL("../supabase/014_admin_roster_notifications.sql", import.meta.url), "utf8"));
+  await db.exec(readFileSync(new URL("../supabase/015_message_read_receipts.sql", import.meta.url), "utf8"));
     await register("队长", "13800138000", "captain", "未名队");
     const player = await register("球员", "13800138001");
     await login("队长", "c");
@@ -713,4 +715,31 @@ it("administrator approvals and team creation deliver private notifications and 
   expect((await snapshot("c")).notifications).toHaveLength(2);
   const permissions=await db.query<{allowed:boolean}>("select has_function_privilege('service_role','registration_notify_admin_roster(jsonb)','execute') as allowed");
   expect(permissions.rows[0].allowed).toBe(false);
+});
+
+it("message receipts follow the account across sessions and renames while new statuses stay unread", async () => {
+  await register("队长","13800138931","captain","本队");
+  const player=await register("球员","13800138932");
+  await login("队长","c"); await login("球员","p1"); await login("球员","p2");
+  await adminLogin();
+  const team=(await teams())[0].id;
+  await act("p1","apply",team);
+  const application=(await snapshot("p1")).applications[0];
+  const mark = (token:string,receipts:unknown[])=>db.query("select registration_read_messages($1,$2::jsonb)",[token,JSON.stringify(receipts)]);
+  await mark("p1",[{id:application.id,status:"pending"}]);
+  expect((await snapshot("p2")).readMessages[application.id]).toBe("pending");
+  await admin({action:"approve",applicationId:application.id});
+  expect((await snapshot("p2")).applications[0].status).toBe("approved");
+  expect((await snapshot("p2")).readMessages[application.id]).toBe("pending");
+  const notification=(await snapshot("p1")).notifications[0];
+  await mark("p1",[{id:application.id,status:"approved"},{id:notification.id,status:"received"}]);
+  await admin({action:"rename_team",teamId:team,name:"新队名"});
+  expect((await snapshot("p2")).readMessages).toMatchObject({[application.id]:"approved",[notification.id]:"received"});
+  await mark("c",[{id:notification.id,status:"received"}]);
+  expect((await snapshot("c")).readMessages[notification.id]).toBeUndefined();
+  await mark("p1",[{id:application.id,status:"pending"}]);
+  expect((await snapshot("p2")).readMessages[application.id]).toBe("approved");
+  await expect(mark("invalid",[])).rejects.toThrow("UNAUTHORIZED");
+  await db.exec(readFileSync(new URL("../supabase/015_message_read_receipts.sql",import.meta.url),"utf8"));
+  expect((await snapshot("p2")).readMessages[notification.id]).toBe("received");
 });

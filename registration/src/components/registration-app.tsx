@@ -9,7 +9,6 @@ import {
   ChevronLeft,
   CircleDot,
   CircleHelp,
-  Crown,
   Eye,
   EyeOff,
   LogOut,
@@ -111,16 +110,25 @@ export default function RegistrationApp({
     try { setReadApplications(JSON.parse(sessionStorage.getItem(`floorball-messages-${viewer.id}`) || "{}")); }
     catch { setReadApplications({}); }
   }, [viewer?.id]);
+  const markingMessages = useRef(false);
   useEffect(() => {
-    if (!messagesOpen || !snapshot) return;
-    setReadApplications(previous => {
-      const next = {...previous};
-      for (const notification of snapshot.notifications || []) next[notification.id] = "received";
-      for (const application of snapshot.applications) next[application.id] = application.status;
-      sessionStorage.setItem(`floorball-messages-${snapshot.viewer.id}`, JSON.stringify(next));
-      return next;
-    });
-  }, [messagesOpen, snapshot]);
+    if (!snapshot) return;
+    const receipts = [
+      ...(snapshot.notifications || []).map(n => ({id:n.id,status:"received"})),
+      ...snapshot.applications.map(a => ({id:a.id,status:a.status})),
+    ].filter(r => snapshot.readMessages?.[r.id] !== r.status && (messagesOpen || readApplications[r.id] === r.status));
+    if (!receipts.length || markingMessages.current) return;
+    const viewerId = snapshot.viewer.id;
+    const batch = receipts.slice(0,30);
+    markingMessages.current = true;
+    void request({action:"read_messages",receipts:batch}).then(() => {
+      const saved = Object.fromEntries(batch.map(r=>[r.id,r.status]));
+      setState(previous => previous.snapshot?.viewer.id === viewerId
+        ? {...previous,snapshot:{...previous.snapshot,readMessages:{...previous.snapshot.readMessages,...saved}}} : previous);
+    }).catch(() => {
+      if (messagesOpen) setError("已读状态同步失败，请重新打开消息重试。");
+    }).finally(() => {markingMessages.current = false;});
+  }, [messagesOpen, snapshot, readApplications]);
   useEffect(() => {
     if (!notice) return;
     setNoticeFading(false);
@@ -364,8 +372,8 @@ export default function RegistrationApp({
     });
   }
   const unread = (snapshot?.applications.filter(a =>
-    (viewer?.role === "captain" || a.status !== "pending") && readApplications[a.id] !== a.status
-  ).length ?? 0) + (snapshot?.notifications?.filter(n => readApplications[n.id] !== "received").length ?? 0);
+    (viewer?.role === "captain" || a.status !== "pending") && readApplications[a.id] !== a.status && snapshot.readMessages?.[a.id] !== a.status
+  ).length ?? 0) + (snapshot?.notifications?.filter(n => readApplications[n.id] !== "received" && snapshot.readMessages?.[n.id] !== "received").length ?? 0);
   const unavailable = loading || state.mode === "unconfigured";
   if (adminOpen)
     return (
@@ -745,7 +753,7 @@ export default function RegistrationApp({
                         </span>
                         {p.role === "captain" && (
                           <span className="captain-tag" aria-label="队长" title="队长">
-                            <Crown size={14} aria-hidden="true" />
+                            <span className="captain-c" aria-hidden="true">C</span>
                           </span>
                         )}
                         {canDrop && p.role === "player" && (

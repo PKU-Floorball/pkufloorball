@@ -15,6 +15,7 @@ for (const role of ['player', 'captain']) for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto('/registration/teams');
     const card = page.getByRole('article', { name: '测试球队', exact: true });
+    await expect(card.locator('.captain-tag')).toHaveText('C');
     const freeCard = page.getByRole('article', { name: '自由球员 自由球员甲', exact: true });
     await expect(freeCard).toBeVisible();
     const identityBox = (await page.locator('.lobby-actions .identity').boundingBox())!;

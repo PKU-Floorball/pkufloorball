@@ -53,12 +53,17 @@ export function parseLogin(raw: Record<string, unknown>) {
 }
 export function parseAction(raw: Record<string, unknown>): Action {
   if (
-    !["rename_team", "apply", "recruit", "approve", "reject", "remove", "transfer_captain", "leave_captain", "dissolve_team", "leave_team", "switch_apply"].includes(
+    !["read_messages", "rename_team", "apply", "recruit", "approve", "reject", "remove", "transfer_captain", "leave_captain", "dissolve_team", "leave_team", "switch_apply"].includes(
       String(raw.action),
     )
   )
     throw new AppError("INVALID_INPUT");
   const result: Action = { action: raw.action as Action["action"] };
+  if (result.action === "read_messages") {
+    if (!Array.isArray(raw.receipts) || raw.receipts.length > 30 || raw.receipts.some(r => !r || typeof r.id !== "string" || !uuid.test(r.id) || !["received","pending","approved","rejected","cancelled"].includes(r.status))) throw new AppError("INVALID_INPUT");
+    result.receipts = raw.receipts.map(r => ({id:r.id,status:r.status}));
+    return result;
+  }
   for (const key of ["teamId", "playerId", "applicationId", "sourceTeamId"] as const) {
     if (raw[key] !== undefined) {
       if (typeof raw[key] !== "string" || !uuid.test(raw[key]))

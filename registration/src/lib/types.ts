@@ -29,6 +29,7 @@ export type Application = {
 };
 export type PlayerNotification = { message?: string | null; id: string; actorName: string; teamName: string; createdAt: string };
 export type Snapshot = {
+  readMessages?: Record<string, string>;
   notifications?: PlayerNotification[];
   viewer: Player;
   teams: Team[];
@@ -43,13 +44,14 @@ export type RegisterInput = {
 };
 export type TeamCreation = { name: string; memberIds: string[] };
 export type Action = {
-  action: "rename_team" | "apply" | "recruit" | "approve" | "reject" | "remove" | "transfer_captain" | "leave_captain" | "dissolve_team" | "leave_team" | "switch_apply";
+  action: "read_messages" | "rename_team" | "apply" | "recruit" | "approve" | "reject" | "remove" | "transfer_captain" | "leave_captain" | "dissolve_team" | "leave_team" | "switch_apply";
   teamId?: string;
   playerId?: string;
   applicationId?: string;
   sourceTeamId?: string;
   name?: string;
   reason?: string;
+  receipts?: {id: string; status: string}[];
 };
 export type PublicState = {
   mode: "demo" | "cloud" | "unconfigured";
