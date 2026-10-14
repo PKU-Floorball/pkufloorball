@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import {
+  X,
   CircleDot,
   LogOut,
   ShieldCheck,
@@ -12,6 +13,7 @@ import {
   Crown,
   GripVertical,
 } from "lucide-react";
+import Modal from "./modal";
 import AssociationHeader from "./association-header";
 import AssociationFooter from "./association-footer";
 import type { AdminSnapshot, AdminPlayer, AdminTeam } from "@/lib/admin-types";
@@ -75,7 +77,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
         onExit();
         return;
       }
-      setNotice(body.action === "login" ? "管理员登录成功。" : body.action === "delete_player" ? "选手已删除，相关申请和登录会话已清理。" : "修改已保存。");
+      setNotice(body.action === "login" ? "" : body.action === "delete_player" ? "选手已删除，相关申请和登录会话已清理。" : "修改已保存。");
       await refresh().catch(() =>
         setError("操作已保存；名单刷新失败，请点击刷新名单。"),
       );
@@ -308,6 +310,9 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                     <TeamCard
                       key={team.id}
                       team={team}
+                      error={error}
+                      notice={notice}
+                      clearFeedback={() => {setError(""); setNotice("");}}
                       data={data}
                       busy={busy}
                       submit={submit}
@@ -479,8 +484,11 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     </div>
   );
 }
-function TeamCard({ team, data, busy, submit, remove, move, startDrag, endDrag, dropHandlers, dropActive }: {
+function TeamCard({ team, data, busy, error, notice, clearFeedback, submit, remove, move, startDrag, endDrag, dropHandlers, dropActive }: {
   team: AdminTeam;
+  error: string;
+  notice: string;
+  clearFeedback: () => void;
   data: AdminSnapshot;
   busy: boolean;
   submit: (e: React.FormEvent<HTMLFormElement>, body: Record<string, unknown>) => void;
@@ -506,12 +514,10 @@ function TeamCard({ team, data, busy, submit, remove, move, startDrag, endDrag, 
         <button
           className="button secondary admin-team-edit-toggle"
           disabled={busy}
-          aria-expanded={editing}
-          aria-controls={`team-editor-${team.id}`}
-          onClick={() => setEditing(!editing)}
+          aria-haspopup="dialog"
+          onClick={() => {clearFeedback(); setEditing(true);}}
         >
-          {!editing && <Pencil size={14} />}
-          {editing ? "取消编辑" : "编辑"}
+          <Pencil size={14} />编辑
         </button>
       </div>
       <div className="admin-team-contact">
@@ -542,8 +548,11 @@ function TeamCard({ team, data, busy, submit, remove, move, startDrag, endDrag, 
         <p className="admin-roster-hint">可拖入自由球员或其他队员；队长需先更换队长才能调配。</p>
       </div>
       {editing && (
-        <div className="admin-team-editor" id={`team-editor-${team.id}`}>
-          <h3>编辑球队</h3>
+        <Modal label="编辑球队" onClose={() => {if (!busy) setEditing(false);}}>
+          <div className="modal-heading"><h2>编辑球队</h2><button className="icon-button" aria-label="关闭编辑球队" disabled={busy} onClick={() => setEditing(false)}><X size={20}/></button></div>
+          {error && <p role="alert" className="feedback error">{error}</p>}
+          {notice && <p role="status" className="feedback success">{notice}</p>}
+          <div className="admin-team-editor">
           <form className="admin-inline-form" onSubmit={e => submit(e, { action: "rename_team", teamId: team.id })}>
             <label className="field">队伍名称
               <input key={team.name} name="name" defaultValue={team.name} maxLength={40} required disabled={busy} />
@@ -565,6 +574,7 @@ function TeamCard({ team, data, busy, submit, remove, move, startDrag, endDrag, 
             <button className="small-button admin-danger" disabled={busy} onClick={remove}>删除球队</button>
           </div>
         </div>
+        </Modal>
       )}
     </article>
   );

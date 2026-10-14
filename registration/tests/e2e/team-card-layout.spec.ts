@@ -64,12 +64,13 @@ for (const role of ['player', 'captain']) for (const width of [1280, 390]) {
       expect(editBox.x).toBeLessThan(exitBox.x);
       await expect(card.getByRole('button', {name:'解散球队', exact:true})).toHaveCount(0);
       await card.getByRole('button', {name:'编辑球队', exact:true}).click();
-      await expect(card.getByRole('textbox', {name:'球队名称', exact:true})).toHaveValue('测试球队');
-      await expect(card.getByRole('button', {name:'转让队长', exact:true})).toBeVisible();
-      await expect(card.getByRole('button', {name:'解散球队', exact:true})).toBeVisible();
+      const editor = page.getByRole('dialog', {name:'编辑球队', exact:true});
+      await expect(editor.getByRole('textbox', {name:'球队名称', exact:true})).toHaveValue('测试球队');
+      await expect(editor.getByRole('button', {name:'转让队长', exact:true})).toBeVisible();
+      await expect(editor.getByRole('button', {name:'解散球队', exact:true})).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-      await card.screenshot({path:test.info().outputPath('team-editor.png')});
-      await card.getByRole('button', {name:'编辑球队', exact:true}).click();
+      await editor.screenshot({path:test.info().outputPath('team-editor.png')});
+      await editor.getByRole('button', {name:'关闭编辑球队'}).click();
     }
     await card.screenshot({ path: test.info().outputPath('team-card.png') });
     await page.screenshot({ path: test.info().outputPath('lobby.png'), fullPage: true });

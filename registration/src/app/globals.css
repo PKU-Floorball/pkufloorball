@@ -2415,3 +2415,7 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
   .free-heading .team-contact-button { font-size: 12px; padding: 8px 10px; gap: 5px; min-height: 40px; }
   .free-heading h2 { gap: 6px; }
 }
+
+.modal .team-editor { margin: 0; }
+.modal .team-editor .small-button { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; font-size: 14px; padding: 9px 14px; }
+.modal .admin-team-editor { margin: 0; padding: 0; border: 0; background: transparent; }

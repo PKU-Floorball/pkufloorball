@@ -26,6 +26,7 @@ import {
   Venus,
   X,
 } from "lucide-react";
+import Modal from "./modal";
 import AdminPanel from "./admin-panel";
 import AssociationHeader from "./association-header";
 import AssociationFooter from "./association-footer";
@@ -67,49 +68,6 @@ async function request(body?: Record<string, unknown>) {
   if (body?.action === "login") sessionStorage.setItem("floorball-tab-login", "1");
   if (body?.action === "logout") sessionStorage.removeItem("floorball-tab-login");
   return data;
-}
-function Modal({
-  label,
-  children,
-  onClose,
-  drawer = false,
-}: {
-  label: string;
-  children: React.ReactNode;
-  onClose: () => void;
-  drawer?: boolean;
-}) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    ref.current?.showModal();
-    const node = ref.current;
-    return () => node?.close();
-  }, []);
-  return (
-    <dialog
-      ref={ref}
-      className={drawer ? "modal drawer" : "modal"}
-      aria-label={label}
-      onCancel={(event) => {
-        event.preventDefault();
-        onClose();
-      }}
-      onClick={(event) => {
-        if (event.target === event.currentTarget) {
-          const r = event.currentTarget.getBoundingClientRect();
-          if (
-            event.clientX < r.left ||
-            event.clientX > r.right ||
-            event.clientY < r.top ||
-            event.clientY > r.bottom
-          )
-            onClose();
-        }
-      }}
-    >
-      {children}
-    </dialog>
-  );
 }
 export default function RegistrationApp({
   initialView,
@@ -171,6 +129,7 @@ export default function RegistrationApp({
     const remove = window.setTimeout(() => setNotice(""), 8400);
     return () => {window.clearTimeout(fade);window.clearTimeout(remove);};
   }, [notice]);
+  const editingTeam = snapshot?.teams.find(t => t.id === editingTeamId && t.captainId === snapshot.viewer.id);
   function openCreateTeam() {
     if (!canCreateTeam || busy) return;
     setError("");
@@ -754,7 +713,7 @@ export default function RegistrationApp({
                   <div className="team-title-row">
                     <h3>{team.name}</h3>
                     {own && <span className="team-summary">
-                        {canDrop && <button className="small-button" aria-label="编辑球队" title="编辑球队" aria-expanded={editingTeamId === team.id} disabled={busy} onClick={() => {setError(""); setEditedTeamName(team.name); setEditingTeamId(editingTeamId === team.id ? null : team.id);}}><Pencil className="mobile-action-icon" size={16} aria-hidden="true" /><span className="mobile-action-label">编辑球队</span></button>}
+                        {canDrop && <button className="small-button" aria-label="编辑球队" title="编辑球队" aria-haspopup="dialog" disabled={busy} onClick={() => {setError(""); setEditedTeamName(team.name); setEditingTeamId(team.id);}}><Pencil className="mobile-action-icon" size={16} aria-hidden="true" /><span className="mobile-action-label">编辑球队</span></button>}
                         <button className="small-button" aria-label="退出球队" title="退出球队" disabled={busy || (viewer?.role === "captain" && team.players.length < 2)} onClick={() => {
                           setError("");
                           if (viewer?.role === "captain") {
@@ -763,16 +722,6 @@ export default function RegistrationApp({
                         }}><LogOut className="mobile-action-icon" size={16} aria-hidden="true" /><span className="mobile-action-label">退出球队</span></button>
                     </span>}
                   </div>
-                  {canDrop && editingTeamId === team.id && <div className="team-editor" role="group" aria-label="编辑球队信息">
-                    <form onSubmit={e => {e.preventDefault(); void act({action:"rename_team", teamId:team.id, name:editedTeamName});}}>
-                      <label className="field">球队名称<input aria-label="球队名称" value={editedTeamName} maxLength={40} required disabled={busy} onChange={e => setEditedTeamName(e.target.value)} /></label>
-                      <button className="small-button" disabled={busy || !editedTeamName.trim() || editedTeamName.trim() === team.name}>{busy ? "正在保存…" : "保存队名"}</button>
-                    </form>
-                    <div className="team-editor-actions">
-                      <button className="small-button" disabled={busy || team.players.length < 2} onClick={() => {setError(""); setSuccessorId(""); setCaptainTeamId(team.id); setEditingTeamId(null); setCaptainAction("transfer_captain");}}><ArrowRightLeft size={15} aria-hidden="true" />转让队长</button>
-                      <button className="small-button" disabled={busy} onClick={() => {setError(""); setCaptainTeamId(team.id); setEditingTeamId(null); setCaptainAction("dissolve_team");}}><Trash2 size={15} aria-hidden="true" />解散球队</button>
-                    </div>
-                  </div>}
                   <div className="roster">
                     {team.players.map((p) => (
                       <div className="roster-player" key={p.id} aria-label={`队员 ${p.name}`}
@@ -1166,6 +1115,22 @@ export default function RegistrationApp({
             >
               {busy ? "正在移出…" : "确认移出"}
             </button>
+          </div>
+        </Modal>
+      )}
+      {editingTeam && (
+        <Modal label="编辑球队" onClose={() => {if (!busy) setEditingTeamId(null);}}>
+          <div className="modal-heading"><h2>编辑球队</h2><button className="icon-button" aria-label="关闭编辑球队" disabled={busy} onClick={() => setEditingTeamId(null)}><X size={20}/></button></div>
+          {error && <p role="alert" className="feedback error">{error}</p>}
+          <div className="team-editor">
+            <form onSubmit={e => {e.preventDefault(); void act({action:"rename_team", teamId:editingTeam.id, name:editedTeamName});}}>
+              <label className="field">球队名称<input aria-label="球队名称" value={editedTeamName} maxLength={40} required disabled={busy} onChange={e => setEditedTeamName(e.target.value)} /></label>
+              <button className="small-button" disabled={busy || !editedTeamName.trim() || editedTeamName.trim() === editingTeam.name}>{busy ? "正在保存…" : "保存队名"}</button>
+            </form>
+            <div className="team-editor-actions">
+              <button className="small-button" disabled={busy || editingTeam.players.length < 2} onClick={() => {setError(""); setSuccessorId(""); setCaptainTeamId(editingTeam.id); setEditingTeamId(null); setCaptainAction("transfer_captain");}}><ArrowRightLeft size={15} aria-hidden="true" />转让队长</button>
+              <button className="small-button" disabled={busy} onClick={() => {setError(""); setCaptainTeamId(editingTeam.id); setEditingTeamId(null); setCaptainAction("dissolve_team");}}><Trash2 size={15} aria-hidden="true" />解散球队</button>
+            </div>
           </div>
         </Modal>
       )}
