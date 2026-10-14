@@ -29,7 +29,7 @@ for (const role of ['player', 'captain']) for (const width of [1280, 390]) {
     expect(Math.abs(contactBox.y + contactBox.height / 2 - freeHeadingBox.y - freeHeadingBox.height / 2)).toBeLessThan(2);
     await contact.click();
     const contactDialog = page.getByRole('dialog', {name:'联系管理员组队', exact:true});
-    await expect(contactDialog.getByRole('textbox', {name:'管理员微信号'})).toHaveValue('15510749915');
+    await expect(contactDialog.getByRole('textbox', {name:'管理员微信号'})).toHaveValue('_xhhwyh_');
     await expect(contactDialog).toContainText('暂时找不到队伍');
     await contactDialog.screenshot({path:test.info().outputPath('admin-contact.png')});
     await page.keyboard.press('Escape');

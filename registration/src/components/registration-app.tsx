@@ -1183,9 +1183,9 @@ export default function RegistrationApp({
           </div>
           <p className="modal-note">暂时找不到队伍？添加管理员微信，协助您联系组队。</p>
           <label className="field admin-wechat">管理员微信号
-            <input aria-label="管理员微信号" value="15510749915" readOnly onFocus={e => e.currentTarget.select()} />
+            <input aria-label="管理员微信号" value="_xhhwyh_" readOnly onFocus={e => e.currentTarget.select()} />
           </label>
-          <p className="modal-note">点击微信号可选中复制，添加好友时请备注“旱地冰球组队”。</p>
+          <p className="modal-note">点击微信号可选中复制，添加好友时请备注“北京大学软式曲棍球公开赛+姓名+学校/校友”。</p>
         </Modal>
       )}
       {messagesOpen && snapshot && (
