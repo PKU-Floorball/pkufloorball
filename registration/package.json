@@ -13,7 +13,8 @@
     "predev": "npm run prepare:association",
     "prebuild": "npm run prepare:association",
     "deploy": "npm run prepare:association && vercel deploy --prod --yes",
-    "test:visual": "playwright test --config playwright.visual.config.ts"
+    "test:visual": "playwright test --config playwright.visual.config.ts",
+    "test:cache": "playwright test --config playwright.cache.config.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.0",

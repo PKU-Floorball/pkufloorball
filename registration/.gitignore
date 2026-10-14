@@ -18,4 +18,7 @@ public/association-header.css
 visual-test-results/
 
 # Bundled renderer is regenerated from unchanged ball and Three.js sources.
-public/registration-visual/interactive-ball.bundle.js
+public/registration-visual/interactive-ball.*.js
+
+.next-cache/
+cache-test-results/

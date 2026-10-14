@@ -117,9 +117,16 @@ for (const file of ['assets/vendor/bootstrap/bootstrap.min.css', 'assets/css/sty
 }
 await writeFile(path.join(output, 'association-header.css'), scopedCss);
 
-// Package the unchanged ball renderer into one smaller module; avoid chained downloads.
-await build({
+// Content-addressed assets can remain cached until the renderer's bytes change.
+const bundled = await build({
   entryPoints: [path.join(output, 'registration-visual/interactive-ball.js')],
-  outfile: path.join(output, 'registration-visual/interactive-ball.bundle.js'),
-  bundle: true, minify: true, format: 'esm', target: 'es2020', legalComments: 'eof',
+  bundle: true, minify: true, format: 'esm', target: 'es2020', legalComments: 'eof', write: false,
 });
+const code = bundled.outputFiles[0].contents;
+const version = createHash('sha256').update(code).digest('hex').slice(0, 16);
+const filename = `interactive-ball.${version}.js`;
+await writeFile(path.join(output, 'registration-visual', filename), code);
+await writeFile(path.join(app, 'src/components/ball-asset-data.json'), JSON.stringify({ src: `/registration-visual/${filename}` }) + '\n');
+const ballDocument = path.join(output, 'registration-visual/ball.html');
+const html = await readFile(ballDocument, 'utf8');
+await writeFile(ballDocument, html.replace(/interactive-ball\.(?:bundle|[a-f0-9]{16})\.js/g, filename));

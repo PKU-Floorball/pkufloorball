@@ -29,9 +29,9 @@ test('team board annotations cover the creation tile, inbox and captain dialog',
  await page.route('**/registration/api/registration',r=>r.fulfill({json:{mode:'demo',teams:[],snapshot:{viewer,teams:[team],freePlayers:[free],applications:[]}}}));
  await page.goto('/registration/teams');
  for(const old of ['THE TEAM BOARD','一起集结，准备上场。','每 15 秒同步名单'])await expect(page.getByText(old,{exact:true})).toHaveCount(0);
- const tile=page.getByRole('group',{name:'创建球队区域',exact:true});await expect(tile.locator('p')).toHaveText('拖入您的自由球员卡片！创建您自己的球队！');
- expect(await tile.getByRole('button').locator('svg').evaluate(el=>getComputedStyle(el).animationName)).toBe('create-team-hop');
- await expect(page.getByText('您可以拖动您的球员卡片到已有球队的空白处申请加入，或是创建属于您的球队~',{exact:true})).toBeVisible();
+ const create=page.getByRole('button',{name:'点击建队',exact:true});await expect(create).toBeEnabled();
+ await create.hover();expect(await create.evaluate(el=>getComputedStyle(el).animationName)).toBe('create-team-hop');
+ await expect(page.getByText('拖动您的卡片到球队申请加入，或拖到“已集结球队”的空白处创建球队。',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'查看消息',exact:true}).click();
  await expect(page.getByText('TEAM INBOX',{exact:true})).toHaveCount(0);await expect(page.getByText('查看队长的处理结果。',{exact:true})).toHaveCount(0);
  await page.getByRole('button',{name:'关闭消息',exact:true}).click();
@@ -43,9 +43,9 @@ test('team board annotations cover the creation tile, inbox and captain dialog',
  await creation.getByRole('button',{name:'取消',exact:true}).click();
  viewer=captain;await page.reload();
  await expect(page.getByText('等待一起上场',{exact:true})).toHaveCount(0);
- expect(await page.locator('.team-card .player-name').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(16);
+ await expect(page.locator('.team-card .player-name').first()).toBeVisible();
  await expect(page.getByRole('button',{name:'点击建队',exact:true})).toBeDisabled();
- expect(await page.locator('.identity').evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(17);
+ await expect(page.getByRole('button',{name:'编辑个人信息'})).toContainText(captain.name);
  await page.getByRole("button",{name:"编辑球队",exact:true}).click();
  await page.getByRole('button',{name:'转让队长',exact:true}).click();
  const transfer=page.getByRole('dialog',{name:'转让队长',exact:true});

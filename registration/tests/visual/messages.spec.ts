@@ -5,7 +5,11 @@ const application=(id:string,teamId:string,status:string)=>({id,teamId,playerId:
 const teams=[{id:'team-a',name:'甲队',captainId:captain.id,captainPhone:'13800138000',players:[captain]},{id:'team-b',name:'乙队',captainId:'other',captainPhone:'13800138001',players:[]}];
 test('player messages show only team, time and status with unread updates',async({page})=>{
  let applications=[application('a','team-a','pending'),application('b','team-b','pending')];
- await page.route('**/registration/api/registration',r=>r.fulfill({json:{ok:true,mode:'demo',snapshot:{viewer:player,teams,freePlayers:[player],applications}}}));
+ const readMessages:Record<string,string>={};
+ await page.route('**/registration/api/registration',r=>{
+  if(r.request().method()==='POST'){const data=r.request().postDataJSON();if(data.action==='read_messages')for(const receipt of data.receipts)readMessages[receipt.id]=receipt.status;}
+  return r.fulfill({json:{ok:true,mode:'demo',snapshot:{viewer:player,teams,freePlayers:[player],applications,readMessages}}});
+ });
  await page.goto('/registration/teams');await expect(page.locator('.team-card')).toHaveCount(2);
  await expect(page.locator('.message-bubble')).toHaveCount(0);
  await page.getByRole('button',{name:'查看消息',exact:true}).click();
@@ -21,12 +25,17 @@ test('player messages show only team, time and status with unread updates',async
  await page.getByRole('button',{name:/查看消息/}).click();
  await expect(drawer.getByText('已批准',{exact:true})).toBeVisible();await expect(drawer.getByText('已失效',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'关闭消息'}).click();await expect(page.locator('.message-bubble')).toHaveCount(0);
+ await expect.poll(()=>readMessages).toEqual({a:'approved',b:'cancelled'});
  await page.reload();await expect(page.locator('.team-card')).toHaveCount(2);await expect(page.locator('.message-bubble')).toHaveCount(0);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 test('captain inbox shows applicant school and disables expired applications',async({page})=>{
  let status='pending';
- await page.route('**/registration/api/registration',r=>r.fulfill({json:{ok:true,mode:'demo',snapshot:{viewer:captain,teams,freePlayers:[player],applications:[application('a','team-a',status)]}}}));
+ const readMessages:Record<string,string>={};
+ await page.route('**/registration/api/registration',r=>{
+  if(r.request().method()==='POST'){const data=r.request().postDataJSON();if(data.action==='read_messages')for(const receipt of data.receipts)readMessages[receipt.id]=receipt.status;}
+  return r.fulfill({json:{ok:true,mode:'demo',snapshot:{viewer:captain,teams,freePlayers:[player],applications:[application('a','team-a',status)],readMessages}}});
+ });
  await page.goto('/registration/teams');await expect(page.locator('.message-bubble')).toHaveText('1');
  await page.getByRole('button',{name:/查看消息/}).click();const drawer=page.getByRole('dialog',{name:'我的消息'});
  await expect(drawer.locator('.application-person')).toContainText('测试球员');await expect(drawer.locator('.application-person')).toContainText('非二元性别 · 北京大学');

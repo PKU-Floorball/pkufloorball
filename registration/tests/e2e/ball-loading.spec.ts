@@ -10,7 +10,7 @@ test('bundled ball renders identical pixels with one script download', async ({ 
     page.on('request', request => { if (request.resourceType() === 'script') scripts.push(request.url()); });
     if (original) await page.route('**/registration-visual/ball.html', async route => {
       const response = await route.fetch();
-      await route.fulfill({ response, body: (await response.text()).replace('interactive-ball.bundle.js', 'interactive-ball.js') });
+      await route.fulfill({ response, body: (await response.text()).replace(/interactive-ball\.[a-f0-9]{16}\.js/g, 'interactive-ball.js') });
     });
     await page.goto('/registration-visual/ball.html');
     const ball = page.getByRole('button');
@@ -18,8 +18,10 @@ test('bundled ball renders identical pixels with one script download', async ({ 
     await expect(ball).toHaveAttribute('data-rotation', /.+/);
     screenshots.push(await page.screenshot());
     if (!original) {
-      expect(scripts.map(url => new URL(url).pathname)).toEqual(['/registration-visual/interactive-ball.bundle.js']);
-      const bytes = await page.request.get('/registration-visual/interactive-ball.bundle.js');
+      expect(scripts).toHaveLength(1);
+      const asset = new URL(scripts[0]).pathname;
+      expect(asset).toMatch(/^\/registration-visual\/interactive-ball\.[a-f0-9]{16}\.js$/);
+      const bytes = await page.request.get(asset);
       expect((await bytes.body()).length).toBeLessThan(600000);
     }
     await context.close();

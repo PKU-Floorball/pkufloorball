@@ -28,6 +28,7 @@ import {
 import Modal from "./modal";
 import AdminPanel from "./admin-panel";
 import AssociationHeader from "./association-header";
+import ballAsset from "./ball-asset-data.json";
 import AssociationFooter from "./association-footer";
 import { groupPlayersBySchool } from "@/lib/player-schools";
 import type { Action, Player, PublicState } from "@/lib/types";
@@ -422,7 +423,7 @@ export default function RegistrationApp({
       )}
       {view === "home" && (
         <main className="race-home">
-          <link rel="modulepreload" href="/registration-visual/interactive-ball.bundle.js" fetchPriority="high" />
+          <link rel="modulepreload" href={ballAsset.src} fetchPriority="high" />
           <section className="race-court"><div className="race-wrap race-court-inner">
             <h1 className="race-latin race-chinese-title"><span className="pku-word">北京大学</span><span className="floorball-word">软式曲棍球公开赛</span></h1>
             <iframe className="race-ball-frame" src="/registration-visual/ball.html" title="互动三维软式曲棍球：拖动旋转、点击沿轨道滚动" />

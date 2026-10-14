@@ -41,10 +41,20 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
+    [notice, setNotice] = useState(""),
+    [noticeFading, setNoticeFading] = useState(false),
     [tab, setTab] = useState<"teams" | "players" | "messages">("teams"),
     [search, setSearch] = useState(""),
     [draggedPlayerId, setDraggedPlayerId] = useState<string | null>(null),
     [dropTarget, setDropTarget] = useState<string | null>(null);
+  useEffect(() => {
+    if (!notice) return;
+    setNoticeFading(false);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    const fade = window.setTimeout(() => setNoticeFading(true), 7000);
+    const remove = window.setTimeout(() => setNotice(""), 8400);
+    return () => { window.clearTimeout(fade); window.clearTimeout(remove); };
+  }, [notice]);
   async function refresh() {
     setData(await api());
   }
@@ -100,8 +110,10 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
     if (busy) return;
     setBusy(true);
     setError("");
+    setNotice("");
     try {
       await api(body);
+      if (body.action === "delete_player") setNotice("选手已删除，相关申请和登录会话已清理。");
       if (logout) {
         setData(null);
         onExit();
@@ -251,6 +263,7 @@ export default function AdminPanel({ onExit }: { onExit: () => void }) {
                 刷新名单
               </button>
             </div>
+            {notice && <p className={`feedback success admin-feedback ${noticeFading ? "is-fading" : ""}`} role="status">{notice}</p>}
             {error && (
               <p className="inline-error admin-feedback" role="alert">
                 {error}
