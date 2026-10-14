@@ -7,6 +7,7 @@ import { parse } from 'yaml';
 import { createHash } from 'node:crypto';
 import sharp from 'sharp';
 import postcss from 'postcss';
+import { build } from 'esbuild';
 const app = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const repo = path.resolve(app, '..');
 const source = path.join(app, 'association-source');
@@ -115,3 +116,10 @@ for (const file of ['assets/vendor/bootstrap/bootstrap.min.css', 'assets/css/sty
   scopedCss += root.toString();
 }
 await writeFile(path.join(output, 'association-header.css'), scopedCss);
+
+// Package the unchanged ball renderer into one smaller module; avoid chained downloads.
+await build({
+  entryPoints: [path.join(output, 'registration-visual/interactive-ball.js')],
+  outfile: path.join(output, 'registration-visual/interactive-ball.bundle.js'),
+  bundle: true, minify: true, format: 'esm', target: 'es2020', legalComments: 'eof',
+});

@@ -421,6 +421,7 @@ export default function RegistrationApp({
       )}
       {view === "home" && (
         <main className="race-home">
+          <link rel="modulepreload" href="/registration-visual/interactive-ball.bundle.js" fetchPriority="high" />
           <section className="race-court"><div className="race-wrap race-court-inner">
             <h1 className="race-latin race-chinese-title"><span className="pku-word">北京大学</span><span className="floorball-word">软式曲棍球公开赛</span></h1>
             <iframe className="race-ball-frame" src="/registration-visual/ball.html" title="互动三维软式曲棍球：拖动旋转、点击沿轨道滚动" />
