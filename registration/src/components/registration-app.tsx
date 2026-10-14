@@ -661,7 +661,7 @@ export default function RegistrationApp({
             <h2>
               已集结球队<span>{snapshot.teams.length}</span>
             </h2>
-            <button className="button secondary lobby-create-button" disabled={busy || !canCreateTeam} title={canCreateTeam ? "创建球队" : "退出当前球队后可创建新球队"} onClick={openCreateTeam}><Plus size={18} aria-hidden="true" />点击建队</button>
+            <button className="button secondary lobby-create-button create-team-button" disabled={busy || !canCreateTeam} title={canCreateTeam ? "创建球队" : "退出当前球队后可创建新球队"} onClick={openCreateTeam}><Plus size={18} aria-hidden="true" />点击建队</button>
           </div>
           <section className={`teams-grid tournament-teams ${canCreateTeam ? "can-create-team" : ""} ${dragOver === "create-team" ? "create-drop-active" : ""}`} aria-label="球队名单"
             onDragOver={(e) => {
