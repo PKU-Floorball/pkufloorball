@@ -13,10 +13,6 @@ export default function CompetitionBoard() {
   const [stage, setStage] = useState<"group" | "placement">("group");
   const [ranking, setRanking] = useState<"goals" | "assists">("goals");
   return <section className="competition-board" aria-label="比赛赛程与数据">
-    <header className="competition-hero">
-      <div><span className="competition-eyebrow">PKU FLOORBALL · 2026</span><h2>每一场，都全力以赴。</h2><p>北京大学软式曲棍球公开赛</p></div>
-      <div className="competition-hero-mark" aria-hidden="true"><Trophy strokeWidth={1.2} /><span>OPEN TO ALL</span></div>
-    </header>
     <div className="competition-tabs" aria-label="赛程与数据切换">
       <button type="button" aria-pressed={tab === "schedule"} onClick={() => setTab("schedule")}><CalendarDays size={18} />赛程</button>
       <button type="button" aria-pressed={tab === "data"} onClick={() => setTab("data")}><ChartNoAxesColumnIncreasing size={18} />数据</button>

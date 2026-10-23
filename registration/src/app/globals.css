@@ -2438,15 +2438,7 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .event-sidebar button[aria-pressed="true"] { background: var(--red); color: white; box-shadow: 0 5px 16px #94070a18; }
 .event-sidebar button:not([aria-pressed="true"]):hover { background: #f4e8e8; color: var(--red); }
 .competition-board { --competition-border: #e9e3df; font-family: var(--tournament-font); }
-.competition-hero { display: flex; align-items: center; justify-content: space-between; gap: 20px; position: relative; overflow: hidden; padding: 34px 36px; border-radius: 20px; background: linear-gradient(115deg,#74090e,#a71d25); color: white; }
-.competition-hero::after { content: ""; position: absolute; width: 330px; height: 330px; border: 1px solid #ffffff12; border-radius: 50%; right: -65px; top: -80px; box-shadow: 0 0 0 44px #ffffff05,0 0 0 88px #ffffff04; pointer-events: none; }
 .competition-eyebrow { display: block; font-size: 10px; font-weight: 700; letter-spacing: .15em; }
-.competition-hero .competition-eyebrow { color: #f0c3c5; }
-.competition-hero h2 { font-size: clamp(23px,2.5vw,34px); font-weight: 650; margin: 14px 0 10px; letter-spacing: -.025em; }
-.competition-hero p { margin: 0; font-size: 13px; color: #f0c3c5; }
-.competition-hero-mark { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #f2d5b2; position: relative; z-index: 1; }
-.competition-hero-mark svg { width: 58px; height: 58px; }
-.competition-hero-mark span { font-size: 9px; letter-spacing: .2em; white-space: nowrap; }
 .competition-tabs { display: flex; gap: 30px; border-bottom: 1px solid var(--competition-border); margin: 20px 0 24px; }
 .competition-tabs button { display: flex; align-items: center; gap: 9px; border: 0; border-bottom: 3px solid transparent; padding: 15px 6px; background: transparent; color: #78716c; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; }
 .competition-tabs button[aria-pressed="true"] { color: var(--red); border-bottom-color: var(--red); }
@@ -2498,13 +2490,9 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
  .event-sidebar-label { display: none; }
  .event-sidebar button { flex: 1; justify-content: center; }
  .event-board-main .board-heading { margin-bottom: 22px; }
- .competition-hero { padding: 26px 24px; }
 }
 @media(max-width:600px) {
  .competition-rounds { grid-template-columns: minmax(0,1fr); gap: 24px; }
- .competition-hero { border-radius: 14px; padding: 24px 20px; }
- .competition-hero h2 { font-size: 23px; }
- .competition-hero-mark { display: none; }
  .competition-tabs { margin-top: 12px; }
  .competition-stat-panel > header { padding: 20px 16px; }
  .competition-stat-panel h3 { font-size: 16px; }
