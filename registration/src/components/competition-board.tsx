@@ -4,8 +4,8 @@ import { useState } from "react";
 import { CalendarDays, ChartNoAxesColumnIncreasing, Clock3, Goal, Trophy, ArrowUpRight } from "lucide-react";
 
 const firstRound = [
-  { id: "group-r1-1", date: "10.23", time: "18:20", dateTime: "2026-10-23T18:20:00+08:00", home: "未命名(1)", away: "未名队" },
-  { id: "group-r1-2", date: "10.24", time: "19:00", dateTime: "2026-10-24T19:00:00+08:00", home: "五四的血脉", away: "博雅队" },
+  { id: "group-r1-1", date: "10.23", time: "18:20", dateTime: "2026-10-23T18:20:00+08:00", home: "未命名(1)", away: "博雅队" },
+  { id: "group-r1-2", date: "10.24", time: "19:00", dateTime: "2026-10-24T19:00:00+08:00", home: "五四的血脉", away: "未名队" },
 ];
 
 export default function CompetitionBoard() {
