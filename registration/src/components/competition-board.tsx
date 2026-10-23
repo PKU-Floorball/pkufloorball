@@ -46,8 +46,8 @@ export default function CompetitionBoard() {
       </div> : <div className="competition-empty competition-placement"><Trophy size={38} strokeWidth={1.3} /><h3>排位赛赛程待公布</h3><p>对阵与比赛时间将在确认后公布，敬请关注。</p></div>}
     </div> : <div className="competition-data">
       <section className="competition-stat-panel" aria-labelledby="standings-title">
-        <header><div><span className="competition-eyebrow">TEAM STANDINGS</span><h3 id="standings-title"><Trophy size={20} />球队积分榜</h3></div><span className="competition-status">待更新</span></header>
-        <div className="competition-table-scroll"><table><caption className="sr-only">球队积分榜，比赛结果录入后更新</caption><thead><tr>{["排名", "球队", "场次", "胜", "平", "负", "进球", "失球", "净胜球", "积分"].map(label => <th scope="col" key={label}>{label}</th>)}</tr></thead><tbody><tr><td colSpan={10}><div className="competition-empty"><ChartNoAxesColumnIncreasing size={32} strokeWidth={1.4} /><h4>积分榜待更新</h4><p>比赛结果公布后展示球队积分与排名</p></div></td></tr></tbody></table></div>
+        <header><div><span className="competition-eyebrow">TEAM STANDINGS</span><h3 id="standings-title"><Trophy size={20} />球队积分榜</h3></div></header>
+        <div className="competition-table-scroll"><table><caption className="sr-only">球队积分榜，比赛结果录入后更新</caption><thead><tr>{["排名", "球队", "场次", "胜", "平", "负", "进球", "失球", "净胜球", "积分"].map(label => <th scope="col" key={label}>{label}</th>)}</tr></thead><tbody>{firstRound.flatMap(match => [match.home, match.away]).map(team => <tr key={team}><td>—</td><th scope="row">{team}</th>{Array.from({length: 8}, (_, index) => <td key={index}>—</td>)}</tr>)}</tbody></table></div>
       </section>
       <section className="competition-stat-panel" aria-labelledby="player-stats-title">
         <header><div><span className="competition-eyebrow">PLAYER LEADERBOARD</span><h3 id="player-stats-title"><Goal size={20} />球员个人数据统计</h3></div><div className="competition-segment" aria-label="个人数据榜单"><button type="button" aria-pressed={ranking === "goals"} onClick={() => setRanking("goals")}>进球榜</button><button type="button" aria-pressed={ranking === "assists"} onClick={() => setRanking("assists")}>助攻榜</button></div></header>
