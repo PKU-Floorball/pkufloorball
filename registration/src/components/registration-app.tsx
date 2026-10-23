@@ -642,8 +642,8 @@ export default function RegistrationApp({
           <div className="event-board-layout">
             <nav className="event-sidebar" aria-label="赛事板块">
               <span className="event-sidebar-label">公开赛</span>
-              <button type="button" aria-pressed={boardSection === "roster"} onClick={() => setBoardSection("roster")}><UsersRound size={19} /><span>参赛名单</span></button>
-              <button type="button" aria-pressed={boardSection === "competition"} onClick={() => setBoardSection("competition")}><CalendarDays size={19} /><span>比赛赛程</span></button>
+              <button type="button" aria-label="参赛名单" title="参赛名单" aria-pressed={boardSection === "roster"} onClick={() => setBoardSection("roster")}><UsersRound size={21} aria-hidden="true" /></button>
+              <button type="button" aria-label="比赛赛程" title="比赛赛程" aria-pressed={boardSection === "competition"} onClick={() => setBoardSection("competition")}><CalendarDays size={21} aria-hidden="true" /></button>
             </nav>
             <div className="event-board-content">
             {boardSection === "competition" ? <CompetitionBoard /> : <>
