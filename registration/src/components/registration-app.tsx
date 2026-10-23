@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  CalendarDays,
   ArrowRight,
   ArrowRightLeft,
   Bell,
@@ -26,6 +27,7 @@ import {
   X,
 } from "lucide-react";
 import Modal from "./modal";
+import CompetitionBoard from "./competition-board";
 import AdminPanel from "./admin-panel";
 import AssociationHeader from "./association-header";
 import ballAsset from "./ball-asset-data.json";
@@ -72,6 +74,7 @@ export default function RegistrationApp({
 }: {
   initialView: View;
 }) {
+  const [boardSection, setBoardSection] = useState<"roster" | "competition">("roster");
   const [profileOpen, setProfileOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [teamContactOpen, setTeamContactOpen] = useState(false);
@@ -587,11 +590,11 @@ export default function RegistrationApp({
         </main>
       )}
       {view === "teams" && snapshot && (
-        <main className="board-main">
+        <main className="board-main event-board-main">
           <div className="board-heading">
             <div>
               <h1>
-                球队大厅
+                {boardSection === "roster" ? "球队大厅" : "比赛赛程"}
               </h1>
             </div>
             <div className="board-actions lobby-actions">
@@ -636,6 +639,14 @@ export default function RegistrationApp({
 
             </div>
           </div>
+          <div className="event-board-layout">
+            <nav className="event-sidebar" aria-label="赛事板块">
+              <span className="event-sidebar-label">公开赛</span>
+              <button type="button" aria-pressed={boardSection === "roster"} onClick={() => setBoardSection("roster")}><UsersRound size={19} /><span>参赛名单</span></button>
+              <button type="button" aria-pressed={boardSection === "competition"} onClick={() => setBoardSection("competition")}><CalendarDays size={19} /><span>比赛赛程</span></button>
+            </nav>
+            <div className="event-board-content">
+            {boardSection === "competition" ? <CompetitionBoard /> : <>
           <div className="section-heading">
             <h2>
               已集结球队<span>{snapshot.teams.length}</span>
@@ -849,6 +860,9 @@ export default function RegistrationApp({
               <p className="empty-free">选手组队完毕，蓄势待发！</p>
             )}
           </section>
+            </>}
+            </div>
+          </div>
         </main>
       )}
       {loading && view === "teams" && (
