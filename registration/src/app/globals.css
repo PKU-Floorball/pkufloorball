@@ -2458,22 +2458,18 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .competition-rounds { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
 .competition-round { min-width: 0; }
 .competition-round-title { display: flex; align-items: center; gap: 9px; margin-bottom: 16px; padding: 0 2px 14px; border-bottom: 1px solid var(--competition-border); }
-.competition-round-title > span { font-size: 11px; color: var(--red); background: #f3e5e5; border-radius: 6px; padding: 5px 6px; font-weight: 700; }
 .competition-round-title h3 { font-size: 16px; font-weight: 650; margin: 0; }
-.competition-round-title small { margin-left: auto; color: #918881; font-size: 11px; }
-.competition-match { overflow: hidden; background: white; border: 1px solid var(--competition-border); border-radius: 14px; margin-bottom: 14px; box-shadow: 0 4px 14px #3c201704; }
-.competition-match-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px; background: #fbf5f3; border-bottom: 1px solid #f0e7e3; }
-.competition-match-meta time { color: var(--red); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.competition-match-meta > span { font-size: 10px; color: #9b8179; }
-.competition-match-teams { display: grid; grid-template-columns: minmax(0,1fr) 24px minmax(0,1fr); align-items: center; gap: 5px; padding: 24px 10px; }
-.competition-match-teams > div { display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 0; text-align: center; }
-.competition-team-emblem { width: 42px; height: 46px; display: grid; place-items: center; background: #f4e7e7; color: var(--red); border: 1px solid #e9d4d4; border-radius: 12px 12px 17px 17px; font-size: 19px; font-weight: 700; }
+.competition-match { height: 158px; margin-bottom: 20px; }
+.competition-match-teams { overflow: hidden; border: 1px solid var(--competition-border); border-radius: 10px; background: white; }
+.competition-team-row { display: grid; grid-template-columns: 32px minmax(0,1fr) 36px; align-items: center; gap: 12px; height: 58px; padding: 0 16px; background: #fbf5f3; }
+.competition-team-row + .competition-team-row { border-top: 1px solid var(--competition-border); background: #f6f4f1; }
+.competition-team-emblem { width: 30px; height: 32px; display: grid; place-items: center; background: #f4e7e7; color: var(--red); border: 1px solid #e9d4d4; border-radius: 6px; font-size: 15px; font-weight: 700; }
 .competition-team-emblem.away { background: #efede8; border-color: #e4e0d7; color: #796b50; }
-.competition-match-teams strong { font-size: 13px; font-weight: 650; overflow-wrap: anywhere; }
-.competition-vs { color: #b2a49b; font-size: 11px; font-weight: 700; text-align: center; }
-.competition-match footer { display: flex; justify-content: space-between; padding: 10px 14px; border-top: 1px solid #f2eeeb; color: #a39a93; font-size: 10px; letter-spacing: .04em; }
-.competition-round-pending { min-height: 202px; border: 1px dashed #dcd3cc; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px 12px; color: #b6a79a; background: #ffffff40; text-align: center; }
-.competition-round-pending h4 { font-size: 14px; font-weight: 500; color: #84786f; margin: 16px 0 8px; }
+.competition-team-row strong { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.competition-score { color: var(--red); text-align: right; font-size: 23px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.competition-match footer { display: flex; align-items: center; height: 40px; padding: 0 2px; color: #786c64; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.competition-round-pending { height: 158px; border: 1px dashed #dcd3cc; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 12px; color: #b6a79a; background: #ffffff40; text-align: center; }
+.competition-round-pending h4 { font-size: 14px; font-weight: 500; color: #84786f; margin: 12px 0 8px; }
 .competition-round-pending p { font-size: 11px; margin: 0; color: #a2968c; }
 .competition-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 220px; padding: 30px 18px; color: #b3a394; }
 .competition-empty h3,.competition-empty h4 { font-size: 15px; color: #756a60; margin: 16px 0 8px; font-weight: 500; }
@@ -2494,7 +2490,7 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 .competition-player-columns span:last-child { text-align: right; }
 .event-sidebar button:focus-visible,.competition-board button:focus-visible { outline: 3px solid #c98a56; outline-offset: 3px; }
 @media(min-width:1200px) { .event-board-main { max-width: 1600px; margin-inline: auto; padding-inline: 4%; } }
-@media(max-width:1050px) { .event-board-layout { grid-template-columns: 130px minmax(0,1fr); gap: 20px; } .event-sidebar button { padding: 12px 10px; gap: 8px; } .competition-rounds { gap: 10px; } .competition-match-meta { padding: 12px 8px; } }
+@media(max-width:1050px) { .event-board-layout { grid-template-columns: 130px minmax(0,1fr); gap: 20px; } .event-sidebar button { padding: 12px 10px; gap: 8px; } .competition-rounds { gap: 10px; } }
 @media(max-width:800px) {
  .event-board-layout { grid-template-columns: minmax(0,1fr); gap: 22px; }
  .event-sidebar { position: static; flex-direction: row; padding: 0; border-bottom: 1px solid #e9e3df; padding-bottom: 16px; }
@@ -2505,13 +2501,9 @@ body,.site-shell{background:#fff;font-family:var(--tournament-font)}
 }
 @media(max-width:600px) {
  .competition-rounds { grid-template-columns: minmax(0,1fr); gap: 24px; }
- .competition-round-pending { min-height: 150px; }
  .competition-hero { border-radius: 14px; padding: 24px 20px; }
  .competition-hero h2 { font-size: 23px; }
  .competition-hero-mark { display: none; }
- .competition-match-teams { padding: 22px 18px; }
- .competition-match-teams strong { font-size: 15px; }
- .competition-match-meta { padding: 12px 18px; }
  .competition-tabs { margin-top: 12px; }
  .competition-stat-panel > header { padding: 20px 16px; }
  .competition-stat-panel h3 { font-size: 16px; }

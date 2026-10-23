@@ -31,12 +31,17 @@ export default function CompetitionBoard() {
       </div>
       {stage === "group" ? <div className="competition-rounds">
         {["第一轮", "第二轮", "第三轮"].map((round, index) => <section className="competition-round" key={round} aria-label={round}>
-          <header className="competition-round-title"><span>0{index + 1}</span><h3>{round}</h3><small>{index === 0 ? "2 场比赛" : "待公布"}</small></header>
-          {index === 0 ? firstRound.map((match, matchIndex) => <article className="competition-match" key={match.id} aria-label={`${match.home} 对阵 ${match.away}`}>
-            <div className="competition-match-meta"><time dateTime={match.dateTime}>{match.date} {match.time}</time><span>小组赛</span></div>
-            <div className="competition-match-teams"><div><span className="competition-team-emblem" aria-hidden="true">{match.home.slice(0, 1)}</span><strong>{match.home}</strong></div><span className="competition-vs">VS</span><div><span className="competition-team-emblem away" aria-hidden="true">{match.away.slice(0, 1)}</span><strong>{match.away}</strong></div></div>
-            <footer><span>MATCH 0{matchIndex + 1}</span><span>比分待更新</span></footer>
-          </article>) : <div className="competition-round-pending"><CalendarDays size={28} strokeWidth={1.4} /><h4>赛程待公布</h4><p>对阵与比赛时间确认后更新</p></div>}
+          <header className="competition-round-title"><h3>{round}</h3></header>
+          {index === 0 ? firstRound.map(match => <article className="competition-match" key={match.id} aria-label={`${match.home} 对阵 ${match.away}`}>
+            <div className="competition-match-teams">
+              {[match.home, match.away].map((team, teamIndex) => <div className="competition-team-row" key={teamIndex}>
+                <span className={`competition-team-emblem${teamIndex ? " away" : ""}`} aria-hidden="true">{team.slice(0, 1)}</span>
+                <strong>{team}</strong>
+                <span className="competition-score" aria-label={`${team}比分待更新`}>—</span>
+              </div>)}
+            </div>
+            <footer><time dateTime={match.dateTime}>{match.date} {match.time}</time></footer>
+          </article>) : <div className="competition-round-pending"><CalendarDays size={24} strokeWidth={1.4} /><h4>赛程待公布</h4><p>对阵与比赛时间确认后更新</p></div>}
         </section>)}
       </div> : <div className="competition-empty competition-placement"><Trophy size={38} strokeWidth={1.3} /><h3>排位赛赛程待公布</h3><p>对阵与比赛时间将在确认后公布，敬请关注。</p></div>}
     </div> : <div className="competition-data">
